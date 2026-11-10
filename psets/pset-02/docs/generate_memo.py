@@ -25,7 +25,7 @@ from svglib.svglib import svg2rlg
 
 
 ROOT = Path(__file__).resolve().parent
-OUTPUT = ROOT / "PSet2_memo_Buenano_Penafiel_Jonatan.pdf"
+OUTPUT = ROOT / "PSet2_memo_Buenaño_Peñafiel.pdf"
 FONT_DIR = Path("/usr/share/fonts/truetype/dejavu")
 
 pdfmetrics.registerFont(TTFont("MemoSans", str(FONT_DIR / "DejaVuSans.ttf")))

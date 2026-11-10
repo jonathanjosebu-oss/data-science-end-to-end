@@ -150,11 +150,9 @@ No subas `.env` ni compartas la contraseña.
 ## 6. Documento técnico y resumen
 
 El memo de hasta seis páginas, diagramas y limitaciones está en `docs/`. El
-archivo `PSet2_memo_Buenano_Penafiel_Jonatan.pdf` sigue el patrón de nombre
-pedido por la rúbrica usando los apellidos proporcionados para la entrega.
-`README1.md` resume implementación, comandos y resultados validados. Si el
-nombre proporcionado para el PDF no corresponde a los apellidos del estudiante,
-renómbralo antes de enviar.
+archivo `PSet2_memo_Buenaño_Peñafiel.pdf` sigue el patrón de nombre pedido por
+la rúbrica usando los apellidos del estudiante. `README1.md` resume
+implementación, comandos y resultados validados.
 
 Para regenerar el PDF desde el memo editable:
 

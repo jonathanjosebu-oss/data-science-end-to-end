@@ -88,10 +88,10 @@ comparten automáticamente con otra cuenta.
 ## Archivos de entrega
 
 - `README.md`: instrucciones de ejecución.
-- `docs/PSet2_memo_Buenano_Penafiel_Jonatan.pdf`: memo técnico de hasta seis
+- `docs/PSet2_memo_Buenaño_Peñafiel.pdf`: memo técnico de hasta seis
   páginas.
 - `docs/memo_tecnico.md`: fuente editable del memo.
 - `docs/arquitectura.svg` y `docs/modelo_estrella.svg`: diagramas solicitados.
 
-Si el nombre recibido para el PDF no corresponde a los apellidos del
-estudiante, renombrarlo antes de entregar. No se incluye `.env`.
+El PDF está nombrado usando los dos apellidos del estudiante. No se incluye
+`.env`.
