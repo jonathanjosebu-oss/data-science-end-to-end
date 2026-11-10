@@ -2,6 +2,6 @@
 dbt/logs/
 dbt/target/
 dbt/dbt_packages/
-dbt/config/profiles.yml
+dbt/config/
 __pycache__/
 *.pyc
