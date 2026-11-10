@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="570" viewBox="0 0 1200 570" role="img" aria-labelledby="title desc">
+  <title id="title">Arquitectura PSet 2</title>
+  <desc id="desc">Flujo de datos RepoRT, Kestra, Snowflake Raw, dbt Bronze Silver Gold y Spark OBT.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#334155"/>
+    </marker>
+    <style>
+      .box { rx: 14; stroke-width: 2; }
+      .label { font: 700 20px sans-serif; fill: #0f172a; text-anchor: middle; }
+      .sub { font: 15px sans-serif; fill: #334155; text-anchor: middle; }
+      .arrow { stroke: #334155; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .head { font: 700 28px sans-serif; fill: #0f172a; }
+      .foot { font: 15px sans-serif; fill: #475569; }
+    </style>
+  </defs>
+  <rect width="1200" height="570" fill="#f8fafc"/>
+  <text x="55" y="52" class="head">Pipeline ELT por lotes — PSet 2</text>
+
+  <rect x="45" y="150" width="170" height="110" class="box" fill="#dbeafe" stroke="#60a5fa"/>
+  <text x="130" y="190" class="label">RepoRT</text>
+  <text x="130" y="220" class="sub">TSV canónicos +</text>
+  <text x="130" y="241" class="sub">metadatos</text>
+
+  <rect x="270" y="150" width="170" height="110" class="box" fill="#ede9fe" stroke="#a78bfa"/>
+  <text x="355" y="190" class="label">Kestra</text>
+  <text x="355" y="220" class="sub">Schedule, retries,</text>
+  <text x="355" y="241" class="sub">backfill por SHA</text>
+
+  <rect x="500" y="130" width="210" height="150" class="box" fill="#e0f2fe" stroke="#38bdf8"/>
+  <text x="605" y="170" class="label">Snowflake</text>
+  <text x="605" y="203" class="sub">RAW</text>
+  <text x="605" y="230" class="sub">REPORT_INGEST_NAMED_STAGE</text>
+  <text x="605" y="255" class="sub">RAW_REPORT_DATA</text>
+
+  <rect x="770" y="92" width="180" height="88" class="box" fill="#dcfce7" stroke="#4ade80"/>
+  <text x="860" y="128" class="label">dbt Bronze</text>
+  <text x="860" y="153" class="sub">BRONZE schema</text>
+
+  <rect x="770" y="205" width="180" height="88" class="box" fill="#d1fae5" stroke="#34d399"/>
+  <text x="860" y="241" class="label">dbt Silver</text>
+  <text x="860" y="266" class="sub">SILVER schema</text>
+
+  <rect x="770" y="318" width="180" height="100" class="box" fill="#bbf7d0" stroke="#22c55e"/>
+  <text x="860" y="355" class="label">dbt Gold</text>
+  <text x="860" y="381" class="sub">GOLD fact + dims</text>
+  <text x="860" y="402" class="sub">22/22 acciones PASS</text>
+
+  <rect x="1010" y="318" width="160" height="100" class="box" fill="#ffedd5" stroke="#fb923c"/>
+  <text x="1090" y="355" class="label">Spark</text>
+  <text x="1090" y="381" class="sub">join Gold</text>
+  <text x="1090" y="402" class="sub">Snowflake connector</text>
+
+  <rect x="1010" y="450" width="160" height="72" class="box" fill="#fef3c7" stroke="#f59e0b"/>
+  <text x="1090" y="482" class="label">OBT</text>
+  <text x="1090" y="506" class="sub">GOLD.OBT_QSRR_FINAL</text>
+
+  <path d="M215 205 H265" class="arrow"/>
+  <path d="M440 205 H495" class="arrow"/>
+  <path d="M710 180 C735 180 738 136 765 136" class="arrow"/>
+  <path d="M860 180 V200" class="arrow"/>
+  <path d="M860 293 V313" class="arrow"/>
+  <path d="M950 368 H1005" class="arrow"/>
+  <path d="M1090 418 V445" class="arrow"/>
+
+  <text x="50" y="540" class="foot">Ejecución: Docker Compose local (Kestra + Spark); dbt Core en el entorno local. Los datos procesados se almacenan en Snowflake.</text>
+</svg>

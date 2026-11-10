@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="640" viewBox="0 0 1100 640" role="img" aria-labelledby="title desc">
+  <title id="title">Modelo estrella Gold PSet 2</title>
+  <desc id="desc">Tabla de hechos de retención con dimensiones de compuesto y condición.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#334155"/>
+    </marker>
+    <style>
+      .box { rx: 14; stroke-width: 2; }
+      .head { font: 700 28px sans-serif; fill: #0f172a; }
+      .table { font: 700 21px sans-serif; fill: #0f172a; }
+      .field { font: 16px sans-serif; fill: #334155; }
+      .arrow { stroke: #334155; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .foot { font: 16px sans-serif; fill: #475569; }
+    </style>
+  </defs>
+  <rect width="1100" height="640" fill="#f8fafc"/>
+  <text x="50" y="52" class="head">Modelo estrella — Gold (Snowflake)</text>
+
+  <rect x="55" y="145" width="295" height="260" class="box" fill="#dbeafe" stroke="#60a5fa"/>
+  <text x="82" y="184" class="table">DIM_COMPUESTO</text>
+  <text x="82" y="225" class="field">PK compuesto_id</text>
+  <text x="82" y="258" class="field">InChIKey</text>
+  <text x="82" y="291" class="field">nombre_compuesto</text>
+  <text x="82" y="342" class="field">Grano: una fila por InChIKey</text>
+
+  <rect x="405" y="110" width="320" height="340" class="box" fill="#dcfce7" stroke="#22c55e"/>
+  <text x="432" y="150" class="table">FACT_RETENCION</text>
+  <text x="432" y="192" class="field">PK hecho_id</text>
+  <text x="432" y="224" class="field">FK compuesto_id</text>
+  <text x="432" y="256" class="field">FK condicion_id</text>
+  <text x="432" y="300" class="field">tiempo_retencion</text>
+  <text x="432" y="332" class="field">factor_retencion (nulo: no disponible)</text>
+  <text x="432" y="385" class="field">Grano: medición canónica por</text>
+  <text x="432" y="410" class="field">(experiment_id, id) de RepoRT</text>
+
+  <rect x="780" y="145" width="270" height="260" class="box" fill="#ffedd5" stroke="#fb923c"/>
+  <text x="807" y="184" class="table">DIM_CONDICIONES</text>
+  <text x="807" y="225" class="field">PK condicion_id</text>
+  <text x="807" y="258" class="field">tipo_columna</text>
+  <text x="807" y="291" class="field">fase_movil</text>
+  <text x="807" y="324" class="field">flujo_ml_min</text>
+  <text x="807" y="365" class="field">Grano: combinación</text>
+  <text x="807" y="387" class="field">de atributos cromatográficos</text>
+
+  <path d="M350 270 H400" class="arrow"/>
+  <path d="M780 270 H730" class="arrow"/>
+  <text x="55" y="500" class="foot">Las pruebas dbt validan claves no nulas/únicas y relaciones desde la tabla de hechos.</text>
+  <text x="55" y="535" class="foot">La OBT desnormaliza estas dimensiones para consumo de modelado; star schema facilita análisis relacional.</text>
+  <text x="55" y="570" class="foot">Conteos validados: hecho 183,198; dimensión compuesto 97,688; dimensión condición 151.</text>
+</svg>

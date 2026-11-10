@@ -1,0 +1,70 @@
+version: 2
+
+sources:
+  - name: raw_schema
+    schema: RAW
+    tables:
+      - name: RAW_REPORT_DATA
+        description: "Datos crudos importados desde RepoRT mediante Kestra"
+
+models:
+  - name: stg_report_data
+    description: "Capa Bronze: Datos estandarizados y limpios desde Raw"
+    columns:
+      - name: registro_id
+        tests:
+          - not_null
+          - unique
+
+  - name: int_retencion_filtrada
+    description: "Capa Silver: una observación por registro de origen, solo con retención positiva"
+    columns:
+      - name: registro_id
+        tests:
+          - not_null
+          - unique
+      - name: tiempo_retencion
+        tests:
+          - not_null
+
+  - name: fact_retencion_cromatografica
+    description: "Capa Gold; grano: una fila por medición canónica de RepoRT"
+    columns:
+      - name: hecho_id
+        tests:
+          - not_null
+          - unique
+      - name: compuesto_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_compuesto')
+                field: compuesto_id
+      - name: condicion_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_condiciones')
+                field: condicion_id
+
+  - name: dim_compuesto
+    description: "Dimensión de compuestos; una fila por InChIKey"
+    columns:
+      - name: compuesto_id
+        tests:
+          - not_null
+          - unique
+      - name: inchikey
+        tests:
+          - not_null
+          - unique
+
+  - name: dim_condiciones
+    description: "Dimensión de condiciones cromatográficas; una fila por combinación de atributos"
+    columns:
+      - name: condicion_id
+        tests:
+          - not_null
+          - unique

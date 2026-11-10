@@ -1,0 +1,46 @@
+services:
+  kestra:
+    image: kestra/kestra:v2.0.7
+    container_name: kestra_server
+    user: "root"
+    command: server local
+    ports:
+      - "8080:8080"
+    volumes:
+      - kestra_data:/app/storage
+      - kestra_db:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/kestra-wd:/tmp/kestra-wd
+    environment:
+      ENV_SNOWFLAKE_ACCOUNT: ${SNOWFLAKE_ACCOUNT:?Copy .env.example to .env and set Snowflake credentials}
+      ENV_SNOWFLAKE_USER: ${SNOWFLAKE_USER:?Set SNOWFLAKE_USER in .env}
+      ENV_SNOWFLAKE_PASSWORD: ${SNOWFLAKE_PASSWORD:?Set SNOWFLAKE_PASSWORD in .env}
+      ENV_SNOWFLAKE_ROLE: ${SNOWFLAKE_ROLE:?Set SNOWFLAKE_ROLE in .env}
+      ENV_SNOWFLAKE_WAREHOUSE: ${SNOWFLAKE_WAREHOUSE:?Set SNOWFLAKE_WAREHOUSE in .env}
+      ENV_SNOWFLAKE_DATABASE: ${SNOWFLAKE_DATABASE:?Set SNOWFLAKE_DATABASE in .env}
+      ENV_SNOWFLAKE_SCHEMA: ${SNOWFLAKE_SCHEMA:?Set SNOWFLAKE_SCHEMA in .env}
+    restart: unless-stopped
+
+  spark:
+    build:
+      context: ./spark
+      dockerfile: Dockerfile
+    image: pset2-spark:3.5.3
+    container_name: pset2_spark
+    entrypoint: ["/opt/entrypoint.sh"]
+    command: ["/bin/bash", "-lc", "sleep infinity"]
+    working_dir: /opt/pset2
+    env_file:
+      - .env
+    volumes:
+      - ./:/opt/pset2:ro
+      - spark_ivy:/home/spark/.ivy2
+    restart: unless-stopped
+
+volumes:
+  kestra_data:
+    driver: local
+  kestra_db:
+    driver: local
+  spark_ivy:
+    driver: local

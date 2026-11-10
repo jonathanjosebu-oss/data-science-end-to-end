@@ -1,0 +1,185 @@
+id: ingest_report_to_snowflake
+namespace: pset2.pipeline
+
+description: >-
+  Descarga los datos exitosos de retención canónica de RepoRT, los carga a un
+  stage interno y reemplaza el snapshot de RAW_REPORT_DATA en Snowflake.
+
+inputs:
+  - id: source_ref
+    type: STRING
+    defaults: master
+    description: Rama o commit de RepoRT que se ingiere.
+
+tasks:
+  - id: ensure_snowflake_stage
+    type: io.kestra.plugin.jdbc.snowflake.Query
+    url: "jdbc:snowflake://{{ env('snowflake_account') }}.snowflakecomputing.com/?warehouse={{ env('snowflake_warehouse') }}&db={{ env('snowflake_database') }}&schema={{ env('snowflake_schema') }}&role={{ env('snowflake_role') }}"
+    username: "{{ env('snowflake_user') }}"
+    password: "{{ env('snowflake_password') }}"
+    sql: "CREATE STAGE IF NOT EXISTS {{ env('snowflake_database') }}.{{ env('snowflake_schema') }}.REPORT_INGEST_NAMED_STAGE"
+    retry:
+      type: constant
+      maxAttempts: 3
+      interval: PT1M
+
+  - id: ensure_csv_file_format
+    type: io.kestra.plugin.jdbc.snowflake.Query
+    url: "jdbc:snowflake://{{ env('snowflake_account') }}.snowflakecomputing.com/?warehouse={{ env('snowflake_warehouse') }}&db={{ env('snowflake_database') }}&schema={{ env('snowflake_schema') }}&role={{ env('snowflake_role') }}"
+    username: "{{ env('snowflake_user') }}"
+    password: "{{ env('snowflake_password') }}"
+    sql: "CREATE FILE FORMAT IF NOT EXISTS {{ env('snowflake_database') }}.{{ env('snowflake_schema') }}.REPORT_INGEST_CSV TYPE = CSV COMPRESSION = GZIP FIELD_DELIMITER = ',' SKIP_HEADER = 1 FIELD_OPTIONALLY_ENCLOSED_BY = '\"' EMPTY_FIELD_AS_NULL = TRUE"
+    retry:
+      type: constant
+      maxAttempts: 3
+      interval: PT1M
+
+  - id: extract_dataset
+    type: io.kestra.plugin.scripts.python.Commands
+    namespaceFiles:
+      enabled: true
+      include:
+        - ingest_repo_rt.py
+    dependencies:
+      - requests
+    env:
+      SOURCE_REF: "{{ inputs.source_ref }}"
+    commands:
+      - python ingest_repo_rt.py "$SOURCE_REF" report.csv
+    outputFiles:
+      - report.csv
+    retry:
+      type: constant
+      maxAttempts: 3
+      interval: PT2M
+
+  - id: upload_to_snowflake_stage
+    type: io.kestra.plugin.jdbc.snowflake.Upload
+    url: "jdbc:snowflake://{{ env('snowflake_account') }}.snowflakecomputing.com/?warehouse={{ env('snowflake_warehouse') }}&db={{ env('snowflake_database') }}&schema={{ env('snowflake_schema') }}&role={{ env('snowflake_role') }}"
+    username: "{{ env('snowflake_user') }}"
+    password: "{{ env('snowflake_password') }}"
+    from: "{{ outputs.extract_dataset.outputFiles['report.csv'] }}"
+    fileName: report.csv
+    prefix: "{{ execution.id }}"
+    stageName: "@{{ env('snowflake_database') }}.{{ env('snowflake_schema') }}.REPORT_INGEST_NAMED_STAGE"
+    compress: true
+    retry:
+      type: constant
+      maxAttempts: 3
+      interval: PT1M
+
+  - id: create_load_table
+    type: io.kestra.plugin.jdbc.snowflake.Query
+    url: "jdbc:snowflake://{{ env('snowflake_account') }}.snowflakecomputing.com/?warehouse={{ env('snowflake_warehouse') }}&db={{ env('snowflake_database') }}&schema={{ env('snowflake_schema') }}&role={{ env('snowflake_role') }}"
+    username: "{{ env('snowflake_user') }}"
+    password: "{{ env('snowflake_password') }}"
+    sql: |
+      CREATE OR REPLACE TRANSIENT TABLE {{ env('snowflake_database') }}.{{ env('snowflake_schema') }}.REPORT_INGEST_LOAD_{{ execution.id }} (
+        EXPERIMENT_ID VARCHAR,
+        ID VARCHAR,
+        NAME VARCHAR,
+        FORMULA VARCHAR,
+        RT VARCHAR,
+        SMILES_STD VARCHAR,
+        INCHI_STD VARCHAR,
+        INCHIKEY_STD VARCHAR,
+        CLASSYFIRE_KINGDOM VARCHAR,
+        CLASSYFIRE_SUPERCLASS VARCHAR,
+        CLASSYFIRE_CLASS VARCHAR,
+        CLASSYFIRE_SUBCLASS VARCHAR,
+        CLASSYFIRE_LEVEL5 VARCHAR,
+        CLASSYFIRE_LEVEL6 VARCHAR,
+        COMMENT VARCHAR,
+        COLUMN_NAME VARCHAR,
+        COLUMN_USP_CODE VARCHAR,
+        COLUMN_LENGTH VARCHAR,
+        COLUMN_ID VARCHAR,
+        COLUMN_PARTICLE_SIZE VARCHAR,
+        COLUMN_TEMPERATURE VARCHAR,
+        COLUMN_FLOWRATE VARCHAR,
+        COLUMN_T0 VARCHAR,
+        ELUENT_A_H2O VARCHAR,
+        ELUENT_A_MEOH VARCHAR,
+        ELUENT_A_ACN VARCHAR,
+        ELUENT_B_H2O VARCHAR,
+        ELUENT_B_MEOH VARCHAR,
+        ELUENT_B_ACN VARCHAR
+      )
+    retry:
+      type: constant
+      maxAttempts: 3
+      interval: PT1M
+
+  - id: copy_to_load_table
+    type: io.kestra.plugin.jdbc.snowflake.Query
+    url: "jdbc:snowflake://{{ env('snowflake_account') }}.snowflakecomputing.com/?warehouse={{ env('snowflake_warehouse') }}&db={{ env('snowflake_database') }}&schema={{ env('snowflake_schema') }}&role={{ env('snowflake_role') }}"
+    username: "{{ env('snowflake_user') }}"
+    password: "{{ env('snowflake_password') }}"
+    sql: |
+      COPY INTO {{ env('snowflake_database') }}.{{ env('snowflake_schema') }}.REPORT_INGEST_LOAD_{{ execution.id }}
+      FROM @{{ env('snowflake_database') }}.{{ env('snowflake_schema') }}.REPORT_INGEST_NAMED_STAGE/{{ execution.id }}/report.csv.gz
+      FILE_FORMAT = (FORMAT_NAME = '{{ env('snowflake_database') }}.{{ env('snowflake_schema') }}.REPORT_INGEST_CSV')
+      ON_ERROR = ABORT_STATEMENT
+    retry:
+      type: constant
+      maxAttempts: 3
+      interval: PT1M
+
+  - id: replace_raw_snapshot
+    type: io.kestra.plugin.jdbc.snowflake.Query
+    url: "jdbc:snowflake://{{ env('snowflake_account') }}.snowflakecomputing.com/?warehouse={{ env('snowflake_warehouse') }}&db={{ env('snowflake_database') }}&schema={{ env('snowflake_schema') }}&role={{ env('snowflake_role') }}"
+    username: "{{ env('snowflake_user') }}"
+    password: "{{ env('snowflake_password') }}"
+    sql: |
+      CREATE OR REPLACE TABLE {{ env('snowflake_database') }}.{{ env('snowflake_schema') }}.RAW_REPORT_DATA AS
+      SELECT
+        EXPERIMENT_ID,
+        ID,
+        NAME,
+        FORMULA,
+        TRY_TO_DOUBLE(RT) AS RT,
+        SMILES_STD,
+        INCHI_STD,
+        INCHIKEY_STD,
+        CLASSYFIRE_KINGDOM,
+        CLASSYFIRE_SUPERCLASS,
+        CLASSYFIRE_CLASS,
+        CLASSYFIRE_SUBCLASS,
+        CLASSYFIRE_LEVEL5,
+        CLASSYFIRE_LEVEL6,
+        COMMENT,
+        COLUMN_NAME,
+        COLUMN_USP_CODE,
+        TRY_TO_DOUBLE(COLUMN_LENGTH) AS COLUMN_LENGTH,
+        TRY_TO_DOUBLE(COLUMN_ID) AS COLUMN_ID,
+        TRY_TO_DOUBLE(COLUMN_PARTICLE_SIZE) AS COLUMN_PARTICLE_SIZE,
+        TRY_TO_DOUBLE(COLUMN_TEMPERATURE) AS COLUMN_TEMPERATURE,
+        TRY_TO_DOUBLE(COLUMN_FLOWRATE) AS COLUMN_FLOWRATE,
+        TRY_TO_DOUBLE(COLUMN_T0) AS COLUMN_T0,
+        TRY_TO_DOUBLE(ELUENT_A_H2O) AS ELUENT_A_H2O,
+        TRY_TO_DOUBLE(ELUENT_A_MEOH) AS ELUENT_A_MEOH,
+        TRY_TO_DOUBLE(ELUENT_A_ACN) AS ELUENT_A_ACN,
+        TRY_TO_DOUBLE(ELUENT_B_H2O) AS ELUENT_B_H2O,
+        TRY_TO_DOUBLE(ELUENT_B_MEOH) AS ELUENT_B_MEOH,
+        TRY_TO_DOUBLE(ELUENT_B_ACN) AS ELUENT_B_ACN
+      FROM {{ env('snowflake_database') }}.{{ env('snowflake_schema') }}.REPORT_INGEST_LOAD_{{ execution.id }}
+    retry:
+      type: constant
+      maxAttempts: 3
+      interval: PT1M
+
+  - id: drop_load_table
+    type: io.kestra.plugin.jdbc.snowflake.Query
+    url: "jdbc:snowflake://{{ env('snowflake_account') }}.snowflakecomputing.com/?warehouse={{ env('snowflake_warehouse') }}&db={{ env('snowflake_database') }}&schema={{ env('snowflake_schema') }}&role={{ env('snowflake_role') }}"
+    username: "{{ env('snowflake_user') }}"
+    password: "{{ env('snowflake_password') }}"
+    sql: "DROP TABLE IF EXISTS {{ env('snowflake_database') }}.{{ env('snowflake_schema') }}.REPORT_INGEST_LOAD_{{ execution.id }}"
+    retry:
+      type: constant
+      maxAttempts: 3
+      interval: PT1M
+
+triggers:
+  - id: weekly_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 2 * * 1"
