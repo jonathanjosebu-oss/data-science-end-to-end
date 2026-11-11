@@ -151,8 +151,7 @@ No subas `.env` ni compartas la contraseña.
 
 El memo de hasta seis páginas, diagramas y limitaciones está en `docs/`. El
 archivo `PSet2_memo_Buenaño_Peñafiel.pdf` sigue el patrón de nombre pedido por
-la rúbrica usando los apellidos del estudiante. `README1.md` resume
-implementación, comandos y resultados validados.
+la rúbrica usando los apellidos del estudiante.
 
 Para regenerar el PDF desde el memo editable:
 

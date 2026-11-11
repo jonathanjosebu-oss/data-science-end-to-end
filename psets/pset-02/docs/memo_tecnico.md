@@ -8,134 +8,139 @@ cromatográfica.
 
 ## 1. Arquitectura implementada
 
-RepoRT publica archivos TSV de mediciones canónicas exitosas y metadatos de
-experimentos. Kestra descarga los archivos, combina mediciones y condiciones,
-y carga el snapshot a `RAW.RAW_REPORT_DATA` en Snowflake. dbt construye las
-capas `BRONZE`, `SILVER` y `GOLD`; Spark consulta la tabla de hechos y las
-dimensiones Gold para materializar `GOLD.OBT_QSRR_FINAL`.
+Para este proyecto elegí RepoRT como fuente porque publica mediciones
+cromatográficas y sus condiciones experimentales. El flujo empieza en Kestra:
+el extractor reúne los archivos de datos y sus metadatos, y carga una
+instantánea en `RAW.RAW_REPORT_DATA`, en Snowflake. A partir de ahí, dbt prepara
+las capas `BRONZE`, `SILVER` y `GOLD`. Por último, Spark combina la tabla de
+hechos con sus dimensiones y deja el resultado en `GOLD.OBT_QSRR_FINAL`.
 
-Docker Compose define Kestra y Spark. dbt Core se ejecuta en el entorno local
-con un perfil de Snowflake parametrizado mediante variables de entorno. El
-código del pipeline es versionable en el repositorio; los datos y tablas
-procesados residen en Snowflake. El profesor debe ejecutar el pipeline con sus
-propias credenciales, permisos y cuenta, no recibe automáticamente objetos de
-otra cuenta Snowflake.
+Docker Compose permite levantar Kestra y Spark en el entorno local. dbt Core se
+ejecuta desde la terminal y se conecta a Snowflake mediante variables de
+entorno. Así, el código y las instrucciones quedan en el repositorio, mientras
+que los datos procesados y las tablas viven en Snowflake.
 
 ![Arquitectura de la solución](arquitectura.svg)
 
 ## 2. Ingesta con Kestra
 
-La fuente es `michaelwitting/RepoRT`, rama inicial `master`. El extractor enumera
-los archivos `*_rtdata_canonical_success.tsv` de `processed_data/` y descarga
-también el archivo de metadata correspondiente. Se genera un CSV que incluye la
-identidad del experimento, medición, identificadores químicos y características
-de columna/fase móvil.
+La fuente es `michaelwitting/RepoRT`. El flujo toma como referencia inicial la
+rama `master`, localiza los archivos `*_rtdata_canonical_success.tsv` y
+descarga también los metadatos de cada experimento. Luego combina esa
+información en un CSV con las mediciones, los identificadores químicos y las
+características de la columna y la fase móvil.
 
-El flow `pset2.pipeline.ingest_report_to_snowflake` crea si hacen falta el named
-stage y el formato CSV, extrae el conjunto, lo sube comprimido, copia a una
-tabla transitoria por ejecución y reemplaza `RAW_REPORT_DATA` solo después de
-que la carga haya terminado. La carga es un snapshot completo: repetir el flow
-no anexa un duplicado del snapshot anterior. La limpieza transitoria ocurre
-después de reemplazar Raw.
+Antes de cargar datos, Kestra crea el named stage y el formato CSV si todavía no
+existen. Después sube el archivo comprimido, lo copia a una tabla transitoria
+propia de la ejecución y reemplaza `RAW_REPORT_DATA` una vez que la carga
+terminó. Como se trata de una instantánea completa, las ejecuciones posteriores
+reemplazan la anterior en lugar de añadir otra copia. En la ejecución
+documentada, Raw quedó con **183,199 filas**.
 
-El trigger está programado cada lunes a las 02:00 UTC. Los pasos de Kestra
-reintentan hasta tres veces; las solicitudes HTTP de RepoRT tienen reintentos
-adicionales para errores transitorios. `source_ref` admite una rama o un SHA
-para repetir una versión histórica y hacer backfill reproducible. Para una
-repetición exacta se debe guardar el SHA utilizado, porque `master` es mutable.
-En la instantánea ejecutada, Kestra cargó **183,199 filas** en Raw.
+El flujo tiene un trigger semanal para los lunes a las 02:00 UTC. Los pasos de
+Kestra pueden reintentarse hasta tres veces y las solicitudes al origen también
+reintentan ante fallos transitorios. Para volver a procesar una versión
+histórica, `source_ref` acepta una rama o un SHA. Como `master` puede cambiar,
+guardar el SHA utilizado es lo que permite repetir exactamente una extracción.
 
 ## 3. Calidad y limpieza
 
-Las métricas fueron calculadas sobre `RAW_REPORT_DATA` en Snowflake:
+Antes de transformar los datos, revisé completitud, unicidad y plausibilidad
+de los campos disponibles en `RAW_REPORT_DATA`. Estos fueron los resultados y
+las decisiones que tomé:
 
 | Dimensión / regla | Evidencia medida | Tratamiento |
 |---|---:|---|
-| Unicidad de origen `(experiment_id, id)` | 0 filas excedentes | Se conserva la clave como `registro_id`; dbt valida `unique` y `not_null`. |
-| Completitud de RT | 0 RT nulos; 1 RT no positivo | Bronze conserva valores numéricos válidos; Silver excluye el único RT no positivo. |
-| Completitud química | 0 InChIKey nulos | Se conserva InChIKey para construir la dimensión de compuesto. |
-| Nombre del compuesto | 90,640 vacíos de 183,199 (49.5%) | No se imputan nombres no provistos por la fuente. |
-| Nombre de columna | 2,603 vacíos (1.4%) | Se preserva la medición; atributos descriptivos quedan nulos. |
-| Flujo | 12,177 ausentes o no positivos (6.6%) | No se inventan caudales; condiciones se identifican con claves que distinguen valores ausentes. |
-| Precisión analítica | Sin medición externa de referencia | Se usan los registros marcados canónicos exitosos por RepoRT; la exactitud experimental no se afirma como validada independientemente. |
+| Unicidad de origen `(experiment_id, id)` | 0 filas excedentes | Mantengo esta clave como `registro_id` y dbt comprueba que sea única y no nula. |
+| Completitud de RT | 0 RT nulos; 1 RT no positivo | Bronze conserva el valor y Silver excluye el único tiempo no positivo, que no representa una retención válida. |
+| Completitud química | 0 InChIKey nulos | Conservo InChIKey para identificar los compuestos en Gold. |
+| Nombre del compuesto | 90,640 vacíos de 183,199 (49.5%) | No invento nombres que la fuente no entrega; el dato descriptivo puede quedar vacío. |
+| Nombre de columna | 2,603 vacíos (1.4%) | Mantengo la medición y dejo nulos los atributos de columna que faltan. |
+| Flujo | 12,177 ausentes o no positivos (6.6%) | No estimo caudales; las condiciones se identifican sin ocultar los valores ausentes. |
+| Precisión analítica | Sin medición externa de referencia | Uso los registros que RepoRT marca como canónicos exitosos, pero no afirmo que su precisión experimental haya sido verificada de forma independiente. |
 
-Bronze estandariza nombres, deriva la clave de origen y convierte RT a número.
-Silver conserva una fila por `registro_id` y filtra únicamente `tiempo_retencion
-> 0`; no deduplica por compuesto/columna, porque eso eliminaría mediciones
-distintas. Resultado: **183,198 filas Silver**. Los valores ausentes de metadata
-se conservan explícitamente en vez de eliminar observaciones.
+En Bronze normalizo los nombres y los tipos necesarios para el análisis. En
+Silver conservo una fila por `registro_id` y aplico una regla concreta:
+`tiempo_retencion > 0`. No elimino filas solo porque compartan compuesto o
+columna, ya que pueden ser mediciones distintas. Con esta regla, Silver queda
+con **183,198 filas**. Los metadatos ausentes se conservan como ausentes, en vez
+de descartarlos o completarlos con valores inventados.
 
 ## 4. Transformaciones y modelo dimensional
 
-`BRONZE.STG_REPORT_DATA` enlaza Raw mediante `source()`. El modelo
-`SILVER.INT_RETENCION_FILTRADA` utiliza `ref()` a Bronze y aplica la regla
-física de RT positivo. dbt declara la fuente y el grafo de dependencias; los
-modelos se materializan en esquemas Snowflake separados.
+`BRONZE.STG_REPORT_DATA` toma la información de Raw mediante `source()`.
+Después, `SILVER.INT_RETENCION_FILTRADA` usa `ref()` para depender de Bronze y
+aplicar el filtro de retención positiva. Separar las capas de esta manera deja
+claro de dónde viene cada dato y en qué paso se aplica cada regla.
 
-Gold implementa un star schema. El grano de
-`GOLD.FACT_RETENCION_CROMATOGRAFICA` es una medición canónica de RepoRT por
-`(experiment_id, id)`. Sus medidas son tiempo de retención y factor de
-retención; RepoRT no publica un factor de retención, por lo que queda nulo y no
-se fabrica. `DIM_COMPUESTO` tiene una fila por InChIKey. `DIM_CONDICIONES` tiene
-una fila por combinación de tipo de columna, fase móvil y flujo; los atributos
-ausentes forman una condición identificable y no generan claves nulas.
+En Gold construí un esquema estrella. El grano de
+`GOLD.FACT_RETENCION_CROMATOGRAFICA` es una medición canónica por
+`(experiment_id, id)`. La tabla conserva el tiempo de retención y el factor de
+retención; RepoRT no publica este último, así que lo dejo nulo en vez de
+calcularlo sin evidencia. `DIM_COMPUESTO` contiene una fila por InChIKey y
+`DIM_CONDICIONES` una fila por combinación de tipo de columna, fase móvil y
+flujo. Cuando falta un atributo descriptivo, la condición sigue teniendo una
+clave identificable.
 
-Las pruebas dbt validan claves `not_null` y `unique`, así como las relaciones de
-la tabla de hechos con las dos dimensiones (`relationships`). La ejecución
-validada pasó **22/22 acciones**. Conteos: hecho **183,198**, dimensión de
-compuesto **97,688**, dimensión de condiciones **151**.
+También añadí pruebas dbt para comprobar que las claves sean `not_null` y
+`unique`, y que cada hecho tenga una fila correspondiente en sus dimensiones
+(`relationships`). La ejecución pasó **22 de 22 acciones**. Gold produjo
+**183,198 hechos**, **97,688 compuestos** y **151 condiciones**.
 
 ![Modelo dimensional Gold](modelo_estrella.svg)
 
 ## 5. Spark y One Big Table
 
-Spark 3.5 lee Gold mediante el conector Snowflake, ejecuta la integración con
-las dimensiones y escribe `GOLD.OBT_QSRR_FINAL`. El grano es una fila por
-`HECHO_ID`, equivalente a una medición canónica de Silver. Se usa una
-representación determinista de cada dimensión y joins que mantienen todos los
-hechos, aun cuando falten atributos descriptivos. Las pruebas de relaciones
-dbt aseguran que las claves sí estén presentes en las dimensiones.
+Una vez disponibles las tablas Gold, Spark 3.5 lee la tabla de hechos y las dos
+dimensiones con el conector de Snowflake, integra sus atributos y escribe el
+resultado en `GOLD.OBT_QSRR_FINAL`. El grano se mantiene en una fila por
+`HECHO_ID`, es decir, una medición canónica.
 
-Validación Snowflake posterior: OBT **183,198 filas**, **183,198 `HECHO_ID`
-distintos**, cero IDs nulos. Los 2,603 casos sin metadata de columna permanecen
-en la OBT con atributos de condición nulos; no se convierten en hechos
-duplicados ni se descartan.
+Para evitar que los joins multipliquen observaciones, el job usa una fila
+determinista por clave de dimensión y conserva los hechos aunque falten
+atributos descriptivos. Después comparé la OBT con Gold en Snowflake: ambas
+tienen **183,198 filas**, la OBT tiene **183,198 `HECHO_ID` distintos** y no
+presenta IDs nulos. Los 2,603 casos sin metadatos de columna siguen presentes;
+sus atributos descriptivos quedan nulos, pero las observaciones no se pierden
+ni se duplican.
 
-Usaría el star schema para análisis SQL, agregaciones y exploración modular de
-medidas y dimensiones. Usaría la OBT como una tabla conveniente para preparar
-features y alimentar un futuro flujo de ciencia de datos, aceptando el costo de
-redundancia y manteniendo el control de su grano.
+En este proyecto usaría el star schema para consultas analíticas y para
+explorar por separado medidas y dimensiones. La OBT me resulta más práctica para
+preparar variables de entrada y alimentar un futuro flujo de ciencia de datos,
+siempre que se mantenga claro su grano y se compruebe que los joins no alteren
+el número de observaciones.
 
 ## 6. Batch frente a streaming
 
-El proceso es batch porque la fuente es un repositorio público versionado, no
-un flujo de eventos con requisito de reacción inmediata. La actualización
-semanal y el tiempo de latencia de horas son suficientes para el uso actual de
-preparación de datasets experimentales. El batch permite rehacer un snapshot
-histórico con el SHA fuente y controlar costo y reproducibilidad.
+Implementé el pipeline por lotes porque RepoRT es un repositorio público que se
+actualiza, no una fuente que emite eventos continuamente. Para preparar datos
+experimentales, una actualización semanal y una latencia de horas son
+suficientes. El enfoque por lotes también permite reconstruir una instantánea
+con un SHA de origen y controlar mejor la reproducibilidad y el costo.
 
-Consideraría streaming solo si el caso de uso recibiera mediciones
-cromatográficas nuevas continuamente y el negocio necesitara alertas o
-predicciones en segundos/minutos. Eso requeriría una fuente de eventos, captura
-incremental, checkpoints, procesamiento idempotente, gestión de eventos tardíos
-y SLAs de baja latencia. No se implementa streaming en este PSet.
+Consideraría streaming si el caso de uso empezara a recibir mediciones de forma
+continua y necesitara alertas o predicciones en segundos o minutos. En ese
+escenario habría que incorporar una fuente de eventos, carga incremental,
+checkpoints, procesamiento idempotente y manejo de eventos tardíos. No
+implementé streaming porque esos requisitos no existen en el caso actual.
 
 ## 7. Limitaciones y reproducibilidad
 
-- RepoRT es mutable; guardar y entregar el SHA de `source_ref` es necesario para
-  reproducir exactamente una extracción.
-- Los datos tienen faltantes importantes en nombres y metadata de columna.
-  No se imputan porque la fuente no aporta valores de reemplazo.
-- La precisión experimental no se contrastó con una referencia externa.
-- El factor de retención no está publicado por esta fuente y permanece nulo.
-- Kestra usa una configuración local/H2; el flow y su archivo Python deben
-  importarse en el namespace del entorno de ejecución.
-- dbt requiere que el rol Snowflake pueda crear esquemas y tablas; Spark requiere
-  acceso de red a Maven Central la primera vez.
-- Las tablas son propiedad de la cuenta Snowflake configurada al ejecutar.
-  Para que un profesor reproduzca el trabajo en su cuenta debe proporcionar sus
-  propias credenciales y permisos; no se deben entregar secretos.
+- RepoRT puede cambiar con el tiempo. Para repetir exactamente una carga hay
+  que guardar el SHA utilizado en `source_ref`.
+- Faltan nombres y metadatos de columna en una parte importante de los datos.
+  Los mantengo ausentes porque la fuente no ofrece valores fiables para
+  completarlos.
+- No comparé la precisión experimental con mediciones externas de referencia.
+- RepoRT no publica el factor de retención requerido por el modelo; por eso
+  queda nulo y no se deriva artificialmente.
+- Kestra usa almacenamiento local/H2. En un entorno nuevo hay que importar el
+  flujo y su archivo Python al namespace antes de ejecutarlos.
+- dbt necesita permisos para crear esquemas y tablas en Snowflake. La primera
+  ejecución de Spark también requiere acceso a Maven Central para descargar el
+  conector.
+- Las tablas quedan en la cuenta Snowflake configurada al ejecutar el pipeline.
 
-El repositorio incluye instrucciones en `README.md`, resumen en `README1.md`,
-diagramas SVG y este memo. El perfil de dbt y `.env` con credenciales están
-excluidos de Git.
+El repositorio incluye las instrucciones de ejecución, los diagramas y este
+memo. El perfil local de dbt y el archivo `.env` se excluyen del control de
+versiones.

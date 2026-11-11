@@ -3,5 +3,6 @@ dbt/logs/
 dbt/target/
 dbt/dbt_packages/
 dbt/config/
+README1.md
 __pycache__/
 *.pyc
