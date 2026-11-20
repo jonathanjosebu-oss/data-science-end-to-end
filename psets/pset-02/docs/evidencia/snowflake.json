@@ -1,7 +1,7 @@
 {
-  "consultado_utc": "2026-11-19 01:01",
+  "consultado_utc": "2026-11-20 03:05",
   "tablas": {
-    "sql": "SELECT TABLE_SCHEMA, TABLE_NAME, ROW_COUNT,\n       TO_CHAR(CONVERT_TIMEZONE('UTC', LAST_ALTERED), 'YYYY-MM-DD HH24:MI') AS ULTIMA_ACTUALIZACION_UTC\nFROM <DB>.INFORMATION_SCHEMA.TABLES\nWHERE TABLE_SCHEMA IN ('RAW', 'BRONZE', 'SILVER', 'GOLD') AND ROW_COUNT > 0\nORDER BY CASE TABLE_SCHEMA WHEN 'RAW' THEN 1 WHEN 'BRONZE' THEN 2\n         WHEN 'SILVER' THEN 3 ELSE 4 END, TABLE_NAME",
+    "sql": "SELECT TABLE_SCHEMA, TABLE_NAME, ROW_COUNT,\n       TO_CHAR(CONVERT_TIMEZONE('UTC', LAST_ALTERED), 'YYYY-MM-DD HH24:MI') AS ULTIMA_ACTUALIZACION_UTC\nFROM <DB>.INFORMATION_SCHEMA.TABLES\nWHERE TABLE_SCHEMA IN ('RAW', 'BRONZE', 'SILVER', 'GOLD') AND ROW_COUNT > 0\n  AND TABLE_NAME NOT LIKE 'REPORT_INGEST_LOAD_%'\nORDER BY CASE TABLE_SCHEMA WHEN 'RAW' THEN 1 WHEN 'BRONZE' THEN 2\n         WHEN 'SILVER' THEN 3 ELSE 4 END, TABLE_NAME",
     "columns": [
       "TABLE_SCHEMA",
       "TABLE_NAME",
@@ -12,59 +12,130 @@
       [
         "RAW",
         "RAW_REPORT_DATA",
-        "183199",
-        "2026-11-18 00:02"
+        "550475",
+        "2026-11-20 02:59"
       ],
       [
         "BRONZE",
         "STG_REPORT_DATA",
         "183199",
-        "2026-11-10 23:49"
+        "2026-11-20 02:59"
+      ],
+      [
+        "SILVER",
+        "INT_REGISTROS_CLASIFICADOS",
+        "183199",
+        "2026-11-20 02:59"
       ],
       [
         "SILVER",
         "INT_RETENCION_FILTRADA",
-        "183198",
-        "2026-11-10 23:49"
+        "166137",
+        "2026-11-20 02:59"
       ],
       [
         "GOLD",
         "DIM_COMPUESTO",
-        "97688",
-        "2026-11-10 23:49"
+        "96855",
+        "2026-11-20 02:59"
       ],
       [
         "GOLD",
         "DIM_CONDICIONES",
         "151",
-        "2026-11-10 23:49"
+        "2026-11-20 02:59"
       ],
       [
         "GOLD",
         "FACT_RETENCION_CROMATOGRAFICA",
-        "183198",
-        "2026-11-10 23:49"
+        "166137",
+        "2026-11-20 02:59"
       ],
       [
         "GOLD",
         "OBT_QSRR_FINAL",
-        "183198",
-        "2026-11-10 23:50"
+        "166137",
+        "2026-11-20 03:01"
+      ]
+    ]
+  },
+  "particiones_raw": {
+    "sql": "SELECT SNAPSHOT_DATE, LEFT(SOURCE_COMMIT, 7) AS COMMIT_REPORT,\n       COUNT(*) AS FILAS, COUNT(DISTINCT EXPERIMENT_ID) AS EXPERIMENTOS,\n       TO_CHAR(CONVERT_TIMEZONE('UTC', MAX(INGESTED_AT)), 'YYYY-MM-DD HH24:MI') AS CARGADO_UTC\nFROM <DB>.RAW.RAW_REPORT_DATA GROUP BY 1, 2 ORDER BY 1",
+    "columns": [
+      "SNAPSHOT_DATE",
+      "COMMIT_REPORT",
+      "FILAS",
+      "EXPERIMENTOS",
+      "CARGADO_UTC"
+    ],
+    "rows": [
+      [
+        "2025-01-01",
+        "95c1f3d",
+        "183638",
+        "420",
+        "2026-11-20 02:36"
+      ],
+      [
+        "2025-04-01",
+        "bea0c57",
+        "183638",
+        "420",
+        "2026-11-20 02:37"
+      ],
+      [
+        "2026-11-20",
+        "420b550",
+        "183199",
+        "420",
+        "2026-11-20 02:59"
+      ]
+    ]
+  },
+  "exclusiones": {
+    "sql": "SELECT COALESCE(MOTIVO_EXCLUSION, '(conservada)') AS MOTIVO,\n       COUNT(*) AS FILAS, COUNT(DISTINCT EXPERIMENTO_ID) AS EXPERIMENTOS\nFROM <DB>.SILVER.INT_REGISTROS_CLASIFICADOS GROUP BY 1 ORDER BY 2 DESC",
+    "columns": [
+      "MOTIVO",
+      "FILAS",
+      "EXPERIMENTOS"
+    ],
+    "rows": [
+      [
+        "(conservada)",
+        "174169",
+        "420"
+      ],
+      [
+        "replicas_inconsistentes",
+        "5117",
+        "129"
+      ],
+      [
+        "no_retenido_rt_menor_igual_t0",
+        "3912",
+        "151"
+      ],
+      [
+        "rt_no_positivo",
+        "1",
+        "1"
       ]
     ]
   },
   "obt": {
-    "sql": "SELECT COUNT(*) AS TOTAL_FILAS, COUNT(DISTINCT HECHO_ID) AS HECHOS_UNICOS,\n       COUNT_IF(HECHO_ID IS NULL) AS HECHO_ID_NULOS\nFROM <DB>.GOLD.OBT_QSRR_FINAL",
+    "sql": "SELECT COUNT(*) AS TOTAL_FILAS, COUNT(DISTINCT HECHO_ID) AS HECHOS_UNICOS,\n       COUNT_IF(HECHO_ID IS NULL) AS HECHO_ID_NULOS,\n       (SELECT COUNT(*) FROM <DB>.GOLD.FACT_RETENCION_CROMATOGRAFICA) AS FILAS_HECHO\nFROM <DB>.GOLD.OBT_QSRR_FINAL",
     "columns": [
       "TOTAL_FILAS",
       "HECHOS_UNICOS",
-      "HECHO_ID_NULOS"
+      "HECHO_ID_NULOS",
+      "FILAS_HECHO"
     ],
     "rows": [
       [
-        "183198",
-        "183198",
-        "0"
+        "166137",
+        "166137",
+        "0",
+        "166137"
       ]
     ]
   },
@@ -82,49 +153,49 @@
     ]
   },
   "muestra_obt": {
-    "sql": "SELECT HECHO_ID, INCHIKEY, TIPO_COLUMNA, FLUJO_ML_MIN, TIEMPO_RETENCION\nFROM <DB>.GOLD.OBT_QSRR_FINAL ORDER BY HECHO_ID LIMIT 5",
+    "sql": "SELECT HECHO_ID, EXPERIMENTO_ID, INCHIKEY, N_MEDICIONES, TIEMPO_RETENCION\nFROM <DB>.GOLD.OBT_QSRR_FINAL ORDER BY HECHO_ID LIMIT 5",
     "columns": [
       "HECHO_ID",
+      "EXPERIMENTO_ID",
       "INCHIKEY",
-      "TIPO_COLUMNA",
-      "FLUJO_ML_MIN",
+      "N_MEDICIONES",
       "TIEMPO_RETENCION"
     ],
     "rows": [
       [
-        "00005957f772c064cde73ba62c642a11",
-        "GRXRQJGHRBUPEL-UHFFFAOYSA-N",
-        "Agilent ZORBAX Extend-C18",
-        "0.1",
-        "18.736666666666668"
+        "00007897596a50b3c04c8cc2a542109e",
+        "0186",
+        "SDTZIDDDSWNGFZ-UHFFFAOYSA-N",
+        "1",
+        "17.321666667"
       ],
       [
-        "000064dbb3aff255fb7d50fe5a354c19",
-        "FBOUYBDGKBSUES-UHFFFAOYSA-N",
-        "Thermo Scientific Acclaim RSLC 120 C18",
-        "0.2",
-        "7.95"
+        "000099e817316e756fb7778bafac7f1d",
+        "0313",
+        "XOMRRQXKHMYMOC-UHFFFAOYSA-N",
+        "1",
+        "5.504"
       ],
       [
-        "0000d9a06308c6216101a060544b107c",
-        "OVSQVDMCBVZWGM-UHFFFAOYSA-N",
-        "Thermo Scientific Hypersil GOLD",
-        "—",
-        "22.94"
+        "0000e5fa17b770b7deccf46051ef156e",
+        "0157",
+        "NYPYHUZRZVSYKL-UHFFFAOYSA-N",
+        "1",
+        "10.96"
       ],
       [
-        "0001b9523881449f5cc5b2262ef762ba",
-        "CFFZDZCDUFSOFZ-UHFFFAOYSA-N",
-        "Merck Supelco Ascentis Express C18",
-        "0.25",
-        "3.216666667"
+        "0001990d48fee6b6fec8b927add73004",
+        "0186",
+        "XZIZUQSOFMLIIR-UHFFFAOYSA-N",
+        "1",
+        "11.745"
       ],
       [
-        "00021d12c90b205acbadfe74c80de5e1",
-        "KKNMFUKPCCPJKT-UHFFFAOYSA-N",
-        "Agilent ZORBAX Extend-C18",
-        "0.1",
-        "12.825"
+        "0001c20ef62ab86ad1e504ed6f35c644",
+        "0334",
+        "RXCPQSJAVKGONC-UHFFFAOYSA-N",
+        "1",
+        "5.273"
       ]
     ]
   }

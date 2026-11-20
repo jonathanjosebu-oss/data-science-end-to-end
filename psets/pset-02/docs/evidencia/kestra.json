@@ -1,61 +1,210 @@
 {
   "flow": "pset2.pipeline.ingest_report_to_snowflake",
-  "execution_id": "5uusBpmloEf4BRdcyPl80l",
-  "state": "SUCCESS",
-  "duration": "00:00:59.393",
-  "started_utc": "2026-11-18T00:01:08",
-  "finished_utc": "2026-11-18T00:02:07",
-  "trigger": "weekly_schedule",
-  "scheduled_for": "2026-11-16T02:00Z[Etc/UTC]",
-  "tasks": [
-    {
-      "task": "ensure_snowflake_stage",
-      "type": "Query",
-      "state": "SUCCESS",
-      "duration": "00:00:08.851"
+  "main": {
+    "execution_id": "1QQIEIb11yIXlwpOBj0tJc",
+    "state": "SUCCESS",
+    "started_utc": "2026-11-20T02:58:23",
+    "duration": "00:03:33.171",
+    "trigger": "api",
+    "inputs": {
+      "run_transformations": true,
+      "source_ref": "master"
     },
-    {
-      "task": "ensure_csv_file_format",
-      "type": "Query",
-      "state": "SUCCESS",
-      "duration": "00:00:02.732"
+    "tasks": [
+      {
+        "task": "ensure_snowflake_objects",
+        "type": "Queries",
+        "state": "SUCCESS",
+        "duration": "00:00:10.776",
+        "attempts": 1
+      },
+      {
+        "task": "extract_dataset",
+        "type": "Commands",
+        "state": "SUCCESS",
+        "duration": "00:00:25.029",
+        "attempts": 1
+      },
+      {
+        "task": "upload_to_snowflake_stage",
+        "type": "Upload",
+        "state": "SUCCESS",
+        "duration": "00:00:07.884",
+        "attempts": 1
+      },
+      {
+        "task": "create_load_table",
+        "type": "Query",
+        "state": "SUCCESS",
+        "duration": "00:00:01.933",
+        "attempts": 1
+      },
+      {
+        "task": "copy_to_load_table",
+        "type": "Query",
+        "state": "SUCCESS",
+        "duration": "00:00:05.123",
+        "attempts": 1
+      },
+      {
+        "task": "publish_snapshot",
+        "type": "Queries",
+        "state": "SUCCESS",
+        "duration": "00:00:05.012",
+        "attempts": 1
+      },
+      {
+        "task": "cleanup_load",
+        "type": "Queries",
+        "state": "SUCCESS",
+        "duration": "00:00:02.232",
+        "attempts": 1
+      },
+      {
+        "task": "transformations",
+        "type": "If",
+        "state": "SUCCESS",
+        "duration": "00:02:33.348",
+        "attempts": 1
+      },
+      {
+        "task": "dbt_build",
+        "type": "DbtCLI",
+        "state": "SUCCESS",
+        "duration": "00:00:27.855",
+        "attempts": 1
+      },
+      {
+        "task": "spark_obt",
+        "type": "Commands",
+        "state": "SUCCESS",
+        "duration": "00:01:23.256",
+        "attempts": 1
+      }
+    ],
+    "commit_log": "RepoRT ref=master as_of=2026-11-20 -> commit 420b550eca799be282a69c5cd7c2911a1593cbfa (2026-11-05T12:28:08Z)",
+    "spark_log": [
+      "[validación] DIM_COMPUESTO.COMPUESTO_ID: filas=96855 distintos=96855 nulos=0",
+      "[validación] DIM_COMPUESTO.INCHIKEY: filas=96855 distintos=96855 nulos=0",
+      "[validación] DIM_CONDICIONES.CONDICION_ID: filas=151 distintos=151 nulos=0",
+      "[validación] FACT_RETENCION_CROMATOGRAFICA.HECHO_ID: filas=166137 distintos=166137 nulos=0",
+      "[validación] hechos sin DIM_COMPUESTO: 0",
+      "[validación] hechos sin DIM_CONDICIONES: 0",
+      "[validación] filas hecho=166137 filas OBT=166137",
+      "OBT GOLD.OBT_QSRR_FINAL escrita con 166137 filas."
+    ],
+    "dbt_task_run": "6pmfj7HFp6aR8EzqWa8Dww"
+  },
+  "backfill": {
+    "flow": "pset2.pipeline.backfill_report_history",
+    "execution_id": "DKLVK2ozYB0upe0Hl87pE",
+    "state": "SUCCESS",
+    "started_utc": "2026-11-20T02:36:14",
+    "duration": "00:01:09.441",
+    "trigger": "api",
+    "inputs": {
+      "end_date": "2025-04-01",
+      "rebuild_gold": false,
+      "step": "QUARTER",
+      "source_ref": "master",
+      "start_date": "2025-01-01"
     },
-    {
-      "task": "extract_dataset",
-      "type": "Commands",
-      "state": "SUCCESS",
-      "duration": "00:00:28.154"
+    "tasks": [
+      {
+        "task": "generate_dates",
+        "type": "Script",
+        "state": "SUCCESS",
+        "duration": "00:00:01.065",
+        "attempts": 1
+      },
+      {
+        "task": "load_each_snapshot",
+        "type": "Loop",
+        "state": "SUCCESS",
+        "duration": "00:01:08.331",
+        "attempts": 1
+      },
+      {
+        "task": "rebuild_gold",
+        "type": "If",
+        "state": "SUCCESS",
+        "duration": "00:00:00.004",
+        "attempts": 1
+      }
+    ],
+    "loads": [
+      {
+        "execution_id": "5fkZyLCaxzVAiJunnKakxD",
+        "state": "SUCCESS",
+        "started_utc": "2026-11-20T02:36:16",
+        "duration": "00:00:34.620",
+        "trigger": "ingest_snapshot",
+        "inputs": {
+          "run_transformations": false,
+          "snapshot_date": "2025-01-01",
+          "source_ref": "master"
+        },
+        "commit_log": "RepoRT ref=master as_of=2025-01-01 -> commit 95c1f3df7a67f8b9bff44958ca5d09cb5b512977 (2024-12-19T09:00:29Z)"
+      },
+      {
+        "execution_id": "3D6B0juB025iTzWaFM7Aq2",
+        "state": "SUCCESS",
+        "started_utc": "2026-11-20T02:36:51",
+        "duration": "00:00:32.222",
+        "trigger": "ingest_snapshot",
+        "inputs": {
+          "run_transformations": false,
+          "snapshot_date": "2025-04-01",
+          "source_ref": "master"
+        },
+        "commit_log": "RepoRT ref=master as_of=2025-04-01 -> commit bea0c57e9a33bd35d59d24e2f4846865aae2bb99 (2025-03-20T08:53:55Z)"
+      }
+    ]
+  },
+  "error_handling": {
+    "execution_id": "mOQa06I8by4aYj2Ohho86",
+    "state": "FAILED",
+    "started_utc": "2026-11-20T02:29:25",
+    "duration": "00:04:59.291",
+    "trigger": "ingest_snapshot",
+    "inputs": {
+      "run_transformations": false,
+      "snapshot_date": "2025-01-01",
+      "source_ref": "master"
     },
-    {
-      "task": "upload_to_snowflake_stage",
-      "type": "Upload",
-      "state": "SUCCESS",
-      "duration": "00:00:07.110"
-    },
-    {
-      "task": "create_load_table",
-      "type": "Query",
-      "state": "SUCCESS",
-      "duration": "00:00:00.717"
-    },
-    {
-      "task": "copy_to_load_table",
-      "type": "Query",
-      "state": "SUCCESS",
-      "duration": "00:00:05.925"
-    },
-    {
-      "task": "replace_raw_snapshot",
-      "type": "Query",
-      "state": "SUCCESS",
-      "duration": "00:00:02.714"
-    },
-    {
-      "task": "drop_load_table",
-      "type": "Query",
-      "state": "SUCCESS",
-      "duration": "00:00:02.420"
-    }
-  ],
-  "source": "docker logs kestra_server"
+    "tasks": [
+      {
+        "task": "ensure_snowflake_objects",
+        "type": "Queries",
+        "state": "SUCCESS",
+        "duration": "00:00:05.458",
+        "attempts": 1
+      },
+      {
+        "task": "extract_dataset",
+        "type": "Commands",
+        "state": "FAILED",
+        "duration": "00:04:49.025",
+        "attempts": 3
+      },
+      {
+        "task": "log_failure",
+        "type": "Log",
+        "state": "SUCCESS",
+        "duration": "00:00:00.028",
+        "attempts": 1
+      },
+      {
+        "task": "cleanup_on_failure",
+        "type": "Queries",
+        "state": "SUCCESS",
+        "duration": "00:00:04.497",
+        "attempts": 1
+      }
+    ],
+    "log_failure": "Falló pset2.pipeline.ingest_report_to_snowflake (ejecución mOQa06I8by4aYj2Ohho86, snapshot 2025-01-01). Se limpian la tabla transient y los archivos del stage.",
+    "failed_task": "extract_dataset",
+    "cause": "ValueError: Esquema inesperado en processed_data/0437/0437_rtdata_canonical_success.tsv: faltan campos de medición [] o metadata ['column.t0']"
+  },
+  "source": "API REST de Kestra (/executions, /logs)"
 }

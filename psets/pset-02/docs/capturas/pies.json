@@ -1,4 +1,1 @@
-{
-  "01_kestra_ejecucion_exitosa_gantt_de_tareas.png": "Kestra: ejecución 5uusBpmloEf4BRdcyPl80l del flow pset2.pipeline.ingest_report_to_snowflake en estado Éxito (59,39 s, 8 tareas correctas)",
-  "02_snowflake_conteo_obt.png": "Snowflake (Snowsight): la OBT GOLD.OBT_QSRR_FINAL escrita por Spark tiene 183.198 filas y 183.198 HECHO_ID únicos, sin duplicados"
-}
+{}

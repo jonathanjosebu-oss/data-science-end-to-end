@@ -1,9 +1,12 @@
+-- Gold: grano = una fila por (experimento, compuesto) con su tiempo de retención
+-- representativo (mediana de réplicas consistentes).
 with silver as (
     select * from {{ ref('int_retencion_filtrada') }}
 )
 
 select
-    md5(concat(cast(registro_id as string), '_', inchikey)) as hecho_id,
+    md5(registro_id) as hecho_id,
+    experimento_id,
     md5(inchikey) as compuesto_id,
     md5(
         concat(
@@ -13,5 +16,6 @@ select
         )
     ) as condicion_id,
     tiempo_retencion,
-    factor_retencion
+    n_mediciones,
+    rango_replicas_min
 from silver

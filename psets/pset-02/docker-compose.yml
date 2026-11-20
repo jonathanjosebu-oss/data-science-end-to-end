@@ -1,3 +1,12 @@
+x-snowflake-env: &snowflake-env
+  SNOWFLAKE_ACCOUNT: ${SNOWFLAKE_ACCOUNT:?Copy .env.example to .env and set Snowflake credentials}
+  SNOWFLAKE_USER: ${SNOWFLAKE_USER:?Set SNOWFLAKE_USER in .env}
+  SNOWFLAKE_PASSWORD: ${SNOWFLAKE_PASSWORD:?Set SNOWFLAKE_PASSWORD in .env}
+  SNOWFLAKE_ROLE: ${SNOWFLAKE_ROLE:?Set SNOWFLAKE_ROLE in .env}
+  SNOWFLAKE_WAREHOUSE: ${SNOWFLAKE_WAREHOUSE:?Set SNOWFLAKE_WAREHOUSE in .env}
+  SNOWFLAKE_DATABASE: ${SNOWFLAKE_DATABASE:?Set SNOWFLAKE_DATABASE in .env}
+  SNOWFLAKE_SCHEMA: ${SNOWFLAKE_SCHEMA:?Set SNOWFLAKE_SCHEMA in .env}
+
 services:
   kestra:
     image: kestra/kestra:v2.0.7
@@ -19,7 +28,64 @@ services:
       ENV_SNOWFLAKE_WAREHOUSE: ${SNOWFLAKE_WAREHOUSE:?Set SNOWFLAKE_WAREHOUSE in .env}
       ENV_SNOWFLAKE_DATABASE: ${SNOWFLAKE_DATABASE:?Set SNOWFLAKE_DATABASE in .env}
       ENV_SNOWFLAKE_SCHEMA: ${SNOWFLAKE_SCHEMA:?Set SNOWFLAKE_SCHEMA in .env}
+      KESTRA_CONFIGURATION: |
+        kestra:
+          server:
+            basic-auth:
+              username: ${KESTRA_USER:?Set KESTRA_USER (an email) in .env}
+              password: ${KESTRA_PASSWORD:?Set KESTRA_PASSWORD in .env}
+          tasks:
+            tmp-dir:
+              path: /tmp/kestra-wd/tmp
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/ui/ > /dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    depends_on:
+      dbt-image:
+        condition: service_completed_successfully
+      spark:
+        condition: service_started
     restart: unless-stopped
+
+  # Importa flows y archivos de namespace en cuanto Kestra está sano; termina al
+  # acabar. Para redeplegar tras cambiar código: docker compose run --rm kestra-deploy
+  kestra-deploy:
+    image: curlimages/curl:8.11.1
+    entrypoint: ["/bin/sh", "/opt/pset2/kestra/deploy.sh"]
+    environment:
+      KESTRA_URL: http://kestra:8080
+      KESTRA_USER: ${KESTRA_USER}
+      KESTRA_PASSWORD: ${KESTRA_PASSWORD}
+    volumes:
+      - ./:/opt/pset2:ro
+    depends_on:
+      kestra:
+        condition: service_healthy
+    restart: "no"
+
+  # Construye la imagen pset2-dbt:1.11 que Kestra lanza en la tarea dbt_build.
+  # También sirve para ejecutar dbt a mano: docker compose run --rm dbt dbt build
+  dbt-image:
+    build:
+      context: ./dbt
+    image: pset2-dbt:1.11
+    command: ["dbt", "--version"]
+    restart: "no"
+
+  dbt:
+    image: pset2-dbt:1.11
+    profiles: ["manual"]
+    environment: *snowflake-env
+    working_dir: /opt/dbt
+    volumes:
+      - ./dbt/models:/opt/dbt/models:ro
+      - ./dbt/macros:/opt/dbt/macros:ro
+      - ./dbt/tests:/opt/dbt/tests:ro
+      - ./dbt/dbt_project.yml:/opt/dbt/dbt_project.yml:ro
+    command: ["dbt", "build"]
 
   spark:
     build:
@@ -30,17 +96,13 @@ services:
     entrypoint: ["/opt/entrypoint.sh"]
     command: ["/bin/bash", "-lc", "sleep infinity"]
     working_dir: /opt/pset2
-    env_file:
-      - .env
+    environment: *snowflake-env
     volumes:
       - ./:/opt/pset2:ro
-      - spark_ivy:/home/spark/.ivy2
     restart: unless-stopped
 
 volumes:
   kestra_data:
     driver: local
   kestra_db:
-    driver: local
-  spark_ivy:
     driver: local

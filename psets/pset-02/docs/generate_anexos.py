@@ -4,9 +4,10 @@ Uso:
     python docs/generate_anexos.py            # arma el PDF con docs/evidencia/*.json
     python docs/generate_anexos.py --refresh  # vuelve a recolectar la evidencia
 
-`--refresh` lee los logs del contenedor `kestra_server`, `dbt/target/run_results.json`
-y ejecuta consultas de solo lectura en Snowflake con las variables de `.env`
-(exportadas en la terminal). No escribe credenciales en los JSON.
+`--refresh` consulta la API de Kestra (KESTRA_URL, por defecto http://localhost:8080,
+con KESTRA_USER/KESTRA_PASSWORD), descarga el run_results.json que Kestra guarda para
+la tarea dbt_build y ejecuta consultas de solo lectura en Snowflake con las variables
+de `.env` (exportadas en la terminal). No escribe credenciales en los JSON.
 
 Las capturas de pantalla se toman manualmente y se guardan en `docs/capturas/`
 (PNG o JPG). Se incluyen en orden alfabético; el nombre del archivo sin prefijo
@@ -92,54 +93,181 @@ STYLES = {
 # --------------------------------------------------------------------------- #
 # Recolección de evidencia
 # --------------------------------------------------------------------------- #
-def _collect_kestra() -> dict:
-    logs = subprocess.run(
-        ["docker", "logs", "-t", "kestra_server"],
-        capture_output=True, text=True, check=True,
+NAMESPACE = "pset2.pipeline"
+BACKFILL_FLOW = "backfill_report_history"
+
+
+def _kestra(path: str, params: dict | None = None, raw: bool = False):
+    """GET autenticado a la API de Kestra (KESTRA_URL, KESTRA_USER, KESTRA_PASSWORD)."""
+    import base64
+    import urllib.parse
+    import urllib.request
+
+    base = os.environ.get("KESTRA_URL", "http://localhost:8080").rstrip("/")
+    url = f"{base}/api/v1/main/{path}"
+    if params:
+        url += "?" + urllib.parse.urlencode(params)
+    token = base64.b64encode(
+        f"{os.environ['KESTRA_USER']}:{os.environ['KESTRA_PASSWORD']}".encode()
+    ).decode()
+    request = urllib.request.Request(url, headers={"Authorization": f"Basic {token}"})
+    with urllib.request.urlopen(request, timeout=60) as response:
+        body = response.read()
+    return body if raw else json.loads(body)
+
+
+def _iso_duration(value: str | None) -> str:
+    """PT2M5.377S -> 00:02:05.377"""
+    m = re.fullmatch(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:([\d.]+)S)?", value or "")
+    if not m:
+        return value or "—"
+    h, mi, se = (float(g) if g else 0.0 for g in m.groups())
+    return f"{int(h):02d}:{int(mi):02d}:{se:06.3f}"
+
+
+def _executions(flow_id: str) -> list[dict]:
+    page = _kestra(
+        "executions/search",
+        {"namespace": NAMESPACE, "flowId": flow_id, "size": 100, "sort": "state.startDate:desc"},
     )
-    text = re.sub(r"\x1b\[[0-9;]*m", "", logs.stdout + logs.stderr)
-    lines = [line for line in text.splitlines() if f"[flow: {FLOW}]" in line]
-    finished = [
-        re.search(r"\[execution: (\w+)\] Flow completed with state (\w+) in ([\d:.]+)", line)
-        for line in lines
+    # El filtro flowId no siempre se aplica en la API de Kestra 2: se filtra aquí.
+    results = [
+        e for e in page.get("results", [])
+        if e.get("flowId") == flow_id and e.get("namespace") == NAMESPACE
     ]
-    finished = [m for m in finished if m and m.group(2) == "SUCCESS"]
-    if not finished:
-        raise RuntimeError("No hay ejecuciones SUCCESS del flow en los logs de Kestra")
-    execution, _, duration = finished[-1].groups()
-    run_lines = [line for line in lines if f"[execution: {execution}]" in line]
-    tasks = []
-    for line in run_lines:
-        m = re.search(
-            r"\[task: (\w+)\].*Type (\w+) with state (\w+) completed in ([\d:.]+)", line
-        )
-        if m:
-            tasks.append(dict(zip(("task", "type", "state", "duration"), m.groups())))
-    trigger = next(
-        (
-            re.search(r"\[trigger: (\w+)\] Scheduled execution \w+ at '([^']+)'", line)
-            for line in text.splitlines()
-            if f"Scheduled execution {execution}" in line
-        ),
-        None,
-    )
-    timestamps = [line.split()[0] for line in run_lines]
+    return sorted(results, key=lambda e: e["state"]["startDate"], reverse=True)
+
+
+def _task_types(flow_id: str) -> dict[str, str]:
+    flow = _kestra(f"flows/{NAMESPACE}/{flow_id}")
+    types: dict[str, str] = {}
+
+    def walk(tasks):
+        for task in tasks or []:
+            types[task["id"]] = task["type"].rsplit(".", 1)[-1]
+            for key in ("tasks", "then", "else", "errors"):
+                walk(task.get(key))
+
+    walk(flow.get("tasks"))
+    walk(flow.get("errors"))
+    return types
+
+
+def _task_rows(execution: dict, types: dict[str, str]) -> list[dict]:
+    """Tareas del flow; omite los nodos de dbt que DbtCLI registra como sub-tareas."""
+    return [
+        {
+            "task": run["taskId"],
+            "type": types.get(run["taskId"], "—"),
+            "state": run["state"]["current"],
+            "duration": _iso_duration(run["state"].get("duration")),
+            "attempts": len(run.get("attempts") or []),
+        }
+        for run in execution.get("taskRunList") or []
+        if run["taskId"] in types
+    ]
+
+
+def _logs(execution_id: str, task_id: str, needle: str) -> list[str]:
+    logs = _kestra(f"logs/{execution_id}", {"minLevel": "INFO"})
+    return [
+        line["message"].strip()
+        for line in logs
+        if line.get("taskId") == task_id and needle in (line.get("message") or "")
+    ]
+
+
+def _execution_summary(execution: dict) -> dict:
+    labels = {l["key"]: l["value"] for l in execution.get("labels") or []}
+    trigger = execution.get("trigger") or {}
     return {
-        "flow": f"pset2.pipeline.{FLOW}",
-        "execution_id": execution,
-        "state": "SUCCESS",
-        "duration": duration,
-        "started_utc": timestamps[0][:19] if timestamps else None,
-        "finished_utc": timestamps[-1][:19] if timestamps else None,
-        "trigger": trigger.group(1) if trigger else "manual",
-        "scheduled_for": trigger.group(2) if trigger else None,
-        "tasks": tasks,
-        "source": "docker logs kestra_server",
+        "execution_id": execution["id"],
+        "state": execution["state"]["current"],
+        "started_utc": execution["state"]["startDate"][:19],
+        "duration": _iso_duration(execution["state"].get("duration")),
+        "trigger": trigger.get("id") or labels.get("system.from", "manual"),
+        "inputs": execution.get("inputs") or {},
     }
 
 
-def _collect_dbt() -> dict:
-    data = json.loads((PSET / "dbt" / "target" / "run_results.json").read_text())
+def _collect_kestra() -> dict:
+    types = _task_types(FLOW)
+    runs = [_kestra(f"executions/{e['id']}") for e in _executions(FLOW)]
+
+    # 1. Última ejecución completa (ingesta + dbt + Spark) terminada en SUCCESS.
+    main = next(
+        e for e in runs
+        if e["state"]["current"] == "SUCCESS"
+        and (e.get("inputs") or {}).get("run_transformations", True)
+        and any(t["taskId"] == "spark_obt" for t in e.get("taskRunList") or [])
+    )
+    dbt_run = next(t for t in main["taskRunList"] if t["taskId"] == "dbt_build")
+    commit = _logs(main["id"], "extract_dataset", "-> commit")
+
+    # 2. Último backfill en SUCCESS y las cargas históricas que lanzó.
+    backfill = next(
+        _kestra(f"executions/{e['id']}") for e in _executions(BACKFILL_FLOW)
+        if e["state"]["current"] == "SUCCESS"
+    )
+    started, ended = backfill["state"]["startDate"], backfill["state"].get("endDate") or "9999"
+    loads = []
+    for e in runs:
+        if started <= e["state"]["startDate"] <= ended:
+            loads.append({
+                **_execution_summary(e),
+                "commit_log": next(iter(_logs(e["id"], "extract_dataset", "-> commit")), ""),
+            })
+    loads.sort(key=lambda r: str(r["inputs"].get("snapshot_date", "")))
+
+    # 3. Última ejecución fallida en la que corrió el bloque `errors`.
+    failed = next(
+        e for e in runs
+        if e["state"]["current"] == "FAILED"
+        and any(t["taskId"] == "cleanup_on_failure" for t in e.get("taskRunList") or [])
+    )
+    failure_msg = next(iter(_logs(failed["id"], "log_failure", "Falló")), "")
+    failed_task = next(t["taskId"] for t in failed["taskRunList"] if t["state"]["current"] == "FAILED")
+    cause = next(
+        (line.splitlines()[-1] for line in _logs(failed["id"], failed_task, "Error")
+         if re.search(r"^\w*Error: ", line.splitlines()[-1])),
+        "",
+    )
+
+    return {
+        "flow": f"{NAMESPACE}.{FLOW}",
+        "main": {
+            **_execution_summary(main),
+            "tasks": _task_rows(main, types),
+            "commit_log": next(iter(commit), ""),
+            "spark_log": _logs(main["id"], "spark_obt", "[validación]")
+            + _logs(main["id"], "spark_obt", "OBT GOLD."),
+            "dbt_task_run": dbt_run["id"],
+        },
+        "backfill": {
+            "flow": f"{NAMESPACE}.{BACKFILL_FLOW}",
+            **_execution_summary(backfill),
+            "tasks": _task_rows(backfill, _task_types(BACKFILL_FLOW)),
+            "loads": loads,
+        },
+        "error_handling": {
+            **_execution_summary(failed),
+            "tasks": _task_rows(failed, types),
+            "log_failure": failure_msg.split(" Detalle:")[0],
+            "failed_task": failed_task,
+            "cause": cause,
+        },
+        "source": "API REST de Kestra (/executions, /logs)",
+    }
+
+
+def _collect_dbt(kestra: dict) -> dict:
+    """run_results.json que DbtCLI guardó en el storage de Kestra para la ejecución principal."""
+    main = kestra["main"]
+    uri = (
+        f"kestra:///{NAMESPACE.replace('.', '/')}/{FLOW.replace('_', '-')}/executions/"
+        f"{main['execution_id']}/tasks/dbt-build/{main['dbt_task_run']}/run_results.json"
+    )
+    data = json.loads(_kestra(f"executions/{main['execution_id']}/file", {"path": uri}, raw=True))
     results = []
     for item in data["results"]:
         kind, _, name = item["unique_id"].split(".", 2)
@@ -155,6 +283,7 @@ def _collect_dbt() -> dict:
         "generated_at": data["metadata"]["generated_at"][:19],
         "elapsed_seconds": round(data["elapsed_time"], 1),
         "dbt_version": data["metadata"].get("dbt_version"),
+        "kestra_execution": main["execution_id"],
         "results": results,
     }
 
@@ -177,10 +306,19 @@ def _collect_snowflake() -> dict:
        TO_CHAR(CONVERT_TIMEZONE('UTC', LAST_ALTERED), 'YYYY-MM-DD HH24:MI') AS ULTIMA_ACTUALIZACION_UTC
 FROM {db}.INFORMATION_SCHEMA.TABLES
 WHERE TABLE_SCHEMA IN ('RAW', 'BRONZE', 'SILVER', 'GOLD') AND ROW_COUNT > 0
+  AND TABLE_NAME NOT LIKE 'REPORT_INGEST_LOAD_%'
 ORDER BY CASE TABLE_SCHEMA WHEN 'RAW' THEN 1 WHEN 'BRONZE' THEN 2
          WHEN 'SILVER' THEN 3 ELSE 4 END, TABLE_NAME""",
+        "particiones_raw": f"""SELECT SNAPSHOT_DATE, LEFT(SOURCE_COMMIT, 7) AS COMMIT_REPORT,
+       COUNT(*) AS FILAS, COUNT(DISTINCT EXPERIMENT_ID) AS EXPERIMENTOS,
+       TO_CHAR(CONVERT_TIMEZONE('UTC', MAX(INGESTED_AT)), 'YYYY-MM-DD HH24:MI') AS CARGADO_UTC
+FROM {db}.RAW.RAW_REPORT_DATA GROUP BY 1, 2 ORDER BY 1""",
+        "exclusiones": f"""SELECT COALESCE(MOTIVO_EXCLUSION, '(conservada)') AS MOTIVO,
+       COUNT(*) AS FILAS, COUNT(DISTINCT EXPERIMENTO_ID) AS EXPERIMENTOS
+FROM {db}.SILVER.INT_REGISTROS_CLASIFICADOS GROUP BY 1 ORDER BY 2 DESC""",
         "obt": f"""SELECT COUNT(*) AS TOTAL_FILAS, COUNT(DISTINCT HECHO_ID) AS HECHOS_UNICOS,
-       COUNT_IF(HECHO_ID IS NULL) AS HECHO_ID_NULOS
+       COUNT_IF(HECHO_ID IS NULL) AS HECHO_ID_NULOS,
+       (SELECT COUNT(*) FROM {db}.GOLD.FACT_RETENCION_CROMATOGRAFICA) AS FILAS_HECHO
 FROM {db}.GOLD.OBT_QSRR_FINAL""",
         "referencial": f"""SELECT
   (SELECT COUNT(*) FROM {db}.GOLD.FACT_RETENCION_CROMATOGRAFICA f
@@ -189,7 +327,7 @@ FROM {db}.GOLD.OBT_QSRR_FINAL""",
   (SELECT COUNT(*) FROM {db}.GOLD.FACT_RETENCION_CROMATOGRAFICA f
      LEFT JOIN {db}.GOLD.DIM_CONDICIONES d USING (CONDICION_ID)
     WHERE d.CONDICION_ID IS NULL) AS HECHOS_SIN_CONDICION""",
-        "muestra_obt": f"""SELECT HECHO_ID, INCHIKEY, TIPO_COLUMNA, FLUJO_ML_MIN, TIEMPO_RETENCION
+        "muestra_obt": f"""SELECT HECHO_ID, EXPERIMENTO_ID, INCHIKEY, N_MEDICIONES, TIEMPO_RETENCION
 FROM {db}.GOLD.OBT_QSRR_FINAL ORDER BY HECHO_ID LIMIT 5""",
     }
     out = {"consultado_utc": datetime.utcnow().strftime("%Y-%m-%d %H:%M")}
@@ -209,12 +347,12 @@ FROM {db}.GOLD.OBT_QSRR_FINAL ORDER BY HECHO_ID LIMIT 5""",
 
 def refresh() -> None:
     EVIDENCE.mkdir(exist_ok=True)
-    for name, collect in (
-        ("kestra", _collect_kestra),
-        ("dbt", _collect_dbt),
-        ("snowflake", _collect_snowflake),
+    kestra = _collect_kestra()
+    for name, data in (
+        ("kestra", kestra),
+        ("dbt", _collect_dbt(kestra)),
+        ("snowflake", _collect_snowflake()),
     ):
-        data = collect()
         (EVIDENCE / f"{name}.json").write_text(
             json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
         )
@@ -293,10 +431,40 @@ def _footer(canvas, doc) -> None:
     canvas.restoreState()
 
 
+def _int(v: str) -> str:
+    try:
+        return f"{int(v):,}"
+    except ValueError:
+        return v
+
+
+def _task_table(tasks: list[dict], w: float) -> Table:
+    return _table(
+        [["#", "Tarea", "Tipo", "Estado", "Intentos", "Duración"]]
+        + [[str(i), t["task"], t["type"], t["state"], str(t["attempts"]), t["duration"]]
+           for i, t in enumerate(tasks, start=1)],
+        [w * 0.05, w * 0.33, w * 0.17, w * 0.12, w * 0.11, w * 0.22], mono_cols=(1,),
+    )
+
+
+def _query_block(title: str, block: dict, widths: list[float], fmt=None) -> list:
+    rows = [fmt(r) if fmt else r for r in block["rows"]]
+    return [
+        KeepTogether([
+            _p(f"<b>{title}</b>"),
+            _sql(block["sql"]),
+            Spacer(1, 3),
+            _table([block["columns"]] + rows, widths),
+        ]),
+        Spacer(1, 6),
+    ]
+
+
 def build() -> None:
     kestra = json.loads((EVIDENCE / "kestra.json").read_text(encoding="utf-8"))
     dbt = json.loads((EVIDENCE / "dbt.json").read_text(encoding="utf-8"))
     sf = json.loads((EVIDENCE / "snowflake.json").read_text(encoding="utf-8"))
+    main, backfill, err = kestra["main"], kestra["backfill"], kestra["error_handling"]
 
     doc = SimpleDocTemplate(
         str(OUTPUT), pagesize=A4, leftMargin=18 * mm, rightMargin=18 * mm,
@@ -308,12 +476,13 @@ def build() -> None:
         _p("PSet 2 — Anexos de evidencia de ejecución", "title"),
         _p("Pipeline RepoRT → Kestra → Snowflake RAW → dbt (Bronze/Silver/Gold) → Spark → OBT", "subtitle"),
         _p(
-            "Este anexo complementa el memo técnico. Reúne la evidencia de que el pipeline se "
-            "ejecutó de punta a punta: capturas de pantalla de las herramientas, el registro de "
-            "la ejecución programada en Kestra, el resultado de <i>dbt build</i> y consultas de "
-            "verificación hechas directamente en Snowflake. Las tablas de las secciones B a D se "
-            "generan con <i>docs/generate_anexos.py</i> a partir de salidas reales, no se "
-            "transcriben a mano."
+            "Este anexo complementa el memo técnico con evidencia de que el pipeline corre de "
+            "punta a punta orquestado por Kestra: la ejecución completa (ingesta, <i>dbt build</i> "
+            "y Spark), el backfill histórico, el bloque de errores, el resultado de cada modelo y "
+            "prueba de dbt y consultas de verificación en Snowflake. Las tablas se generan con "
+            "<i>docs/generate_anexos.py --refresh</i> a partir de la API de Kestra, del "
+            "<i>run_results.json</i> que Kestra guarda para la tarea dbt y de consultas de solo "
+            "lectura; no se transcriben a mano."
         ),
     ]
 
@@ -324,22 +493,59 @@ def build() -> None:
     # B. Kestra
     story += [
         _p("B. Orquestación con Kestra", "h1"),
+        _p("<b>B.1 Ejecución completa del pipeline</b>"),
         _p(
-            f"El flow <b>{escape(kestra['flow'])}</b> se ejecutó con el trigger "
-            f"<b>{escape(kestra['trigger'])}</b> (programado para "
-            f"{escape(str(kestra['scheduled_for']))}). La ejecución "
-            f"<font name='AnexoMono'>{escape(kestra['execution_id'])}</font> inició el "
-            f"{escape(str(kestra['started_utc']).replace('T', ' '))} UTC y terminó con estado "
-            f"<b>{escape(kestra['state'])}</b> en {escape(kestra['duration'])}. Todas sus tareas "
-            "terminaron en SUCCESS, sin reintentos:"
+            f"Flow <b>{escape(kestra['flow'])}</b>, ejecución "
+            f"<font name='AnexoMono'>{escape(main['execution_id'])}</font> "
+            f"(origen: {escape(main['trigger'])}), iniciada el "
+            f"{escape(main['started_utc'].replace('T', ' '))} UTC; estado "
+            f"<b>{escape(main['state'])}</b> en {escape(main['duration'])}. La misma ejecución "
+            "carga Raw, lanza <i>dbt build</i> y el job Spark en contenedores. Commit cargado: "
+            f"<font name='AnexoMono'>{escape(main['commit_log'])}</font>."
+        ),
+        _task_table(main["tasks"], w),
+        Spacer(1, 6),
+        _p(
+            "<b>B.2 Validaciones de Spark antes de escribir la OBT</b> (log de la tarea "
+            "<i>spark_obt</i>). Si alguna falla, el job termina con código 1 sin escribir."
+        ),
+        _sql("\n".join(main["spark_log"])),
+        Spacer(1, 6),
+        _p("<b>B.3 Backfill histórico</b>"),
+        _p(
+            f"Flow <b>{escape(backfill['flow'])}</b>, ejecución "
+            f"<font name='AnexoMono'>{escape(backfill['execution_id'])}</font>: "
+            f"<b>{escape(backfill['state'])}</b> en {escape(backfill['duration'])} con "
+            f"start_date={escape(str(backfill['inputs'].get('start_date')))}, "
+            f"end_date={escape(str(backfill['inputs'].get('end_date')))}, "
+            f"step={escape(str(backfill['inputs'].get('step')))}. Cada fecha se cargó como "
+            "subflow con el commit de RepoRT vigente ese día, en su propia partición de Raw "
+            "(ver D.2):"
         ),
         _table(
-            [["#", "Tarea", "Tipo", "Estado", "Duración"]]
-            + [[str(i), t["task"], t["type"], t["state"], t["duration"]]
-               for i, t in enumerate(kestra["tasks"], start=1)],
-            [w * 0.06, w * 0.40, w * 0.16, w * 0.16, w * 0.22], mono_cols=(1,),
+            [["snapshot_date", "Ejecución", "Estado", "Duración", "Commit resuelto"]]
+            + [[str(l["inputs"].get("snapshot_date")), l["execution_id"], l["state"],
+                l["duration"], l["commit_log"].split("-> commit ")[-1]]
+               for l in backfill["loads"]],
+            [w * 0.14, w * 0.26, w * 0.11, w * 0.14, w * 0.35], mono_cols=(1, 4),
         ),
-        _p(f"Fuente: {escape(kestra['source'])}.", "caption"),
+        Spacer(1, 6),
+        KeepTogether([
+            _p("<b>B.4 Bloque de errores</b>"),
+            _p(
+                f"Ejecución <font name='AnexoMono'>{escape(err['execution_id'])}</font> "
+                f"({escape(err['started_utc'].replace('T', ' '))} UTC): la tarea "
+                f"<i>{escape(err.get('failed_task', ''))}</i> falló tras agotar sus reintentos "
+                "(cambio de esquema en un commit antiguo de RepoRT, corregido después). Kestra "
+                "ejecutó entonces el bloque <i>errors</i>: <i>log_failure</i> registró el fallo y "
+                "<i>cleanup_on_failure</i> borró la tabla transient y los archivos del stage. "
+                "Causa y mensaje registrados:"
+            ),
+            _sql(err.get("cause", "") + "\n" + err["log_failure"]),
+            Spacer(1, 3),
+            _task_table(err["tasks"], w),
+        ]),
+        PageBreak(),
     ]
 
     # C. dbt
@@ -351,10 +557,13 @@ def build() -> None:
         _p("C. Transformaciones con dbt", "h1"),
         _p(
             f"Resultado de <b>{escape(dbt['command'])}</b> (dbt {escape(str(dbt['dbt_version']))}) "
-            f"ejecutado el {escape(dbt['generated_at'].replace('T', ' '))} UTC en "
-            f"{dbt['elapsed_seconds']} s: <b>{len(dbt['results'])} acciones, {summary}</b>, "
-            "0 errores. Los modelos materializan las tablas y las pruebas validan claves "
-            "<i>not_null</i>/<i>unique</i> y relaciones de la tabla de hechos con sus dimensiones."
+            f"ejecutado por Kestra en la ejecución "
+            f"<font name='AnexoMono'>{escape(dbt['kestra_execution'])}</font> el "
+            f"{escape(dbt['generated_at'].replace('T', ' '))} UTC, en {dbt['elapsed_seconds']} s: "
+            f"<b>{len(dbt['results'])} acciones, {summary}</b>. Además de <i>not_null</i>, "
+            "<i>unique</i> y <i>relationships</i>, incluye pruebas de dominio (<i>en_rango</i>, "
+            "RT &gt; t0, motivos de exclusión válidos) y de conservación de filas entre capas "
+            "(<i>assert_*</i>)."
         ),
         _table(
             [["Tipo", "Modelo / prueba", "Estado", "Filas", "Seg."]]
@@ -364,55 +573,56 @@ def build() -> None:
                 f"{r['seconds']:.2f}"] for r in dbt["results"]],
             [w * 0.10, w * 0.62, w * 0.10, w * 0.10, w * 0.08], mono_cols=(1,),
         ),
-        _p("Fuente: dbt/target/run_results.json.", "caption"),
-        PageBreak(),
+        _p("Fuente: run_results.json de la tarea dbt_build en el storage de Kestra.", "caption"),
     ]
 
     # D. Snowflake
     tablas = sf["tablas"]
     story += [
-        _p("D. Verificación en Snowflake (Spark y OBT)", "h1"),
+        _p("D. Verificación en Snowflake", "h1"),
         _p(
             f"Consultas de solo lectura ejecutadas el {escape(sf['consultado_utc'])} UTC. "
-            "Las tablas de carga temporales vacías que deja Kestra se omiten. Los conteos "
-            "coinciden con los reportados en el memo; la OBT escrita por Spark conserva una fila "
-            "por hecho."
+            "Los conteos coinciden con los del memo."
         ),
         _p("<b>D.1 Tablas por capa</b>"),
         _sql(tablas["sql"]),
         Spacer(1, 3),
         _table(
             [["Esquema", "Tabla", "Filas", "Última actualización (UTC)"]]
-            + [[r[0], r[1], f"{int(r[2]):,}", r[3]] for r in tablas["rows"]],
+            + [[r[0], r[1], _int(r[2]), r[3]] for r in tablas["rows"]],
             [w * 0.14, w * 0.44, w * 0.14, w * 0.28], mono_cols=(1,),
         ),
-        Spacer(1, 6),
+        _p(
+            "RAW_REPORT_DATA suma todas las particiones de snapshot; Bronze toma solo la más "
+            "reciente.", "caption",
+        ),
     ]
-    for key, title in (
-        ("obt", "D.2 Grano y unicidad de la OBT"),
-        ("referencial", "D.3 Integridad referencial en Gold"),
-    ):
-        block = sf[key]
-        n = len(block["columns"])
-        story += [
-            KeepTogether([
-                _p(f"<b>{title}</b>"),
-                _sql(block["sql"]),
-                Spacer(1, 3),
-                _table([block["columns"]] + [[f"{int(v):,}" for v in row] for row in block["rows"]],
-                       [w / n] * n),
-            ]),
-            Spacer(1, 6),
-        ]
+    story += _query_block(
+        "D.2 Particiones de Raw (snapshot actual y backfill)", sf["particiones_raw"],
+        [w * 0.18, w * 0.20, w * 0.16, w * 0.18, w * 0.28],
+        lambda r: [r[0], r[1], _int(r[2]), _int(r[3]), r[4]],
+    )
+    story += _query_block(
+        "D.3 Decisiones de limpieza en Silver", sf["exclusiones"],
+        [w * 0.56, w * 0.22, w * 0.22], lambda r: [r[0], _int(r[1]), _int(r[2])],
+    )
+    story += _query_block(
+        "D.4 Grano de la OBT escrita por Spark", sf["obt"], [w / 4] * 4,
+        lambda r: [_int(v) for v in r],
+    )
+    story += _query_block(
+        "D.5 Integridad referencial en Gold", sf["referencial"], [w / 2] * 2,
+        lambda r: [_int(v) for v in r],
+    )
     sample = sf["muestra_obt"]
     story += [
         KeepTogether([
-            _p("<b>D.4 Muestra de la OBT final</b>"),
+            _p("<b>D.6 Muestra de la OBT final</b>"),
             _sql(sample["sql"]),
             Spacer(1, 3),
             _table([sample["columns"]]
                    + [row[:-1] + [f"{float(row[-1]):.3f}"] for row in sample["rows"]],
-                   [w * 0.27, w * 0.27, w * 0.24, w * 0.10, w * 0.12], mono_cols=(0, 1)),
+                   [w * 0.30, w * 0.15, w * 0.29, w * 0.13, w * 0.13], mono_cols=(0, 2)),
         ]),
     ]
 

@@ -2,27 +2,20 @@
 
 ## Qué permite reproducir el enlace
 
-El repositorio contiene el código y los pasos para reconstruir el pipeline,
-pero abrir el enlace no inicia una ejecución ni concede acceso a Snowflake. Para
-reproducirlo, quien lo evalúe debe configurar credenciales propias fuera de Git,
-levantar Docker, importar el flow y su archivo Python en Kestra y ejecutar dbt
-y Spark siguiendo las secciones de abajo. Esta configuración inicial es
-necesaria para proteger las credenciales; una vez importado, Kestra conserva el
-trigger semanal del flow.
+El repositorio contiene el código para reconstruir el pipeline, pero abrir el
+enlace no inicia una ejecución ni concede acceso a Snowflake. Quien lo evalúe
+configura credenciales propias en `.env` y ejecuta `docker compose up -d
+--build`. Compose construye las imágenes de dbt y Spark, levanta Kestra e
+importa automáticamente los flows y sus archivos. Desde Kestra, un solo flow
+ejecuta la ingesta, `dbt build` y el job Spark.
 
-Este flujo carga a Snowflake una instantánea completa de los experimentos RepoRT
-que tienen mediciones de retención canónicas exitosas. La URL anterior apuntaba a
-`main/data/report.csv`, que no existe: RepoRT usa la rama `master` y publica los
-datos como TSV por experimento en `processed_data/`.
-
-El flujo descarga y combina los archivos `*_rtdata_canonical_success.tsv` con
-los metadatos de columna y fase móvil de cada experimento. Escribe un CSV en el
-almacenamiento de Kestra, lo sube al named stage `REPORT_INGEST_NAMED_STAGE` y
-crea `RAW_REPORT_DATA` en Snowflake. La tabla Raw se reemplaza como una sola
-operación al terminar la carga, de modo que una falla anterior no deja una tabla
-truncada. La limpieza y las reglas de negocio permanecen en dbt.
-No ejecutes el antiguo `ingestar.py` de la raíz para esta carga: requiere un
-`report.csv` local que RepoRT no publica; el flow usa el script indicado abajo.
+El flow descarga los archivos `*_rtdata_canonical_success.tsv` de RepoRT
+(rama `master`, carpeta `processed_data/`) con los metadatos de columna y fase
+móvil de cada experimento. Cada ejecución carga el commit de RepoRT vigente en
+su fecha lógica como una partición `SNAPSHOT_DATE` de `RAW_REPORT_DATA`. Las
+reglas de limpieza viven en dbt.
+No ejecutes el antiguo `ingestar.py` de la raíz: requiere un `report.csv` local
+que RepoRT no publica.
 
 ## 1. Credenciales
 
@@ -40,8 +33,9 @@ Completa `.env` con el identificador de cuenta mostrado antes de
 nueva y un rol con permisos para usar el warehouse/database/schema y crear un
 stage, tablas y un formato de archivo en el esquema Raw y crear esquemas y
 tablas para dbt. `SNOWFLAKE_DATABASE` indica la base destino y
-`SNOWFLAKE_SCHEMA=RAW` es el esquema inicial de dbt. No subas `.env`; está
-excluido por `.gitignore`.
+`SNOWFLAKE_SCHEMA=RAW` es el esquema inicial de dbt. Define también
+`KESTRA_USER` (un email) y `KESTRA_PASSWORD`, que son las credenciales de la
+UI y la API de Kestra. No subas `.env`; está excluido por `.gitignore`.
 
 Las tablas se crean en la cuenta Snowflake indicada por estas variables; no se
 copian automáticamente a la cuenta del profesor. Para revisar los objetos ya
@@ -49,113 +43,116 @@ creados, el profesor debe tener acceso concedido a esa cuenta/base de datos. Si
 ejecuta la entrega con su propia cuenta, el pipeline crea los objetos en su
 cuenta con sus permisos y créditos.
 
-## 2. Levantar la infraestructura local
+## 2. Levantar la infraestructura e importar los flows
 
 ```bash
 docker compose config --quiet
 docker compose up -d --build
-docker compose ps
-docker compose logs -f kestra
+docker compose logs kestra-deploy   # debe terminar con "Despliegue completo."
 ```
 
-Abre el puerto 8080 desde VS Code/Codespaces. La configuración levanta Kestra
-en modo local con H2 persistente y un contenedor Spark 3.5.3 listo para ejecutar
-el job en modo local. El socket de Docker está montado en Kestra porque las
-tareas Python usan el runner Docker; úsalo solo en un entorno local confiable.
-El servicio Spark monta el proyecto en modo solo lectura y lee `.env` local,
-que nunca debe agregarse al repositorio.
+Servicios de `docker-compose.yml`:
 
-Si actualizas `.env`, recrea el contenedor para que lea las variables nuevas:
+| Servicio | Función |
+|---|---|
+| `dbt-image` | Construye `pset2-dbt:1.11` (dbt-core 1.11.6 + dbt-snowflake 1.11.4) y termina. |
+| `spark` | Construye `pset2-spark:3.5.3` con el conector de Snowflake ya incluido. |
+| `kestra` | Kestra 2.0.7 con autenticación básica tomada de `.env`. Lanza las tareas en contenedores mediante el socket de Docker; úsalo solo en un entorno local confiable. |
+| `kestra-deploy` | Ejecuta [`kestra/deploy.sh`](kestra/deploy.sh) cuando Kestra está sano. Sube los archivos de namespace (`ingest_repo_rt.py`, el proyecto `dbt/` y `spark/obt_processing.py`), valida los flows y los importa. |
+| `dbt` (perfil `manual`) | Permite ejecutar dbt a mano: `docker compose run --rm dbt dbt build`. |
 
-```bash
-docker compose up -d --force-recreate
-```
+Si cambias el código de los flows, dbt o Spark, vuelve a desplegar con
+`docker compose run --rm kestra-deploy`. Si cambias el Dockerfile de dbt o de
+Spark, ejecuta antes `docker compose build`. Abre el puerto 8080 para la UI.
+Los diagramas están en [`docs/arquitectura.svg`](docs/arquitectura.svg) y
+[`docs/modelo_estrella.svg`](docs/modelo_estrella.svg).
 
-El diagrama de infraestructura está en [`docs/arquitectura.svg`](docs/arquitectura.svg)
-y el diagrama dimensional en [`docs/modelo_estrella.svg`](docs/modelo_estrella.svg).
+## 3. Ejecutar el pipeline (Kestra)
 
-## 3. Importar y ejecutar el flow
+Flow [`ingest_report_to_snowflake`](kestra/flows/ingest_report_to_snowflake.yml),
+namespace `pset2.pipeline`:
 
-En Kestra, importa `kestra/flows/ingest_report_to_snowflake.yml` en el namespace
-`pset2.pipeline`. Luego agrega
-`kestra/flows/ingest_repo_rt.py` como archivo de namespace con ese mismo nombre;
-el flow lo incluye mediante `namespaceFiles`.
+1. `ensure_snowflake_objects`: crea el stage, el formato CSV y la tabla Raw, y
+   agrega las columnas de linaje (`SNAPSHOT_DATE`, `SOURCE_REF`,
+   `SOURCE_COMMIT`, `EXECUTION_ID`, `INGESTED_AT`) si faltan.
+2. `extract_dataset`: resuelve `source_ref` al último commit hasta la fecha
+   lógica y descarga sus TSV.
+3. Carga en el stage, `COPY INTO` a una tabla transient de la ejecución y luego
+   `publish_snapshot`. Esta tarea reemplaza en una transacción **solo** la
+   partición `SNAPSHOT_DATE` de esa fecha.
+4. `transformations` (si `run_transformations = true`): `dbt_build` construye
+   Bronze, Silver y Gold y ejecuta las 44 pruebas; `spark_obt` construye la OBT.
+5. Bloque `errors`: si falla cualquier tarea, registra la tarea y el snapshot
+   afectados y borra la tabla transient y los archivos del stage.
 
-Ejecuta el flow manualmente con `source_ref=master` para la primera carga. Para
-reproducir una versión histórica, usa como `source_ref` el SHA de un commit de
-RepoRT. Después de la primera carga, el trigger lo ejecuta cada lunes a las
+La fecha lógica es el input `snapshot_date`; si no se indica, se usa la fecha
+del trigger o la de inicio de la ejecución. El trigger corre cada lunes a las
 02:00 UTC. Los pasos de red y Snowflake reintentan hasta tres veces.
 
-El permiso para crear el stage se necesita una sola vez. La carga crea un named
-stage `REPORT_INGEST_NAMED_STAGE` y un formato CSV con nombre para leer el
-archivo comprimido. No usa el stage de tabla (`@%...`), que no permite copiar
-sus archivos a una tabla transient distinta.
-`COPY INTO` carga primero las columnas del CSV como texto en una tabla transient
-por ejecución; después la consulta convierte las columnas numéricas y reemplaza
-`RAW_REPORT_DATA`. Así, la tabla final solo se reemplaza después de completar la
-carga del archivo. Al correr el flow otra vez no duplica filas. En caso de error,
-revisa la tarea fallida en la UI de Kestra; el flow no registra la contraseña.
+### Backfill histórico
 
-## 4. Construir Bronze, Silver y Gold con dbt
-
-Las tres capas se materializan en Snowflake, en la base indicada por
-`SNOWFLAKE_DATABASE`: `BRONZE`, `SILVER` y `GOLD`. La fuente Raw se lee desde
-`RAW`. dbt crea los esquemas si el rol tiene permiso `CREATE SCHEMA` en la base.
-Silver conserva una fila por `registro_id` con tiempo de retención positivo;
-no colapsa mediciones distintas solo porque compartan compuesto y columna.
-Gold declara el grano de la tabla de hechos como una medición canónica por
-registro de RepoRT, con dimensiones de compuesto y condición.
-Antes de ejecutar dbt, configura su perfil sin copiar credenciales al repositorio:
-
-```bash
-mkdir -p dbt/config
-cp dbt/profiles.yml.example dbt/config/profiles.yml
-set -a
-source .env
-set +a
-cd dbt
-dbt debug --profiles-dir config
-dbt build --profiles-dir config
-```
-
-El ejemplo de perfil utiliza variables de entorno; si cambias `.env`, vuelve a
-la raíz del PSet y cárgalo de nuevo. El perfil local queda en `dbt/config/` y
-está excluido de Git; no sobrescribe la configuración personal `~/.dbt`. `dbt
-build` crea las tablas de capa en Snowflake.
-`source()` enlaza Raw y `ref()` enlaza los modelos entre capas.
-Cuando termines, vuelve a la carpeta raíz del PSet antes de ejecutar Spark:
-
-```bash
-cd ..
-```
-
-## 5. Construir la OBT con Spark
-
-Después de que `dbt build` termine correctamente, ejecuta Spark desde esta
-carpeta. El script lee la tabla de hechos y las dimensiones Gold del esquema
-`GOLD` y escribe
-`OBT_QSRR_FINAL` en `GOLD`. Lee las credenciales de
-Snowflake desde `.env`; no escribas la contraseña directamente en el script.
-
-```bash
-docker compose run --rm spark /opt/spark/bin/spark-submit \
-  --packages net.snowflake:spark-snowflake_2.12:3.2.3-spark_3.5 \
-  /opt/pset2/spark/obt_processing.py
-```
-
-El contenedor incluye Spark y Java; el conector se descarga de Maven Central en
-la primera ejecución. El proceso escribe la OBT mediante el conector de
-Snowflake.
-Para comprobar la tabla final en Snowflake (se espera que filas y hechos únicos
-coincidan; para el snapshot actual deberían ser 183,198 después de filtrar el
-único tiempo de retención no positivo):
+El flow [`backfill_report_history`](kestra/flows/backfill_report_history.yml)
+recibe `start_date`, `end_date` y `step` (`WEEK`, `MONTH` o `QUARTER`). Ejecuta
+la ingesta para cada fecha, una a la vez y sin transformaciones, y cada fecha
+queda en su propia partición de Raw. Con `rebuild_gold = true`, al final
+ejecuta una vez la ingesta del día con dbt y Spark. Como el flow principal usa
+`trigger.date`, también funciona el backfill nativo del trigger
+`weekly_schedule` desde la UI.
 
 ```sql
-SELECT COUNT(*) AS TOTAL_FILAS, COUNT(DISTINCT HECHO_ID) AS HECHOS_UNICOS
-FROM REPORT_QSRR_DB.GOLD.OBT_QSRR_FINAL;
+SELECT SNAPSHOT_DATE, SOURCE_COMMIT, COUNT(*)
+FROM REPORT_QSRR_DB.RAW.RAW_REPORT_DATA GROUP BY 1, 2 ORDER BY 1;
 ```
 
-No subas `.env` ni compartas la contraseña.
+## 4. dbt: Bronze, Silver y Gold
+
+| Capa | Modelo | Contenido |
+|---|---|---|
+| Bronze | `stg_report_data` | Un snapshot de Raw (variable `snapshot_date`, por defecto el más reciente), con nombres y tipos estandarizados y **sin descartar filas**. `t0 = 0` se convierte en nulo. |
+| Silver | `int_registros_clasificados` | Una fila por registro Bronze con su `motivo_exclusion` (nulo = se conserva). |
+| Silver | `int_retencion_filtrada` | Una fila por `(experimento, compuesto)`, con las réplicas consistentes colapsadas en la mediana. |
+| Gold | `fact_retencion_cromatografica`, `dim_compuesto`, `dim_condiciones` | Esquema estrella; el hecho tiene el grano de Silver. |
+
+Reglas de limpieza (los umbrales son `vars` en `dbt/dbt_project.yml`):
+`rt_no_positivo`, `sin_inchikey`, `no_retenido_rt_menor_igual_t0`
+(RT ≤ t0 cuando t0 es conocido), `rt_fuera_de_rango` (> 120 min) y
+`replicas_inconsistentes` (mismo compuesto en el mismo experimento con un rango
+> 0.5 min). El flujo se normaliza a mL/min: un valor > 5 se interpreta como
+µL/min.
+
+Pruebas de dominio, además de `not_null`, `unique` y `relationships`:
+- `en_rango` (genérica) sobre RT, flujo y rango de réplicas.
+- Conservación de filas Raw → Bronze → auditoría → Silver → Gold.
+- RT > t0.
+- Metadatos constantes por experimento.
+- Valores aceptados de `motivo_exclusion`.
+- Un tope del 10 % de exclusiones.
+
+Para ejecutar dbt fuera de Kestra:
+
+```bash
+docker compose run --rm dbt dbt build
+# o con dbt local:
+mkdir -p dbt/config && cp dbt/profiles.yml.example dbt/config/profiles.yml
+set -a; source .env; set +a
+cd dbt && dbt build --profiles-dir config && cd ..
+```
+
+## 5. Spark y OBT
+
+[`spark/obt_processing.py`](spark/obt_processing.py) lee el hecho y las dos
+dimensiones de `GOLD` y, **antes de unir**, valida:
+- La unicidad y no nulidad de `COMPUESTO_ID`, `INCHIKEY`, `CONDICION_ID` y
+  `HECHO_ID`.
+- Que no haya hechos sin dimensión.
+
+Después del join verifica que la OBT tenga exactamente las filas del hecho. Si
+algo falla, termina con código 1 **sin escribir**, y la OBT anterior queda
+intacta. No deduplica con `ROW_NUMBER()`. Para ejecutarlo a mano:
+
+```bash
+docker compose run --rm spark /opt/spark/bin/spark-submit /opt/pset2/spark/obt_processing.py
+```
 
 ## 6. Documento técnico y resumen
 
@@ -171,10 +168,17 @@ python docs/generate_memo.py
 ```
 
 `docs/PSet2_anexos_Buenaño_Peñafiel.pdf` reúne la evidencia de ejecución:
-capturas de pantalla (`docs/capturas/`), la ejecución programada de Kestra, el
-resultado de `dbt build` y consultas de verificación en Snowflake. Las tablas
-salen de `docs/evidencia/*.json`; para recolectarlas de nuevo (requiere Kestra
-corriendo, `dbt/target/run_results.json` y `.env` exportado):
+- La última ejecución completa en Kestra, con las validaciones de Spark.
+- El backfill y una ejecución fallida en la que actuó el bloque `errors`.
+- El resultado de cada modelo y prueba de dbt (el `run_results.json` que Kestra
+  guarda para la tarea `dbt_build`).
+- Consultas de verificación en Snowflake.
+
+Los datos salen de `docs/evidencia/*.json`. Si agregas capturas en
+`docs/capturas/` (PNG o JPG, con pies en `pies.json`), se incluyen como
+sección A; las capturas anteriores a la corrección están en
+`docs/capturas/obsoletas/` y no se incluyen. Para recolectar la evidencia de
+nuevo necesitas Kestra corriendo y `.env` exportado:
 
 ```bash
 python docs/generate_anexos.py --refresh   # o sin --refresh para solo rearmar el PDF
@@ -186,7 +190,7 @@ Antes de enviar todo el repositorio a Snowflake, se puede verificar la descarga
 y el formato con dos experimentos:
 
 ```bash
-python kestra/flows/ingest_repo_rt.py master /tmp/reporrt-smoke.csv --max-experiments 2
+python kestra/flows/ingest_repo_rt.py master /tmp/reporrt-smoke.csv --max-experiments 2 --as-of 2025-01-01
 ```
 
 Este comando solo prueba la fuente pública y **no** se conecta a Snowflake.
@@ -195,35 +199,26 @@ experimentos canónicos exitosos encontrados en RepoRT.
 
 ## Esquema y alcance de Raw
 
-`RAW_REPORT_DATA` incluye el ID de experimento, las mediciones y estructura
-química estandarizadas publicadas por RepoRT, además del nombre/código y
-dimensiones de columna, flujo, tiempo muerto y composición de H2O/MeOH/ACN de
-las fases A y B. Los campos se conservan como texto para datos descriptivos y
-numéricos para RT/condiciones. La fuente canónica no proporciona un índice de
-retención; por ello `factor_retencion` queda nulo en Staging, no se inventa.
+`RAW_REPORT_DATA` incluye el ID de experimento, las mediciones y la estructura
+química estandarizadas de RepoRT, la columna, el flujo, el tiempo muerto y la
+composición de H2O/MeOH/ACN de las fases A y B. Además guarda el linaje de cada
+partición (`SNAPSHOT_DATE`, `SOURCE_COMMIT`, `EXECUTION_ID`, `INGESTED_AT`).
+RepoRT no publica el factor de retención, así que ese campo se eliminó del
+modelo en lugar de mantener una columna siempre nula.
 
-La capa Bronze en dbt adapta los nombres de RepoRT al modelo del proyecto y
-valida la existencia del tiempo de retención. La fuente es un snapshot público
-mutable: para reproducir una carga idéntica, fija `source_ref` al SHA del commit
-utilizado.
+## Calidad observada en el snapshot actual (commit `420b550`)
 
-## Calidad observada en el snapshot procesado
+| Resultado | Filas |
+|---|---:|
+| Raw / Bronze | 183,199 |
+| Excluidas por RT ≤ t0 | 3,912 (151 experimentos) |
+| Excluidas por réplicas inconsistentes | 5,117 (129 experimentos) |
+| Excluidas por RT no positivo | 1 |
+| Conservadas (4.9 % excluido) | 174,169 |
+| Silver / hecho / OBT después de colapsar réplicas | 166,137 |
+| `DIM_COMPUESTO` / `DIM_CONDICIONES` | 96,855 / 151 |
 
-En la instantánea cargada de 183,199 filas: no se encontraron claves duplicadas
-por `(experiment_id, id)`, ni `RT` nulo, ni `InChIKey` ausente. Se encontró un
-`RT` no positivo, que Silver excluye por no representar una retención válida.
-`NAME` estaba vacío en 90,640 filas (49.5%); `COLUMN_NAME`, en 2,603 (1.4%);
-y el flujo estaba ausente o no era positivo en 12,177 (6.6%). Esos atributos
-descriptivos no se inventan ni se usan para eliminar mediciones; en la OBT los
-campos de columna pueden permanecer nulos. La fuente publica mediciones
-canónicas exitosas, pero no se hizo una comparación independiente con una
-medición de referencia para certificar su precisión analítica.
-
-Con la regla de Silver actual se conservan 183,198 observaciones. Las
-dimensiones Gold tienen claves no nulas y únicas; las pruebas `relationships`
-validan que cada hecho encuentre su compuesto y condición, incluso cuando los
-atributos descriptivos de esa condición estén ausentes.
-Esto documenta la consistencia referencial entre la tabla de hechos y las dos
-dimensiones. La precisión analítica no se contrastó con una referencia
-experimental externa y se reporta como una limitación, no como una validación
-completada.
+El 49.5 % de las filas no tiene nombre, el 1.4 % no tiene columna y el 6.6 % no
+tiene flujo. Son atributos descriptivos: se conservan como nulos y no se
+inventan. No hubo valores de flujo que requirieran conversión de unidades. La
+precisión analítica no se contrastó con una referencia externa.
