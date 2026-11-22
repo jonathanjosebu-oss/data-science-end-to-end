@@ -98,7 +98,7 @@ _(tu respuesta)_
 
 ## Ejercicio 3: el warehouse de tu propio proyecto
 
-Carga el archivo real que tu pipeline orquestado (Semana 4, Sesión 1) genera para tu proyecto a un warehouse de DuckDB propio, y escribe tus primeras consultas. Parte de la plantilla [`plantilla-warehouse/construir_warehouse.py`](./plantilla-warehouse/construir_warehouse.py), que trae los `TODO` marcados en vez del script en blanco.
+Carga el archivo real que tu pipeline orquestado (Semana 4, Sesión 1) genera para tu proyecto a un warehouse de DuckDB propio, y escribe tus primeras consultas. Parte de la plantilla [`plantilla-warehouse/construir_warehouse.py`](./plantilla-warehouse/construir_warehouse.py), que trae los `TODO` marcados en vez del script en blanco: cópiala a `psets/proyecto/warehouse/` y complétala ahí.
 
 ### Paso 1: conecta y carga tu archivo (5 minutos)
 

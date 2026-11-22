@@ -105,7 +105,7 @@ _(tu respuesta)_
 
 ## Ejercicio 3: modela en capas los datos de tu propio proyecto
 
-Usa el mismo patrón de los Ejercicios 1 y 2 (staging, intermedia, marts), aplicado a la tabla que cargaste a tu warehouse en la Sesión 1. Parte de la plantilla [`plantilla-dbt/`](./plantilla-dbt/), que trae los `TODO` marcados en cada archivo en vez del proyecto en blanco.
+Usa el mismo patrón de los Ejercicios 1 y 2 (staging, intermedia, marts), aplicado a la tabla que cargaste a tu warehouse en la Sesión 1. Parte de la plantilla [`plantilla-dbt/`](./plantilla-dbt/), que trae los `TODO` marcados en cada archivo en vez del proyecto en blanco: copia la carpeta completa a `psets/proyecto/warehouse/dbt/` y trabaja ahí, al lado del `.duckdb` de la Sesión 1.
 
 ### Paso 1: staging (7 minutos)
 

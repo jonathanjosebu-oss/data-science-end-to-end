@@ -96,7 +96,7 @@ _(tu pregunta)_
 
 ## Antes de la próxima sesión
 
-El Canvas que llenaste hoy es la base directa del **PSet 1: Propuesta de proyecto** (ver `psets/pset-01/`), que se asigna al cierre de esta sesión.
+El Canvas que llenaste hoy es la base directa del **PSet 1: Propuesta del proyecto y su ambiente** (ver `psets/pset-01/`), que se asigna al cierre de esta sesión.
 
 Pregunta: si tu proyecto es viable y ya conoces sus riesgos principales, ¿por qué un notebook que funciona perfecto en mi laptop podría fallar por completo en la tuya?
 

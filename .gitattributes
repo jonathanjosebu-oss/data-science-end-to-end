@@ -1,3 +1,7 @@
 # Los scripts de shell siempre con fin de linea LF, aunque se clone en Windows:
 # con CRLF, bash falla al crear el contenedor.
 *.sh text eol=lf
+
+# Los notebooks son JSON: mismo fin de linea en todas las maquinas, para que
+# un commit desde Windows no marque como cambiado el archivo completo.
+*.ipynb text eol=lf

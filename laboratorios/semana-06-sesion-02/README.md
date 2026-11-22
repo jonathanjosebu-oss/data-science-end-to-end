@@ -101,7 +101,7 @@ _(tu respuesta)_
 
 ## Ejercicio 3: tu propio proyecto, ¿streaming o batch?
 
-Aplica las dos preguntas que decidieron el caso de apertura a tu propio proyecto, y produce/consume al menos un evento representativo de tu proyecto con Redpanda. Parte de la plantilla [`plantilla-kafka/`](./plantilla-kafka/), que trae los `TODO` marcados en `productor.py` y `consumidor.py` en vez del código en blanco.
+Aplica las dos preguntas que decidieron el caso de apertura a tu propio proyecto, y produce/consume al menos un evento representativo de tu proyecto con Redpanda. Parte de la plantilla [`plantilla-kafka/`](./plantilla-kafka/), que trae los `TODO` marcados en `productor.py` y `consumidor.py` en vez del código en blanco: copia los dos archivos a `psets/proyecto/procesamiento/` y complétalos ahí.
 
 ### Paso 1: responde las dos preguntas de decisión para tu proyecto (5 minutos)
 
@@ -118,6 +118,16 @@ _(tu tópico, y los eventos que publicaste)_
 ### Paso 3: escribe tu consumidor y confirma que recibe lo publicado (8 minutos)
 
 _(qué mostró tu consumidor al correrlo)_
+
+## Al terminar
+
+Apaga Redpanda desde `starter/`:
+
+```
+docker compose down
+```
+
+Este broker no tiene volumen: al apagarlo se pierden los tópicos y los mensajes que produjiste. Para el laboratorio integrador de la Semana 7 no los necesitas; si tu proyecto usa streaming, lo vuelves a levantar con `docker compose up -d` y tu productor genera los eventos otra vez.
 
 ## Antes de la próxima sesión
 

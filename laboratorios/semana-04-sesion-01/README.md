@@ -107,7 +107,7 @@ _(tu respuesta)_
 
 ## Ejercicio 3: el flow de tu propio proyecto
 
-Usa el mismo patrón de los Ejercicios 1 y 2, aplicado a la ingesta de tu proyecto. En vez de `python:3.11-slim` y un archivo del namespace, el flow corre la imagen de Docker que construiste en la Semana 3, Sesión 1: ahí ya están tu script y sus dependencias. Parte de la plantilla [`plantilla-flow/flow_proyecto.yml`](./plantilla-flow/flow_proyecto.yml).
+Usa el mismo patrón de los Ejercicios 1 y 2, aplicado a la ingesta de tu proyecto. En vez de `python:3.11-slim` y un archivo del namespace, el flow corre la imagen de Docker que construiste en la Semana 3, Sesión 1: ahí ya están tu script y sus dependencias. Parte de la plantilla [`plantilla-flow/flow_proyecto.yml`](./plantilla-flow/flow_proyecto.yml): cópiala a `psets/proyecto/orquestacion/` y complétala ahí.
 
 ### Paso 1: el task que corre tu imagen (5 minutos)
 
@@ -127,9 +127,19 @@ Descomenta el bloque `triggers` y elige una expresión cron con la frecuencia qu
 
 _(tu expresión cron, y por qué esa frecuencia)_
 
-Súbelo con `bash ../starter/subir_a_kestra.sh flow_proyecto.yml` desde `plantilla-flow/` (sin scripts: ya están en la imagen) y ejecútalo manualmente al menos una vez para confirmar que corre sin errores.
+Súbelo desde la raíz de tu fork con `bash laboratorios/semana-04-sesion-01/starter/subir_a_kestra.sh psets/proyecto/orquestacion/flow_proyecto.yml` (sin scripts: ya están en la imagen) y ejecútalo manualmente al menos una vez para confirmar que corre sin errores.
 
 _(qué verificaste, y si encontraste algún error)_
+
+## Al terminar
+
+Apaga Kestra desde `starter/`, para que no siga ocupando memoria mientras trabajas en otra cosa:
+
+```
+docker compose down
+```
+
+Sin `-v`: los volúmenes `datos_postgres` y `datos_kestra` se conservan, y con ellos tus flows y su historial de ejecuciones. El laboratorio integrador de la Semana 7 parte de tu flow; la próxima vez que corras `docker compose up -d` ahí sigue. Mientras Kestra esté apagado, el `Schedule` de tu flow no dispara: en una empresa, el orquestador corre en un servidor que no se apaga.
 
 ## Antes de la próxima sesión
 

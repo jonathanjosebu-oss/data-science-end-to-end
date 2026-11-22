@@ -8,13 +8,15 @@ Este laboratorio no tiene tres ejercicios con dificultad creciente, como los de 
 
 ## Antes de empezar: reúne lo que ya tienes
 
-Antes de correr nada, ubica los cinco archivos o carpetas que tu propio proyecto ya generó en semanas anteriores:
+Antes de correr nada, confirma que los cinco archivos o carpetas que tu propio proyecto ya generó en semanas anteriores están en [`psets/proyecto/`](../../psets/README.md), cada uno en su carpeta:
 
-1. El Dockerfile de tu proyecto (Semana 3, Sesión 1).
-2. El `docker-compose.yml` o `main.tf` de tu infraestructura (Semana 3, Sesión 2).
-3. El flow de Kestra de tu pipeline de ingesta (Semana 4, Sesión 1).
-4. El script de diagnóstico y limpieza que escribiste sobre tu dataset (Semana 4, Sesión 2).
-5. El script que carga tu archivo limpio a tu warehouse de DuckDB (Semana 5, Sesión 1), tu proyecto de dbt (Semana 5, Sesión 2) y tu job de Spark sobre el histórico (Semana 6, Sesión 1).
+1. El Dockerfile de tu proyecto (Semana 3, Sesión 1), en la raíz de `psets/proyecto/`.
+2. El `docker-compose.yml` o `main.tf` de tu infraestructura (Semana 3, Sesión 2), en `infra/`.
+3. El flow de Kestra de tu pipeline de ingesta (Semana 4, Sesión 1), en `orquestacion/`.
+4. Tu notebook de diagnóstico de calidad (Semana 4, Sesión 2), en `calidad/`. Hoy, las decisiones de limpieza que documentaste ahí pasan a un script (`calidad/limpiar.py`), que deja el archivo limpio en `data/processed/`: esta etapa corre sola dentro del pipeline, y un pipeline no abre notebooks ni sabe en qué orden corriste sus celdas. El script lleva solo las líneas que limpian, sin las celdas que usaste para mirar los datos.
+5. El script que carga tu archivo limpio a tu warehouse de DuckDB (Semana 5, Sesión 1) y tu proyecto de dbt (Semana 5, Sesión 2), en `warehouse/`, y tu job de Spark sobre el histórico (Semana 6, Sesión 1), en `procesamiento/`.
+
+Si alguno quedó dentro de la carpeta de un laboratorio, muévelo con `git mv` a su carpeta de `psets/proyecto/`. Las etapas 1 y 2 (contenedor e infraestructura) vienen del PSet 1; de la 3 a la 8, lo que verificas hoy es lo que entregas en el PSet 2.
 
 Si te falta alguno, ese es tu primer bloqueo: resuélvelo antes de seguir, no lo saltes. El pipeline completo depende de que cada pieza exista.
 
@@ -29,7 +31,7 @@ Cada etapa debe entregar exactamente lo que la siguiente espera recibir, no una 
 | 1. Contenedor | 3, Sesión 1 | `docker build` construye tu imagen sin error, y `docker run` (con tu volumen) produce el mismo resultado que correr tu script directo con Python |
 | 2. Infraestructura | 3, Sesión 2 | `docker compose up` (o `terraform apply`) levanta tu base y el contenedor de ingesta se conecta a ella sin cambiar ninguna credencial a mano |
 | 3. Orquestación | 4, Sesión 1 | tu flow de Kestra ejecuta la ingesta contenedorizada de la Etapa 1 (mismo tag de imagen, no uno viejo) con el reintento y el horario que configuraste |
-| 4. Calidad | 4, Sesión 2 | tu script de limpieza corre sobre el archivo real que tu pipeline orquestado acumuló, no sobre el dataset de ejemplo de esa sesión |
+| 4. Calidad | 4, Sesión 2 | tu script de limpieza, escrito a partir de tu notebook de diagnóstico, corre con `python3` sobre el archivo real que tu pipeline orquestado acumuló, no sobre el dataset de ejemplo de esa sesión |
 | 5. Warehouse | 5, Sesión 1 | tu warehouse de DuckDB carga el archivo YA LIMPIO de la Etapa 4, no el crudo de la Etapa 1 |
 | 6. Modelado | 5, Sesión 2 | `dbt run` y `dbt test` conectan al mismo archivo `.duckdb` de la Etapa 5 (revisa la ruta en tu `profiles.yml`) |
 | 7. Batch | 6, Sesión 1 | tu job de Spark lee el mismo histórico limpio, y su resultado coincide con el que ya conocías de dbt o de pandas |
@@ -64,6 +66,7 @@ _Respuesta: si reconstruiste tu imagen de Docker después de crear el flow, ¿tu
 _(tu respuesta)_
 
 **Etapa 4, calidad:**
+- [ ] cada decisión de limpieza de tu notebook de diagnóstico está en tu script de limpieza, y el script corre de principio a fin con `python3`, sin abrir el notebook
 - [ ] tu script de limpieza corre sobre el archivo real acumulado por tu pipeline orquestado, no sobre el dataset de ejemplo de esa sesión
 - [ ] el archivo limpio que produce es el que vas a cargar en la Etapa 5, con el mismo nombre y ruta que usa el script de esa etapa
 

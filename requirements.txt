@@ -1,6 +1,8 @@
 # Librerias de Python del curso, con version fija para que todos tengan el mismo ambiente.
 # El Codespace las instala solo al crearse. En tu laptop: pip install -r requirements.txt
 # Probadas juntas en Python 3.11 (pip check sin conflictos).
+# ipykernel corre los notebooks en VS Code; jupyterlab los abre en el navegador
+# si trabajas en tu laptop sin VS Code (jupyter lab).
 
 numpy==1.26.4
 pandas==2.2.2
@@ -16,3 +18,15 @@ kafka-python==2.0.2
 matplotlib==3.9.2
 scikit-learn==1.5.2
 ipykernel==6.29.5
+jupyterlab==4.2.5
+# Registro de experimentos (Semana 11). Probada con el resto de este archivo en Python 3.11, pip check sin conflictos.
+mlflow==2.17.2
+# Servicio de predicción y pruebas (Semana 12). pydantic y anyio son dependencias de
+# FastAPI que se fijan aparte: sin versión, cada Codespace nuevo instalaría la más reciente.
+fastapi==0.115.4
+uvicorn==0.32.0
+pydantic==2.9.2
+anyio==4.6.2.post1
+httpx==0.27.2
+pytest==8.3.3
+joblib==1.4.2

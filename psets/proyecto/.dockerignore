@@ -1,0 +1,10 @@
+# Lo que no entra a ninguna imagen del proyecto. Los datos llegan con un
+# volumen (docker run -v), no copiados dentro de la imagen: una imagen con
+# datos pesa de mas y queda desactualizada en cuanto llega el siguiente archivo.
+data/
+docs/
+**/.ipynb_checkpoints/
+**/__pycache__/
+**/.pytest_cache/
+*.duckdb
+.gitkeep

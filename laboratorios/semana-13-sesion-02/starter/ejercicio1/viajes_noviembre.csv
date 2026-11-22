@@ -1,0 +1,1157 @@
+fecha_hora_inicio,zona_origen,zona_destino,distancia_km,pasajeros,metodo_pago,tarifa_real
+2026-11-02 00:14,Midtown,Upper East Side,4.19,,tarjeta,14.36
+2026-11-02 00:14,JFK Airport,Midtown,23.49,1.0,tarjeta,70.0
+2026-11-02 02:21,Upper East Side,JFK Airport,31.02,2.0,efectivo,70.0
+2026-11-02 02:47,Upper East Side,Midtown,4.54,4.0,tarjeta,14.08
+2026-11-02 03:36,Upper East Side,Brooklyn,9.19,4.0,tarjeta,25.43
+2026-11-02 05:02,Queens,Lower Manhattan,10.92,1.0,tarjeta,29.74
+2026-11-02 05:02,Queens,Lower Manhattan,10.92,1.0,tarjeta,29.74
+2026-11-02 06:46,Queens,Queens,4.58,1.0,tarjeta,14.53
+2026-11-02 06:50,Midtown,Upper West Side,3.98,5.0,efectivo,14.79
+2026-11-02 07:40,Queens,Midtown,9.64,1.0,tarjeta,33.12
+2026-11-02 08:03,Harlem,Midtown,7.99,1.0,,28.08
+2026-11-02 08:11,Midtown,Queens,8.11,1.0,tarjeta,27.19
+2026-11-02 08:21,Brooklyn,Upper East Side,13.46,1.0,efectivo,42.49
+2026-11-02 08:42,Midtown,Midtown,0.51,1.0,tarjeta,5.65
+2026-11-02 09:08,Upper East Side,Midtown,3.55,1.0,efectivo,12.88
+2026-11-02 09:16,Upper East Side,Brooklyn,9.72,1.0,tarjeta,31.18
+2026-11-02 09:16,Upper East Side,Brooklyn,9.72,1.0,tarjeta,31.18
+2026-11-02 11:34,Upper West Side,Upper West Side,1.78,,efectivo,8.45
+2026-11-02 12:39,Brooklyn,Lower Manhattan,10.06,1.0,tarjeta,30.09
+2026-11-02 14:24,Brooklyn,Lower Manhattan,8.69,1.0,efectivo,27.12
+2026-11-02 16:30,Upper East Side,Brooklyn,9.09,1.0,tarjeta,31.89
+2026-11-02 16:30,Upper East Side,Brooklyn,9.09,1.0,tarjeta,31.89
+2026-11-02 16:47,Brooklyn,Midtown,7.54,5.0,efectivo,23.01
+2026-11-02 17:20,Lower Manhattan,Upper East Side,10.79,1.0,tarjeta,35.6
+2026-11-02 17:20,Midtown,Midtown,1.59,3.0,efectivo,7.53
+2026-11-02 17:37,Lower Manhattan,Upper East Side,6.97,2.0,tarjeta,23.09
+2026-11-02 17:45,Lower Manhattan,Midtown,6.55,2.0,tarjeta,23.71
+2026-11-02 18:04,Upper East Side,Brooklyn,10.06,1.0,tarjeta,33.21
+2026-11-02 18:21,Upper East Side,Midtown,4.35,1.0,efectivo,13.57
+2026-11-02 18:39,Midtown,Upper East Side,5.02,1.0,efectivo,20.38
+2026-11-02 19:02,JFK Airport,Midtown,30.91,1.0,efectivo,70.0
+2026-11-02 19:48,Lower Manhattan,Upper East Side,7.35,1.0,efectivo,26.97
+2026-11-02 19:54,Lower Manhattan,Brooklyn,13.49,1.0,tarjeta,40.72
+2026-11-02 20:12,Brooklyn,Upper West Side,7.73,2.0,efectivo,23.81
+2026-11-02 20:24,Midtown,Upper West Side,4.56,1.0,tarjeta,16.31
+2026-11-02 20:41,Upper West Side,Midtown,4.84,1.0,tarjeta,15.77
+2026-11-02 20:45,Midtown,Queens,11.26,1.0,tarjeta,35.06
+2026-11-02 20:45,Midtown,Queens,11.26,1.0,tarjeta,35.06
+2026-11-02 21:34,Midtown,Brooklyn,8.33,2.0,tarjeta,28.63
+2026-11-02 23:06,Upper West Side,Harlem,4.6,1.0,efectivo,16.99
+2026-11-03 00:14,Brooklyn,Upper East Side,7.35,1.0,tarjeta,21.55
+2026-11-03 01:12,Midtown,Upper East Side,4.17,1.0,tarjeta,13.81
+2026-11-03 01:51,Harlem,Upper East Side,3.23,1.0,tarjeta,13.74
+2026-11-03 01:51,Harlem,Upper East Side,3.23,1.0,tarjeta,13.74
+2026-11-03 04:35,Brooklyn,Midtown,11.67,1.0,efectivo,33.39
+2026-11-03 06:07,Upper West Side,Lower Manhattan,8.48,6.0,tarjeta,26.85
+2026-11-03 06:50,Midtown,Midtown,3.85,,efectivo,12.26
+2026-11-03 08:01,Lower Manhattan,Brooklyn,9.82,1.0,tarjeta,31.62
+2026-11-03 08:01,Lower Manhattan,Brooklyn,9.82,1.0,tarjeta,31.62
+2026-11-03 08:37,Upper East Side,Midtown,4.41,2.0,tarjeta,16.7
+2026-11-03 09:51,Upper West Side,Midtown,4.08,1.0,tarjeta,14.28
+2026-11-03 11:21,JFK Airport,Lower Manhattan,22.74,1.0,tarjeta,70.0
+2026-11-03 11:21,JFK Airport,Lower Manhattan,22.74,1.0,tarjeta,70.0
+2026-11-03 11:52,Upper West Side,Midtown,2.78,3.0,efectivo,9.83
+2026-11-03 13:03,Lower Manhattan,JFK Airport,32.05,1.0,tarjeta,70.0
+2026-11-03 13:03,Lower Manhattan,JFK Airport,32.05,1.0,tarjeta,70.0
+2026-11-03 13:58,Queens,Upper East Side,14.67,,tarjeta,40.65
+2026-11-03 14:17,Midtown,Midtown,5.69,1.0,efectivo,20.52
+2026-11-03 14:52,JFK Airport,Queens,18.65,2.0,tarjeta,56.94
+2026-11-03 14:52,JFK Airport,Queens,18.65,2.0,tarjeta,56.94
+2026-11-03 15:20,Midtown,Queens,6.63,2.0,efectivo,20.68
+2026-11-03 15:58,Lower Manhattan,Upper East Side,8.52,4.0,tarjeta,26.85
+2026-11-03 16:16,Brooklyn,Brooklyn,2.37,2.0,efectivo,11.31
+2026-11-03 16:16,Brooklyn,Brooklyn,2.37,2.0,efectivo,11.31
+2026-11-03 16:33,JFK Airport,Lower Manhattan,24.27,,tarjeta,70.0
+2026-11-03 16:46,Midtown,Midtown,0.89,1.0,tarjeta,4.76
+2026-11-03 16:57,Upper West Side,Upper East Side,3.89,1.0,tarjeta,15.05
+2026-11-03 16:57,Upper West Side,Upper East Side,3.89,1.0,tarjeta,15.05
+2026-11-03 17:04,Harlem,Midtown,9.51,1.0,tarjeta,31.04
+2026-11-03 17:04,Harlem,Midtown,9.51,1.0,tarjeta,31.04
+2026-11-03 17:14,Midtown,Upper West Side,3.45,6.0,efectivo,13.92
+2026-11-03 17:14,Midtown,Upper West Side,3.45,6.0,efectivo,13.92
+2026-11-03 17:50,Upper West Side,Queens,8.88,1.0,efectivo,27.98
+2026-11-03 18:43,Upper West Side,Midtown,4.19,2.0,tarjeta,15.99
+2026-11-03 18:48,Upper East Side,Lower Manhattan,10.19,2.0,tarjeta,33.88
+2026-11-03 18:51,Midtown,Lower Manhattan,4.16,3.0,tarjeta,18.43
+2026-11-03 18:57,Midtown,Upper East Side,4.15,4.0,efectivo,16.54
+2026-11-03 19:34,Harlem,Queens,11.98,2.0,tarjeta,37.77
+2026-11-03 20:12,Upper East Side,Upper West Side,3.16,2.0,efectivo,14.04
+2026-11-03 20:15,Midtown,Lower Manhattan,6.7,1.0,efectivo,23.64
+2026-11-03 20:17,Lower Manhattan,Upper East Side,8.0,3.0,efectivo,24.32
+2026-11-03 20:23,Lower Manhattan,Midtown,5.12,2.0,tarjeta,15.82
+2026-11-03 20:38,Upper East Side,Midtown,3.23,1.0,tarjeta,13.17
+2026-11-03 21:09,Midtown,JFK Airport,30.7,1.0,tarjeta,70.0
+2026-11-03 21:35,Lower Manhattan,Midtown,5.16,1.0,tarjeta,16.82
+2026-11-03 21:39,Lower Manhattan,Brooklyn,7.74,2.0,tarjeta,23.23
+2026-11-03 22:04,Lower Manhattan,Midtown,6.45,2.0,efectivo,21.22
+2026-11-03 23:08,Queens,Queens,0.86,1.0,tarjeta,6.46
+2026-11-03 23:22,Lower Manhattan,Midtown,3.73,2.0,tarjeta,14.01
+2026-11-03 23:22,Lower Manhattan,Midtown,3.73,2.0,tarjeta,14.01
+2026-11-04 00:07,JFK Airport,Queens,17.3,1.0,tarjeta,55.76
+2026-11-04 01:16,Midtown,Lower Manhattan,4.59,2.0,tarjeta,17.47
+2026-11-04 03:17,Lower Manhattan,Midtown,6.58,1.0,efectivo,21.01
+2026-11-04 03:17,Lower Manhattan,Midtown,6.58,1.0,efectivo,21.01
+2026-11-04 06:47,Lower Manhattan,Upper West Side,9.62,3.0,tarjeta,27.76
+2026-11-04 06:52,JFK Airport,Upper West Side,24.64,1.0,tarjeta,70.0
+2026-11-04 08:00,Queens,Lower Manhattan,11.1,1.0,efectivo,37.63
+2026-11-04 08:27,Upper West Side,Lower Manhattan,,1.0,efectivo,25.95
+2026-11-04 08:43,Brooklyn,Upper East Side,10.7,1.0,tarjeta,35.4
+2026-11-04 08:46,Midtown,Upper East Side,3.75,1.0,tarjeta,16.92
+2026-11-04 09:48,Lower Manhattan,Upper East Side,7.48,1.0,efectivo,27.03
+2026-11-04 09:57,Midtown,Harlem,8.12,1.0,tarjeta,27.75
+2026-11-04 10:01,Midtown,Upper East Side,4.04,1.0,tarjeta,11.38
+2026-11-04 10:37,Midtown,Midtown,0.4,1.0,tarjeta,4.69
+2026-11-04 11:23,Midtown,Midtown,0.84,1.0,tarjeta,6.04
+2026-11-04 11:56,Lower Manhattan,Lower Manhattan,0.4,1.0,efectivo,5.09
+2026-11-04 11:57,JFK Airport,Lower Manhattan,20.69,1.0,tarjeta,70.0
+2026-11-04 11:57,JFK Airport,Lower Manhattan,20.69,1.0,tarjeta,70.0
+2026-11-04 11:59,JFK Airport,Lower Manhattan,18.61,2.0,tarjeta,70.0
+2026-11-04 12:09,Upper West Side,Upper East Side,3.53,1.0,tarjeta,13.79
+2026-11-04 12:48,JFK Airport,Upper West Side,23.79,1.0,tarjeta,70.0
+2026-11-04 15:30,Queens,Lower Manhattan,8.5,1.0,tarjeta,25.8
+2026-11-04 15:46,Midtown,Midtown,1.34,1.0,tarjeta,7.2
+2026-11-04 15:59,Midtown,Harlem,9.4,1.0,tarjeta,30.52
+2026-11-04 15:59,Midtown,Harlem,9.4,1.0,tarjeta,30.52
+2026-11-04 16:07,Upper West Side,Lower Manhattan,8.54,1.0,efectivo,26.34
+2026-11-04 16:11,Harlem,Harlem,0.4,1.0,tarjeta,5.89
+2026-11-04 16:26,Upper East Side,Midtown,4.46,1.0,efectivo,17.17
+2026-11-04 16:40,JFK Airport,Upper West Side,20.47,1.0,tarjeta,70.0
+2026-11-04 16:43,Midtown,Midtown,1.56,1.0,tarjeta,12.05
+2026-11-04 16:50,JFK Airport,Midtown,22.57,1.0,tarjeta,70.0
+2026-11-04 17:26,Upper East Side,Upper East Side,2.77,1.0,tarjeta,12.32
+2026-11-04 17:56,JFK Airport,Upper West Side,,1.0,tarjeta,70.0
+2026-11-04 18:37,Midtown,Harlem,7.67,1.0,tarjeta,29.38
+2026-11-04 18:44,Upper East Side,Midtown,3.87,1.0,tarjeta,14.93
+2026-11-04 19:12,Brooklyn,Brooklyn,0.4,1.0,tarjeta,5.58
+2026-11-04 19:40,Midtown,Lower Manhattan,5.61,1.0,tarjeta,18.81
+2026-11-04 21:14,Upper East Side,Upper West Side,3.02,1.0,tarjeta,13.5
+2026-11-04 21:14,Upper East Side,Upper West Side,3.02,1.0,tarjeta,13.5
+2026-11-04 22:09,Brooklyn,Brooklyn,0.71,1.0,tarjeta,5.32
+2026-11-04 22:09,Brooklyn,Brooklyn,0.71,1.0,tarjeta,5.32
+2026-11-04 22:19,Midtown,Midtown,3.35,1.0,efectivo,10.57
+2026-11-04 22:25,Queens,Harlem,10.67,1.0,tarjeta,31.88
+2026-11-04 22:26,Midtown,Midtown,1.65,,efectivo,6.99
+2026-11-04 23:24,Midtown,Brooklyn,9.2,1.0,tarjeta,29.41
+2026-11-05 00:58,Upper East Side,Upper East Side,1.63,2.0,tarjeta,6.23
+2026-11-05 01:30,Lower Manhattan,Harlem,10.3,1.0,efectivo,32.9
+2026-11-05 06:13,Midtown,Midtown,1.67,3.0,tarjeta,9.71
+2026-11-05 06:16,Midtown,Lower Manhattan,5.44,1.0,tarjeta,17.33
+2026-11-05 07:57,Brooklyn,Midtown,9.15,1.0,efectivo,30.55
+2026-11-05 08:11,Upper East Side,Brooklyn,8.6,1.0,tarjeta,29.17
+2026-11-05 08:43,Brooklyn,Midtown,7.74,1.0,efectivo,25.2
+2026-11-05 08:58,Lower Manhattan,Lower Manhattan,1.96,1.0,efectivo,9.29
+2026-11-05 10:00,Lower Manhattan,Queens,8.05,1.0,efectivo,22.71
+2026-11-05 10:33,Lower Manhattan,Upper East Side,10.05,2.0,tarjeta,32.56
+2026-11-05 10:55,Midtown,Brooklyn,8.45,1.0,efectivo,26.67
+2026-11-05 11:02,Harlem,Midtown,5.11,2.0,efectivo,16.06
+2026-11-05 13:14,Lower Manhattan,Midtown,4.99,1.0,,16.68
+2026-11-05 13:27,Brooklyn,Lower Manhattan,9.96,1.0,efectivo,28.84
+2026-11-05 13:59,Queens,Upper West Side,11.09,4.0,efectivo,36.85
+2026-11-05 13:59,Queens,Upper West Side,11.09,4.0,efectivo,36.85
+2026-11-05 14:10,Midtown,Lower Manhattan,5.19,1.0,tarjeta,18.27
+2026-11-05 14:49,Harlem,Upper East Side,4.11,1.0,efectivo,16.12
+2026-11-05 14:54,Brooklyn,Brooklyn,2.0,1.0,efectivo,9.39
+2026-11-05 15:33,Midtown,Harlem,10.78,6.0,efectivo,31.25
+2026-11-05 15:33,Midtown,Harlem,10.78,6.0,efectivo,31.25
+2026-11-05 16:06,Midtown,Midtown,3.78,1.0,tarjeta,14.81
+2026-11-05 16:06,Midtown,Midtown,3.78,1.0,tarjeta,14.81
+2026-11-05 17:08,Midtown,Upper East Side,4.64,6.0,tarjeta,18.81
+2026-11-05 17:08,Midtown,Upper East Side,4.64,6.0,tarjeta,18.81
+2026-11-05 17:50,Brooklyn,Upper West Side,10.12,,tarjeta,33.67
+2026-11-05 18:15,Brooklyn,Brooklyn,1.55,5.0,tarjeta,9.22
+2026-11-05 18:15,Brooklyn,Brooklyn,1.55,5.0,tarjeta,9.22
+2026-11-05 18:53,Midtown,Midtown,0.47,2.0,efectivo,4.52
+2026-11-05 19:15,Midtown,Midtown,1.56,1.0,tarjeta,8.71
+2026-11-05 19:20,Brooklyn,Midtown,9.65,6.0,tarjeta,30.48
+2026-11-05 19:54,Lower Manhattan,Queens,11.53,1.0,efectivo,38.57
+2026-11-05 19:55,JFK Airport,Queens,13.24,2.0,efectivo,47.69
+2026-11-05 20:02,Upper West Side,Harlem,4.15,1.0,tarjeta,17.11
+2026-11-05 20:11,Midtown,Upper West Side,3.69,2.0,efectivo,14.23
+2026-11-05 20:11,Midtown,Upper West Side,3.69,2.0,efectivo,14.23
+2026-11-05 20:13,Upper East Side,Lower Manhattan,6.61,2.0,tarjeta,20.29
+2026-11-05 21:02,Lower Manhattan,Brooklyn,9.08,3.0,tarjeta,27.01
+2026-11-05 21:36,Midtown,Upper West Side,4.66,2.0,tarjeta,14.42
+2026-11-05 21:49,Midtown,JFK Airport,21.35,1.0,tarjeta,70.0
+2026-11-05 22:43,Brooklyn,Harlem,8.51,4.0,efectivo,27.84
+2026-11-05 22:47,Midtown,Midtown,1.03,2.0,tarjeta,8.03
+2026-11-05 22:48,Midtown,JFK Airport,22.59,1.0,tarjeta,70.0
+2026-11-05 23:04,Upper East Side,Queens,11.26,2.0,tarjeta,34.17
+2026-11-05 23:42,Upper East Side,Lower Manhattan,9.67,1.0,tarjeta,29.05
+2026-11-06 00:08,Upper West Side,Brooklyn,11.31,1.0,efectivo,34.29
+2026-11-06 00:23,Midtown,Midtown,1.56,5.0,efectivo,7.84
+2026-11-06 02:49,Midtown,Midtown,3.33,1.0,tarjeta,10.4
+2026-11-06 04:31,Queens,Queens,1.88,1.0,efectivo,7.83
+2026-11-06 04:31,Queens,Queens,1.88,1.0,efectivo,7.83
+2026-11-06 07:11,Midtown,Queens,12.94,4.0,efectivo,41.98
+2026-11-06 07:14,Upper East Side,Upper West Side,4.19,6.0,tarjeta,15.12
+2026-11-06 07:34,Harlem,Midtown,9.48,1.0,tarjeta,30.93
+2026-11-06 08:18,Midtown,JFK Airport,32.22,2.0,efectivo,70.0
+2026-11-06 08:21,Midtown,Upper East Side,4.81,1.0,tarjeta,17.54
+2026-11-06 08:27,Midtown,Lower Manhattan,6.34,6.0,tarjeta,21.22
+2026-11-06 10:33,Harlem,Upper West Side,3.69,1.0,tarjeta,11.82
+2026-11-06 11:35,Midtown,Midtown,0.48,1.0,efectivo,4.27
+2026-11-06 11:46,JFK Airport,Midtown,25.22,2.0,tarjeta,70.0
+2026-11-06 12:54,Harlem,Lower Manhattan,13.24,1.0,tarjeta,38.64
+2026-11-06 12:55,Brooklyn,Upper East Side,7.33,2.0,efectivo,21.67
+2026-11-06 13:05,Queens,Midtown,9.95,2.0,efectivo,28.35
+2026-11-06 13:05,Queens,Midtown,9.95,2.0,efectivo,28.35
+2026-11-06 14:24,Upper West Side,Harlem,3.05,3.0,tarjeta,12.43
+2026-11-06 15:00,Queens,Lower Manhattan,11.06,2.0,efectivo,34.48
+2026-11-06 15:24,Queens,Midtown,9.07,1.0,tarjeta,27.76
+2026-11-06 16:09,Midtown,Brooklyn,10.42,1.0,tarjeta,34.65
+2026-11-06 16:24,JFK Airport,JFK Airport,1.11,2.0,tarjeta,10.47
+2026-11-06 16:25,Upper East Side,Midtown,3.82,1.0,tarjeta,16.28
+2026-11-06 16:42,Upper East Side,Queens,13.33,1.0,tarjeta,44.14
+2026-11-06 16:45,Midtown,Midtown,1.96,1.0,efectivo,9.9
+2026-11-06 17:57,Midtown,Lower Manhattan,4.67,1.0,tarjeta,17.58
+2026-11-06 17:57,Midtown,Lower Manhattan,4.67,1.0,tarjeta,17.58
+2026-11-06 18:18,Queens,Lower Manhattan,8.58,4.0,tarjeta,29.38
+2026-11-06 19:43,Upper East Side,Lower Manhattan,7.03,2.0,efectivo,21.32
+2026-11-06 19:55,Lower Manhattan,Brooklyn,9.88,3.0,tarjeta,33.69
+2026-11-06 20:47,Queens,Lower Manhattan,5.63,3.0,efectivo,20.54
+2026-11-06 20:53,Midtown,Midtown,1.27,2.0,tarjeta,8.19
+2026-11-06 21:31,Upper West Side,Queens,8.97,2.0,tarjeta,29.16
+2026-11-06 22:20,Midtown,Midtown,2.01,6.0,tarjeta,8.24
+2026-11-06 22:53,Upper West Side,Upper East Side,2.92,1.0,,13.74
+2026-11-06 23:25,Upper West Side,Upper West Side,0.79,6.0,tarjeta,6.13
+2026-11-06 23:46,Upper West Side,Midtown,4.69,1.0,efectivo,13.17
+2026-11-06 23:46,Upper West Side,Midtown,4.69,1.0,efectivo,13.17
+2026-11-07 00:01,Upper East Side,Upper East Side,1.27,1.0,efectivo,6.59
+2026-11-07 02:08,Harlem,Queens,8.8,1.0,tarjeta,28.22
+2026-11-07 02:08,Harlem,Queens,8.8,1.0,tarjeta,28.22
+2026-11-07 04:15,Upper West Side,Midtown,3.58,1.0,tarjeta,12.78
+2026-11-07 06:40,JFK Airport,Midtown,37.29,1.0,tarjeta,70.0
+2026-11-07 08:05,Midtown,Midtown,0.97,1.0,efectivo,8.03
+2026-11-07 08:31,JFK Airport,Brooklyn,6.18,4.0,tarjeta,23.87
+2026-11-07 09:07,Brooklyn,Midtown,10.84,2.0,tarjeta,31.22
+2026-11-07 09:15,Queens,Lower Manhattan,11.08,2.0,tarjeta,31.38
+2026-11-07 10:18,Midtown,Lower Manhattan,5.35,1.0,tarjeta,17.25
+2026-11-07 10:39,Queens,Harlem,9.23,2.0,tarjeta,25.36
+2026-11-07 10:45,Lower Manhattan,Lower Manhattan,1.53,1.0,tarjeta,8.57
+2026-11-07 11:00,Brooklyn,Upper East Side,11.57,1.0,tarjeta,34.06
+2026-11-07 11:06,Lower Manhattan,Upper East Side,8.1,1.0,tarjeta,25.07
+2026-11-07 11:25,JFK Airport,Lower Manhattan,30.09,,efectivo,70.0
+2026-11-07 11:26,Upper West Side,Midtown,3.58,1.0,efectivo,12.83
+2026-11-07 11:58,Midtown,Midtown,0.4,1.0,,6.28
+2026-11-07 12:48,Queens,Upper West Side,7.73,1.0,efectivo,24.99
+2026-11-07 13:34,JFK Airport,Midtown,25.22,1.0,tarjeta,70.0
+2026-11-07 13:55,Upper East Side,Queens,8.06,1.0,efectivo,25.52
+2026-11-07 14:04,Harlem,Midtown,5.44,2.0,,17.64
+2026-11-07 14:30,Midtown,Midtown,1.74,1.0,tarjeta,9.56
+2026-11-07 14:36,Queens,Upper East Side,9.09,,tarjeta,27.73
+2026-11-07 15:19,Midtown,Upper East Side,3.19,2.0,tarjeta,12.57
+2026-11-07 15:56,Harlem,Upper West Side,4.07,1.0,,14.31
+2026-11-07 16:57,Midtown,Lower Manhattan,6.54,2.0,tarjeta,22.03
+2026-11-07 16:57,Midtown,Lower Manhattan,6.54,2.0,tarjeta,22.03
+2026-11-07 17:16,Midtown,Upper West Side,4.82,1.0,tarjeta,17.4
+2026-11-07 18:05,Lower Manhattan,Lower Manhattan,1.18,1.0,efectivo,7.69
+2026-11-07 18:05,Lower Manhattan,Lower Manhattan,1.18,1.0,efectivo,7.69
+2026-11-07 18:08,Midtown,JFK Airport,32.57,2.0,tarjeta,70.0
+2026-11-07 18:47,Midtown,Midtown,2.43,1.0,tarjeta,8.92
+2026-11-07 19:13,Brooklyn,Upper East Side,6.61,1.0,tarjeta,21.01
+2026-11-07 19:23,Midtown,Upper West Side,5.14,1.0,tarjeta,17.49
+2026-11-07 19:42,Brooklyn,Harlem,11.28,1.0,efectivo,32.36
+2026-11-07 20:45,Upper East Side,JFK Airport,23.29,3.0,tarjeta,70.0
+2026-11-07 21:27,Midtown,Harlem,7.76,2.0,tarjeta,22.84
+2026-11-07 22:03,Midtown,Lower Manhattan,5.47,1.0,efectivo,17.89
+2026-11-07 22:03,Midtown,Lower Manhattan,5.47,1.0,efectivo,17.89
+2026-11-07 22:58,Upper West Side,Upper West Side,2.65,2.0,tarjeta,7.78
+2026-11-07 23:00,Lower Manhattan,Upper East Side,8.1,1.0,tarjeta,24.97
+2026-11-08 01:15,Brooklyn,Upper West Side,12.3,2.0,tarjeta,34.95
+2026-11-08 05:06,Harlem,Harlem,1.16,1.0,tarjeta,6.81
+2026-11-08 07:21,Upper East Side,JFK Airport,30.39,1.0,efectivo,70.0
+2026-11-08 07:52,Harlem,Midtown,9.55,1.0,tarjeta,28.17
+2026-11-08 09:33,Upper West Side,Upper West Side,0.85,,tarjeta,3.89
+2026-11-08 10:33,Queens,Midtown,11.24,1.0,tarjeta,34.47
+2026-11-08 11:28,Midtown,Upper West Side,3.74,1.0,efectivo,13.04
+2026-11-08 12:02,Upper East Side,JFK Airport,28.62,1.0,efectivo,70.0
+2026-11-08 12:02,Upper East Side,JFK Airport,28.62,1.0,efectivo,70.0
+2026-11-08 12:36,Upper West Side,Harlem,3.93,1.0,efectivo,15.18
+2026-11-08 13:31,Lower Manhattan,Queens,5.72,1.0,tarjeta,18.15
+2026-11-08 13:31,Lower Manhattan,Queens,5.72,1.0,tarjeta,18.15
+2026-11-08 13:36,Upper East Side,Harlem,5.17,1.0,efectivo,17.79
+2026-11-08 17:39,JFK Airport,Upper East Side,28.15,1.0,efectivo,70.0
+2026-11-08 18:10,Midtown,Upper East Side,4.37,,tarjeta,13.81
+2026-11-08 18:54,Lower Manhattan,Midtown,5.99,2.0,efectivo,19.62
+2026-11-08 19:53,Harlem,Lower Manhattan,12.23,1.0,tarjeta,36.4
+2026-11-08 20:02,Midtown,Lower Manhattan,5.96,2.0,tarjeta,20.92
+2026-11-08 20:02,Midtown,Lower Manhattan,5.96,2.0,tarjeta,20.92
+2026-11-08 20:13,Midtown,Queens,10.67,3.0,efectivo,30.6
+2026-11-08 20:50,Upper West Side,Lower Manhattan,12.05,2.0,efectivo,35.44
+2026-11-08 21:13,Upper East Side,Lower Manhattan,10.56,1.0,tarjeta,29.62
+2026-11-08 21:48,JFK Airport,Upper East Side,32.47,1.0,tarjeta,70.0
+2026-11-08 21:48,JFK Airport,Upper East Side,32.47,1.0,tarjeta,70.0
+2026-11-08 22:25,Brooklyn,Upper West Side,10.46,3.0,tarjeta,30.55
+2026-11-08 22:25,Lower Manhattan,Midtown,5.32,2.0,tarjeta,18.53
+2026-11-08 22:43,Lower Manhattan,Lower Manhattan,3.1,3.0,tarjeta,11.78
+2026-11-08 22:43,Lower Manhattan,Lower Manhattan,3.1,3.0,tarjeta,11.78
+2026-11-08 22:48,Midtown,Harlem,5.44,,efectivo,14.9
+2026-11-08 23:10,Brooklyn,Midtown,12.11,1.0,tarjeta,36.73
+2026-11-08 23:22,Midtown,Upper East Side,3.45,1.0,efectivo,16.48
+2026-11-09 00:14,JFK Airport,Midtown,23.49,1.0,tarjeta,70.0
+2026-11-09 00:32,JFK Airport,Lower Manhattan,21.61,2.0,efectivo,70.0
+2026-11-09 00:32,JFK Airport,Lower Manhattan,21.61,2.0,efectivo,70.0
+2026-11-09 00:49,Upper West Side,Brooklyn,10.64,,tarjeta,28.79
+2026-11-09 01:29,Lower Manhattan,JFK Airport,29.83,1.0,efectivo,70.0
+2026-11-09 03:36,Upper East Side,Brooklyn,9.19,4.0,tarjeta,25.43
+2026-11-09 03:45,Upper East Side,Upper West Side,3.92,2.0,efectivo,15.06
+2026-11-09 05:25,Midtown,Lower Manhattan,6.72,1.0,tarjeta,23.99
+2026-11-09 05:32,Lower Manhattan,Upper East Side,8.72,1.0,tarjeta,23.89
+2026-11-09 06:01,Midtown,Upper East Side,4.05,1.0,tarjeta,10.14
+2026-11-09 06:01,Midtown,Upper East Side,4.05,1.0,tarjeta,10.14
+2026-11-09 06:41,Midtown,Midtown,2.51,1.0,efectivo,9.25
+2026-11-09 06:50,Midtown,Upper West Side,3.98,5.0,efectivo,14.79
+2026-11-09 07:07,Upper East Side,Queens,10.25,1.0,tarjeta,33.93
+2026-11-09 07:25,Harlem,Midtown,8.46,1.0,tarjeta,28.05
+2026-11-09 07:25,Harlem,Midtown,8.46,1.0,tarjeta,28.05
+2026-11-09 07:49,Lower Manhattan,Brooklyn,11.52,1.0,tarjeta,34.85
+2026-11-09 08:12,Lower Manhattan,Upper West Side,11.0,1.0,tarjeta,36.96
+2026-11-09 08:12,Lower Manhattan,Upper West Side,11.0,1.0,tarjeta,36.96
+2026-11-09 08:42,Midtown,Midtown,0.51,1.0,tarjeta,5.65
+2026-11-09 08:46,Midtown,Harlem,6.77,1.0,efectivo,20.11
+2026-11-09 09:34,Harlem,JFK Airport,27.04,1.0,efectivo,70.0
+2026-11-09 09:48,Midtown,Lower Manhattan,6.72,1.0,tarjeta,22.59
+2026-11-09 10:06,Upper West Side,Midtown,3.6,2.0,tarjeta,13.3
+2026-11-09 10:10,Upper East Side,JFK Airport,17.64,4.0,tarjeta,70.0
+2026-11-09 12:05,Queens,Midtown,8.74,3.0,tarjeta,24.39
+2026-11-09 12:39,Brooklyn,Lower Manhattan,10.06,1.0,tarjeta,30.09
+2026-11-09 14:24,Brooklyn,Lower Manhattan,8.69,1.0,efectivo,27.12
+2026-11-09 15:01,Upper East Side,Midtown,5.01,1.0,tarjeta,15.6
+2026-11-09 15:34,Midtown,Midtown,0.69,1.0,efectivo,5.21
+2026-11-09 17:08,Lower Manhattan,Queens,12.11,1.0,tarjeta,38.22
+2026-11-09 17:12,Upper East Side,Upper East Side,2.26,1.0,tarjeta,9.39
+2026-11-09 17:20,Lower Manhattan,Upper East Side,10.79,1.0,tarjeta,35.6
+2026-11-09 17:20,Midtown,Midtown,1.59,3.0,efectivo,7.53
+2026-11-09 18:21,Upper East Side,Midtown,4.35,1.0,efectivo,13.57
+2026-11-09 18:39,Midtown,Upper East Side,5.02,1.0,efectivo,20.38
+2026-11-09 18:52,Midtown,Midtown,0.95,2.0,efectivo,7.04
+2026-11-09 18:55,Upper West Side,Queens,11.93,1.0,tarjeta,40.19
+2026-11-09 18:58,Upper West Side,Upper West Side,1.17,1.0,efectivo,8.99
+2026-11-09 18:58,Upper West Side,Upper West Side,1.17,1.0,efectivo,8.99
+2026-11-09 19:07,Queens,Lower Manhattan,8.92,1.0,tarjeta,26.94
+2026-11-09 19:07,Queens,Lower Manhattan,8.92,1.0,tarjeta,26.94
+2026-11-09 19:18,Upper West Side,Midtown,4.46,1.0,tarjeta,16.1
+2026-11-09 19:29,Upper East Side,Upper West Side,3.21,1.0,tarjeta,13.15
+2026-11-09 19:29,Upper East Side,Upper West Side,3.21,1.0,tarjeta,13.15
+2026-11-09 19:40,Upper West Side,Queens,10.41,,efectivo,33.22
+2026-11-09 19:41,Brooklyn,Upper West Side,9.67,,tarjeta,32.0
+2026-11-09 20:41,Upper West Side,Midtown,4.84,1.0,tarjeta,15.77
+2026-11-09 22:22,Queens,Upper West Side,9.62,1.0,tarjeta,27.43
+2026-11-09 22:36,Brooklyn,Harlem,12.15,1.0,tarjeta,35.92
+2026-11-09 23:57,Upper West Side,Midtown,1.9,,tarjeta,10.16
+2026-11-10 00:19,Midtown,Midtown,0.99,1.0,tarjeta,7.76
+2026-11-10 00:19,Midtown,Midtown,0.99,1.0,tarjeta,7.76
+2026-11-10 01:12,Midtown,Upper East Side,4.17,1.0,tarjeta,13.81
+2026-11-10 04:35,Brooklyn,Midtown,11.67,1.0,efectivo,33.39
+2026-11-10 05:50,Midtown,Upper West Side,3.2,3.0,tarjeta,11.07
+2026-11-10 06:00,Upper West Side,Harlem,3.45,1.0,tarjeta,11.14
+2026-11-10 06:49,Lower Manhattan,Midtown,6.6,1.0,tarjeta,19.75
+2026-11-10 06:53,Brooklyn,Midtown,11.71,1.0,efectivo,33.78
+2026-11-10 07:22,Midtown,Midtown,2.78,1.0,efectivo,10.32
+2026-11-10 07:24,Upper East Side,Midtown,3.22,1.0,efectivo,16.78
+2026-11-10 07:24,Upper East Side,Midtown,3.22,1.0,efectivo,16.78
+2026-11-10 07:36,Midtown,Brooklyn,9.22,,efectivo,30.44
+2026-11-10 07:39,Brooklyn,Lower Manhattan,10.51,1.0,tarjeta,32.89
+2026-11-10 07:39,Brooklyn,Lower Manhattan,10.51,1.0,tarjeta,32.89
+2026-11-10 07:58,Midtown,Lower Manhattan,5.83,1.0,tarjeta,21.82
+2026-11-10 08:26,Upper East Side,Brooklyn,7.96,1.0,tarjeta,26.69
+2026-11-10 09:26,Midtown,Upper East Side,3.6,1.0,tarjeta,13.08
+2026-11-10 09:26,Midtown,Upper East Side,3.6,1.0,tarjeta,13.08
+2026-11-10 09:33,Upper West Side,Upper East Side,3.4,3.0,tarjeta,14.04
+2026-11-10 09:33,Upper West Side,Upper East Side,3.4,3.0,tarjeta,14.04
+2026-11-10 09:54,Midtown,Upper West Side,4.2,1.0,efectivo,18.28
+2026-11-10 10:41,Upper West Side,JFK Airport,19.98,2.0,tarjeta,70.0
+2026-11-10 11:04,Lower Manhattan,JFK Airport,19.53,1.0,tarjeta,70.0
+2026-11-10 11:14,Harlem,Brooklyn,12.22,3.0,tarjeta,33.65
+2026-11-10 11:20,Midtown,Midtown,0.4,1.0,tarjeta,4.44
+2026-11-10 12:21,Harlem,Upper East Side,5.55,1.0,tarjeta,20.32
+2026-11-10 12:24,JFK Airport,Midtown,24.29,1.0,efectivo,70.0
+2026-11-10 12:30,Harlem,Midtown,9.03,3.0,tarjeta,27.7
+2026-11-10 12:56,Midtown,Midtown,1.44,2.0,tarjeta,12.04
+2026-11-10 13:21,Harlem,Midtown,8.34,2.0,efectivo,25.63
+2026-11-10 13:58,Queens,Upper East Side,14.67,,tarjeta,40.65
+2026-11-10 14:17,Midtown,Midtown,5.69,1.0,efectivo,20.52
+2026-11-10 15:25,Upper East Side,Midtown,3.95,5.0,tarjeta,14.04
+2026-11-10 15:30,Harlem,Lower Manhattan,15.57,1.0,tarjeta,43.72
+2026-11-10 16:15,Midtown,Midtown,0.69,1.0,efectivo,5.89
+2026-11-10 16:15,Midtown,Midtown,0.69,1.0,efectivo,5.89
+2026-11-10 16:33,JFK Airport,Lower Manhattan,24.27,,tarjeta,70.0
+2026-11-10 17:50,Upper West Side,Queens,8.88,1.0,efectivo,27.98
+2026-11-10 18:38,Midtown,Midtown,1.04,4.0,efectivo,8.08
+2026-11-10 18:38,Midtown,Midtown,1.04,4.0,efectivo,8.08
+2026-11-10 18:39,Lower Manhattan,Brooklyn,8.44,1.0,efectivo,27.18
+2026-11-10 18:49,Queens,Midtown,9.93,6.0,efectivo,28.23
+2026-11-10 18:49,Queens,Midtown,9.93,6.0,efectivo,28.23
+2026-11-10 18:51,Midtown,Lower Manhattan,4.16,3.0,tarjeta,18.43
+2026-11-10 19:14,Harlem,Midtown,9.23,1.0,tarjeta,32.09
+2026-11-10 19:14,Harlem,Midtown,9.23,1.0,tarjeta,32.09
+2026-11-10 20:05,Queens,JFK Airport,16.47,2.0,tarjeta,51.43
+2026-11-10 20:05,Queens,JFK Airport,16.47,2.0,tarjeta,51.43
+2026-11-10 20:12,Upper East Side,Upper West Side,3.16,2.0,efectivo,14.04
+2026-11-10 20:17,Lower Manhattan,Upper East Side,8.0,3.0,efectivo,24.32
+2026-11-10 20:38,Upper East Side,Midtown,3.23,1.0,tarjeta,13.17
+2026-11-10 21:09,Midtown,JFK Airport,30.7,1.0,tarjeta,70.0
+2026-11-10 21:19,Queens,Brooklyn,11.33,1.0,tarjeta,36.4
+2026-11-10 21:19,Queens,Brooklyn,11.33,1.0,tarjeta,36.4
+2026-11-10 21:35,Lower Manhattan,Midtown,5.16,1.0,tarjeta,16.82
+2026-11-10 21:39,Lower Manhattan,Brooklyn,7.74,2.0,tarjeta,23.23
+2026-11-10 23:17,Midtown,Upper East Side,4.7,1.0,tarjeta,14.81
+2026-11-10 23:47,Brooklyn,Midtown,10.45,1.0,tarjeta,31.87
+2026-11-10 23:47,Brooklyn,Midtown,10.45,1.0,tarjeta,31.87
+2026-11-11 00:13,Lower Manhattan,Midtown,5.57,1.0,tarjeta,16.57
+2026-11-11 00:30,Midtown,JFK Airport,,1.0,tarjeta,70.0
+2026-11-11 01:16,Midtown,Lower Manhattan,4.59,2.0,tarjeta,17.47
+2026-11-11 03:01,Queens,Harlem,10.1,1.0,tarjeta,28.97
+2026-11-11 06:47,Lower Manhattan,Upper West Side,9.62,3.0,tarjeta,27.76
+2026-11-11 07:17,Queens,Brooklyn,9.48,1.0,tarjeta,31.89
+2026-11-11 08:18,Upper East Side,Midtown,5.07,1.0,tarjeta,20.23
+2026-11-11 08:25,Midtown,Upper East Side,3.74,1.0,tarjeta,12.63
+2026-11-11 08:27,Upper West Side,Lower Manhattan,,1.0,efectivo,25.95
+2026-11-11 08:31,Lower Manhattan,Midtown,6.03,1.0,tarjeta,20.76
+2026-11-11 08:31,Lower Manhattan,Midtown,6.03,1.0,tarjeta,20.76
+2026-11-11 08:57,JFK Airport,Brooklyn,17.68,1.0,tarjeta,58.81
+2026-11-11 09:48,Lower Manhattan,Upper East Side,7.48,1.0,efectivo,27.03
+2026-11-11 10:01,Upper West Side,Lower Manhattan,7.58,1.0,tarjeta,24.38
+2026-11-11 10:01,Midtown,Upper East Side,4.04,1.0,tarjeta,11.38
+2026-11-11 10:10,Harlem,Midtown,5.13,1.0,tarjeta,17.49
+2026-11-11 11:56,Lower Manhattan,Lower Manhattan,0.4,1.0,efectivo,5.09
+2026-11-11 12:46,Lower Manhattan,Midtown,7.11,1.0,efectivo,24.63
+2026-11-11 15:30,Queens,Lower Manhattan,8.5,1.0,tarjeta,25.8
+2026-11-11 15:40,Midtown,Midtown,2.94,1.0,efectivo,9.22
+2026-11-11 15:46,Midtown,Midtown,1.34,1.0,tarjeta,7.2
+2026-11-11 16:07,Upper West Side,Lower Manhattan,8.54,1.0,efectivo,26.34
+2026-11-11 16:40,JFK Airport,Upper West Side,20.47,1.0,tarjeta,70.0
+2026-11-11 16:43,Brooklyn,Queens,11.75,6.0,tarjeta,35.91
+2026-11-11 16:43,Midtown,Midtown,1.56,1.0,tarjeta,12.05
+2026-11-11 17:26,Midtown,Midtown,0.74,4.0,tarjeta,3.65
+2026-11-11 17:26,Upper East Side,Upper East Side,2.77,1.0,tarjeta,12.32
+2026-11-11 18:08,Midtown,Midtown,0.4,2.0,efectivo,7.47
+2026-11-11 18:14,Harlem,Brooklyn,6.81,,efectivo,22.67
+2026-11-11 18:38,Midtown,Upper West Side,5.09,1.0,efectivo,19.91
+2026-11-11 19:16,Lower Manhattan,Brooklyn,9.19,1.0,efectivo,32.23
+2026-11-11 19:55,Midtown,Midtown,0.69,1.0,efectivo,4.39
+2026-11-11 20:21,Brooklyn,Midtown,8.81,1.0,tarjeta,22.65
+2026-11-11 21:05,JFK Airport,Upper East Side,24.09,1.0,tarjeta,70.0
+2026-11-11 21:22,Brooklyn,Midtown,8.65,2.0,efectivo,26.97
+2026-11-11 22:19,Midtown,Midtown,3.35,1.0,efectivo,10.57
+2026-11-11 22:25,Queens,Harlem,10.67,1.0,tarjeta,31.88
+2026-11-11 22:29,Queens,Brooklyn,15.51,1.0,efectivo,43.67
+2026-11-11 22:49,Midtown,Queens,9.77,1.0,efectivo,28.15
+2026-11-12 00:00,Upper East Side,Lower Manhattan,7.74,1.0,efectivo,24.56
+2026-11-12 00:58,Upper East Side,Upper East Side,1.63,2.0,tarjeta,6.23
+2026-11-12 02:21,Brooklyn,Lower Manhattan,10.52,1.0,efectivo,28.95
+2026-11-12 06:04,JFK Airport,Lower Manhattan,22.24,2.0,tarjeta,70.0
+2026-11-12 06:13,Midtown,Midtown,1.67,3.0,tarjeta,9.71
+2026-11-12 06:49,Upper East Side,Brooklyn,9.38,2.0,tarjeta,28.7
+2026-11-12 07:03,Midtown,Queens,9.21,2.0,efectivo,32.5
+2026-11-12 07:03,Midtown,Queens,9.21,2.0,efectivo,32.5
+2026-11-12 08:24,Midtown,Lower Manhattan,4.6,6.0,efectivo,17.71
+2026-11-12 08:31,Upper East Side,Lower Manhattan,5.69,2.0,tarjeta,20.97
+2026-11-12 08:31,Upper East Side,Lower Manhattan,5.69,2.0,tarjeta,20.97
+2026-11-12 08:36,Lower Manhattan,Midtown,5.56,1.0,tarjeta,17.65
+2026-11-12 08:53,Upper West Side,Brooklyn,14.27,5.0,efectivo,43.74
+2026-11-12 10:00,Lower Manhattan,Queens,8.05,1.0,efectivo,22.71
+2026-11-12 10:13,Lower Manhattan,Upper West Side,8.91,2.0,tarjeta,27.8
+2026-11-12 11:00,Upper East Side,Upper East Side,0.4,,tarjeta,6.17
+2026-11-12 11:00,Upper East Side,Upper East Side,0.4,,tarjeta,6.17
+2026-11-12 13:27,Brooklyn,Lower Manhattan,9.96,1.0,efectivo,28.84
+2026-11-12 13:58,Midtown,Brooklyn,11.21,,tarjeta,32.86
+2026-11-12 14:20,Harlem,Upper West Side,2.69,1.0,efectivo,9.82
+2026-11-12 14:22,Lower Manhattan,Upper East Side,7.77,1.0,efectivo,24.4
+2026-11-12 14:51,Harlem,Midtown,9.49,,efectivo,28.59
+2026-11-12 14:54,Brooklyn,Brooklyn,2.0,1.0,efectivo,9.39
+2026-11-12 15:26,Lower Manhattan,Lower Manhattan,1.44,1.0,tarjeta,6.64
+2026-11-12 15:29,Midtown,Brooklyn,5.94,1.0,tarjeta,20.21
+2026-11-12 15:54,Brooklyn,Upper East Side,11.96,1.0,tarjeta,35.71
+2026-11-12 17:10,Upper East Side,Lower Manhattan,7.87,3.0,tarjeta,24.42
+2026-11-12 17:50,Brooklyn,Upper West Side,10.12,,tarjeta,33.67
+2026-11-12 17:50,Midtown,Upper East Side,3.24,1.0,efectivo,13.45
+2026-11-12 18:16,Midtown,Upper West Side,5.16,1.0,tarjeta,18.05
+2026-11-12 18:29,Midtown,Upper East Side,3.42,1.0,tarjeta,14.33
+2026-11-12 18:29,Midtown,Upper East Side,3.42,1.0,tarjeta,14.33
+2026-11-12 18:44,Midtown,Midtown,1.4,1.0,tarjeta,10.16
+2026-11-12 18:45,Midtown,Upper West Side,4.03,1.0,tarjeta,14.83
+2026-11-12 18:46,Midtown,Brooklyn,10.07,1.0,tarjeta,30.92
+2026-11-12 18:53,Midtown,Midtown,0.47,2.0,efectivo,4.52
+2026-11-12 19:04,Midtown,Upper East Side,2.97,1.0,efectivo,12.61
+2026-11-12 19:20,Brooklyn,Midtown,9.65,6.0,tarjeta,30.48
+2026-11-12 19:55,Upper West Side,Midtown,4.1,3.0,tarjeta,16.97
+2026-11-12 19:59,Midtown,Harlem,6.7,1.0,efectivo,22.64
+2026-11-12 20:35,Upper East Side,Midtown,3.27,3.0,efectivo,16.32
+2026-11-12 21:26,Brooklyn,Queens,13.95,1.0,tarjeta,40.4
+2026-11-12 21:36,Midtown,Upper West Side,4.66,2.0,tarjeta,14.42
+2026-11-12 21:42,Queens,Midtown,10.29,1.0,efectivo,25.36
+2026-11-12 21:42,Queens,Midtown,10.29,1.0,efectivo,25.36
+2026-11-12 22:15,Queens,JFK Airport,12.01,3.0,tarjeta,40.6
+2026-11-12 23:00,Upper West Side,Upper West Side,1.59,,efectivo,10.77
+2026-11-12 23:00,Upper West Side,Upper West Side,1.59,,efectivo,10.77
+2026-11-12 23:40,Harlem,Upper East Side,4.3,1.0,efectivo,13.62
+2026-11-12 23:42,Upper East Side,Lower Manhattan,9.67,1.0,tarjeta,29.05
+2026-11-13 00:08,Upper West Side,Brooklyn,11.31,1.0,efectivo,34.29
+2026-11-13 02:49,Midtown,Midtown,3.33,1.0,tarjeta,10.4
+2026-11-13 04:10,Brooklyn,Midtown,8.27,1.0,efectivo,27.57
+2026-11-13 04:56,Midtown,Brooklyn,8.75,1.0,tarjeta,26.09
+2026-11-13 06:25,Brooklyn,JFK Airport,18.75,1.0,efectivo,57.91
+2026-11-13 07:14,Upper East Side,Upper West Side,4.19,6.0,tarjeta,15.12
+2026-11-13 08:21,Midtown,Upper East Side,4.81,1.0,tarjeta,17.54
+2026-11-13 08:27,Midtown,Lower Manhattan,6.34,6.0,tarjeta,21.22
+2026-11-13 08:48,Brooklyn,Midtown,7.7,1.0,tarjeta,27.71
+2026-11-13 09:18,Harlem,Lower Manhattan,15.95,1.0,tarjeta,48.65
+2026-11-13 10:40,Midtown,Upper East Side,4.9,1.0,efectivo,14.98
+2026-11-13 13:11,Midtown,Brooklyn,5.63,1.0,tarjeta,19.18
+2026-11-13 13:17,Lower Manhattan,Midtown,4.87,1.0,tarjeta,17.26
+2026-11-13 14:44,Upper West Side,Lower Manhattan,8.89,5.0,efectivo,27.61
+2026-11-13 14:44,Upper West Side,Lower Manhattan,8.89,5.0,efectivo,27.61
+2026-11-13 15:31,Midtown,Midtown,0.4,2.0,efectivo,4.13
+2026-11-13 16:37,Lower Manhattan,Upper West Side,8.27,1.0,efectivo,28.24
+2026-11-13 17:03,Upper East Side,Lower Manhattan,9.38,1.0,tarjeta,32.66
+2026-11-13 18:12,Midtown,Upper West Side,3.9,,tarjeta,15.38
+2026-11-13 18:21,Brooklyn,Lower Manhattan,9.66,1.0,tarjeta,34.15
+2026-11-13 18:52,Lower Manhattan,Upper West Side,8.75,2.0,efectivo,28.49
+2026-11-13 19:00,Lower Manhattan,Midtown,5.0,3.0,tarjeta,19.76
+2026-11-13 19:17,Midtown,Midtown,1.68,1.0,efectivo,11.45
+2026-11-13 19:58,Midtown,Midtown,0.99,1.0,tarjeta,4.94
+2026-11-13 20:09,Upper West Side,Midtown,3.07,1.0,efectivo,14.16
+2026-11-13 20:24,Midtown,Harlem,8.11,1.0,efectivo,26.37
+2026-11-13 20:24,Midtown,Harlem,8.11,1.0,efectivo,26.37
+2026-11-13 20:53,Midtown,Midtown,1.27,2.0,tarjeta,8.19
+2026-11-13 21:00,Midtown,JFK Airport,26.23,,tarjeta,70.0
+2026-11-13 21:31,Upper West Side,Queens,8.97,2.0,tarjeta,29.16
+2026-11-13 21:52,Midtown,Midtown,2.43,5.0,tarjeta,10.36
+2026-11-13 22:50,Upper East Side,Harlem,4.18,3.0,tarjeta,15.94
+2026-11-13 22:53,Upper West Side,Upper East Side,2.92,1.0,,13.74
+2026-11-13 23:25,Upper West Side,Upper West Side,0.79,6.0,tarjeta,6.13
+2026-11-13 23:48,Lower Manhattan,Upper West Side,7.75,1.0,efectivo,22.56
+2026-11-14 00:01,Upper East Side,Upper East Side,1.27,1.0,efectivo,6.59
+2026-11-14 00:23,Midtown,Midtown,0.4,1.0,tarjeta,2.94
+2026-11-14 00:31,Midtown,Midtown,0.4,1.0,efectivo,6.62
+2026-11-14 02:35,Midtown,Midtown,1.49,2.0,efectivo,8.0
+2026-11-14 02:35,Midtown,Midtown,1.49,2.0,efectivo,8.0
+2026-11-14 04:15,Upper West Side,Midtown,3.58,1.0,tarjeta,12.78
+2026-11-14 04:35,Midtown,Brooklyn,9.94,2.0,tarjeta,29.64
+2026-11-14 05:25,Brooklyn,Midtown,10.09,2.0,tarjeta,31.93
+2026-11-14 06:42,Upper East Side,Upper West Side,3.46,2.0,tarjeta,11.92
+2026-11-14 07:28,Upper West Side,Midtown,4.24,1.0,tarjeta,14.31
+2026-11-14 08:42,Brooklyn,Upper West Side,10.57,1.0,tarjeta,31.32
+2026-11-14 08:42,Brooklyn,Upper West Side,10.57,1.0,tarjeta,31.32
+2026-11-14 10:08,Queens,Harlem,14.11,2.0,tarjeta,39.4
+2026-11-14 10:28,Midtown,Lower Manhattan,6.19,1.0,tarjeta,20.37
+2026-11-14 10:39,Queens,Harlem,9.23,2.0,tarjeta,25.36
+2026-11-14 10:40,JFK Airport,Lower Manhattan,26.36,1.0,tarjeta,70.0
+2026-11-14 10:44,Midtown,Lower Manhattan,6.73,1.0,tarjeta,19.88
+2026-11-14 11:00,Brooklyn,Upper East Side,11.57,1.0,tarjeta,34.06
+2026-11-14 11:19,Lower Manhattan,Midtown,6.15,2.0,tarjeta,20.82
+2026-11-14 11:26,Upper West Side,Midtown,3.58,1.0,efectivo,12.83
+2026-11-14 11:29,JFK Airport,Upper West Side,32.98,1.0,tarjeta,70.0
+2026-11-14 12:08,Midtown,Midtown,0.82,1.0,efectivo,5.57
+2026-11-14 13:22,Midtown,Lower Manhattan,5.82,,tarjeta,19.48
+2026-11-14 13:22,Midtown,Lower Manhattan,5.82,,tarjeta,19.48
+2026-11-14 14:36,Queens,Upper East Side,9.09,,tarjeta,27.73
+2026-11-14 15:01,Upper West Side,Lower Manhattan,7.77,1.0,tarjeta,23.38
+2026-11-14 15:19,Midtown,Upper East Side,3.19,2.0,tarjeta,12.57
+2026-11-14 15:38,Upper West Side,Brooklyn,11.78,1.0,tarjeta,36.54
+2026-11-14 15:46,Midtown,Midtown,2.08,1.0,efectivo,10.53
+2026-11-14 15:56,Harlem,Upper West Side,4.07,1.0,,14.31
+2026-11-14 16:56,Lower Manhattan,Upper East Side,8.15,1.0,tarjeta,24.69
+2026-11-14 17:33,Lower Manhattan,Midtown,5.12,1.0,tarjeta,17.94
+2026-11-14 17:38,Upper West Side,Brooklyn,10.51,1.0,tarjeta,32.84
+2026-11-14 17:38,Upper West Side,Brooklyn,10.51,1.0,tarjeta,32.84
+2026-11-14 18:19,Midtown,Lower Manhattan,5.5,5.0,efectivo,16.37
+2026-11-14 18:30,Harlem,Lower Manhattan,12.16,1.0,tarjeta,32.68
+2026-11-14 18:34,Brooklyn,Upper East Side,12.3,1.0,efectivo,33.24
+2026-11-14 19:23,Midtown,Upper West Side,5.14,1.0,tarjeta,17.49
+2026-11-14 19:42,Brooklyn,Harlem,11.28,1.0,efectivo,32.36
+2026-11-14 19:51,Lower Manhattan,Lower Manhattan,0.79,1.0,tarjeta,6.18
+2026-11-14 20:46,Midtown,Upper West Side,4.16,1.0,tarjeta,16.86
+2026-11-14 21:07,JFK Airport,Lower Manhattan,27.99,1.0,tarjeta,70.0
+2026-11-14 21:27,Midtown,Harlem,7.76,2.0,tarjeta,22.84
+2026-11-14 22:11,Upper East Side,Upper East Side,0.71,3.0,efectivo,4.58
+2026-11-14 22:19,Midtown,Harlem,6.98,2.0,tarjeta,22.09
+2026-11-14 22:27,Midtown,Midtown,3.83,1.0,efectivo,15.42
+2026-11-14 22:27,Midtown,Midtown,3.83,1.0,efectivo,15.42
+2026-11-14 23:04,Lower Manhattan,Upper East Side,8.17,1.0,tarjeta,22.22
+2026-11-14 23:08,Lower Manhattan,Lower Manhattan,5.92,1.0,tarjeta,21.21
+2026-11-15 05:06,Harlem,Harlem,1.16,1.0,tarjeta,6.81
+2026-11-15 05:10,Lower Manhattan,Harlem,17.73,4.0,tarjeta,48.74
+2026-11-15 06:38,Lower Manhattan,Harlem,14.67,1.0,efectivo,40.48
+2026-11-15 07:37,Midtown,Midtown,1.16,1.0,tarjeta,9.03
+2026-11-15 08:41,Upper East Side,Upper East Side,2.12,1.0,tarjeta,8.84
+2026-11-15 09:21,JFK Airport,Lower Manhattan,25.42,1.0,efectivo,70.0
+2026-11-15 09:27,JFK Airport,Queens,19.55,1.0,tarjeta,57.84
+2026-11-15 12:28,Brooklyn,Brooklyn,2.02,1.0,,10.2
+2026-11-15 12:40,Brooklyn,Upper West Side,11.22,1.0,tarjeta,32.79
+2026-11-15 13:16,Upper East Side,Midtown,3.9,1.0,tarjeta,15.24
+2026-11-15 13:16,Upper East Side,Midtown,3.9,1.0,tarjeta,15.24
+2026-11-15 13:57,Brooklyn,Brooklyn,2.75,1.0,tarjeta,15.17
+2026-11-15 14:14,Upper East Side,Lower Manhattan,8.63,1.0,efectivo,27.48
+2026-11-15 14:15,JFK Airport,Lower Manhattan,31.67,1.0,tarjeta,70.0
+2026-11-15 14:44,Upper West Side,Midtown,4.81,1.0,tarjeta,15.42
+2026-11-15 14:46,Brooklyn,Midtown,7.56,1.0,efectivo,20.95
+2026-11-15 17:25,Lower Manhattan,Lower Manhattan,0.53,1.0,tarjeta,7.23
+2026-11-15 17:27,Midtown,Queens,11.01,1.0,efectivo,32.92
+2026-11-15 17:27,Midtown,Queens,11.01,1.0,efectivo,32.92
+2026-11-15 17:30,Midtown,Midtown,2.1,1.0,tarjeta,8.38
+2026-11-15 17:39,JFK Airport,Upper East Side,28.15,1.0,efectivo,70.0
+2026-11-15 18:15,Midtown,Midtown,1.82,2.0,efectivo,9.94
+2026-11-15 18:17,Midtown,Midtown,2.67,2.0,tarjeta,13.04
+2026-11-15 19:29,Lower Manhattan,Upper East Side,9.81,1.0,tarjeta,29.37
+2026-11-15 19:29,Lower Manhattan,Upper East Side,9.81,1.0,tarjeta,29.37
+2026-11-15 19:53,Harlem,Lower Manhattan,12.23,1.0,tarjeta,36.4
+2026-11-15 20:13,Midtown,Queens,10.67,3.0,efectivo,30.6
+2026-11-15 20:16,Midtown,Lower Manhattan,4.37,3.0,tarjeta,13.2
+2026-11-15 20:27,Midtown,Queens,9.62,3.0,efectivo,25.58
+2026-11-15 20:30,Midtown,Upper West Side,2.88,2.0,efectivo,11.85
+2026-11-15 20:30,Upper West Side,Upper East Side,3.61,1.0,tarjeta,13.09
+2026-11-15 20:50,Upper West Side,Lower Manhattan,12.05,2.0,efectivo,35.44
+2026-11-15 21:09,Queens,Brooklyn,12.08,2.0,tarjeta,33.39
+2026-11-15 22:25,Brooklyn,Upper West Side,10.46,3.0,tarjeta,30.55
+2026-11-15 23:22,Midtown,Upper East Side,3.45,1.0,efectivo,16.48
+2026-11-16 00:14,Midtown,Upper East Side,4.19,,tarjeta,17.23
+2026-11-16 00:49,Upper West Side,Brooklyn,10.64,,tarjeta,34.55
+2026-11-16 01:29,Lower Manhattan,JFK Airport,29.83,1.0,efectivo,70.0
+2026-11-16 01:32,Midtown,JFK Airport,29.29,1.0,tarjeta,70.0
+2026-11-16 01:32,Midtown,JFK Airport,29.29,1.0,tarjeta,70.0
+2026-11-16 03:45,Upper East Side,Upper West Side,3.92,2.0,efectivo,18.07
+2026-11-16 04:01,Brooklyn,Upper East Side,9.05,1.0,tarjeta,34.13
+2026-11-16 04:01,Brooklyn,Upper East Side,9.05,1.0,tarjeta,34.13
+2026-11-16 05:32,Lower Manhattan,Upper East Side,8.72,1.0,tarjeta,28.67
+2026-11-16 06:41,Midtown,Midtown,2.51,1.0,efectivo,11.1
+2026-11-16 06:46,Queens,Queens,4.58,1.0,tarjeta,17.44
+2026-11-16 07:24,JFK Airport,Upper East Side,28.43,1.0,efectivo,70.0
+2026-11-16 07:25,Lower Manhattan,Lower Manhattan,1.33,1.0,tarjeta,12.78
+2026-11-16 09:34,Harlem,JFK Airport,27.04,1.0,efectivo,70.0
+2026-11-16 09:48,Midtown,Lower Manhattan,6.72,1.0,tarjeta,27.11
+2026-11-16 10:06,Upper West Side,Midtown,3.6,2.0,tarjeta,15.96
+2026-11-16 10:10,Upper East Side,JFK Airport,17.64,4.0,tarjeta,70.0
+2026-11-16 10:11,Brooklyn,Midtown,9.23,1.0,tarjeta,34.56
+2026-11-16 10:11,Brooklyn,Midtown,9.23,1.0,tarjeta,34.56
+2026-11-16 10:11,Queens,JFK Airport,18.74,2.0,tarjeta,71.18
+2026-11-16 11:34,Upper West Side,Upper West Side,1.78,,efectivo,10.14
+2026-11-16 12:05,Queens,Midtown,8.74,3.0,tarjeta,29.27
+2026-11-16 14:05,Midtown,Upper West Side,6.17,3.0,efectivo,21.24
+2026-11-16 14:42,Queens,Midtown,,1.0,tarjeta,36.43
+2026-11-16 16:08,Midtown,Harlem,8.72,4.0,efectivo,34.12
+2026-11-16 16:20,Lower Manhattan,Midtown,5.81,1.0,tarjeta,22.07
+2026-11-16 16:47,Brooklyn,Midtown,7.54,5.0,efectivo,27.61
+2026-11-16 17:37,Lower Manhattan,Upper East Side,6.97,2.0,tarjeta,27.71
+2026-11-16 18:04,Upper East Side,Brooklyn,10.06,1.0,tarjeta,39.85
+2026-11-16 18:38,Upper West Side,Upper West Side,0.92,2.0,tarjeta,8.86
+2026-11-16 18:38,Upper West Side,Upper West Side,0.92,2.0,tarjeta,8.86
+2026-11-16 18:42,Midtown,Midtown,2.19,1.0,tarjeta,15.68
+2026-11-16 18:42,Midtown,Midtown,2.19,1.0,tarjeta,15.68
+2026-11-16 18:43,Midtown,Midtown,3.8,1.0,efectivo,19.67
+2026-11-16 18:43,Midtown,Midtown,3.8,1.0,efectivo,19.67
+2026-11-16 18:52,Midtown,Midtown,0.95,2.0,efectivo,8.45
+2026-11-16 19:40,Upper West Side,Queens,10.41,,efectivo,39.86
+2026-11-16 19:54,Lower Manhattan,Brooklyn,13.49,1.0,tarjeta,48.86
+2026-11-16 20:24,Midtown,Upper West Side,4.56,1.0,tarjeta,19.57
+2026-11-16 21:11,Midtown,Brooklyn,9.9,5.0,tarjeta,35.82
+2026-11-16 21:11,Lower Manhattan,Midtown,6.56,1.0,efectivo,23.64
+2026-11-16 21:11,Lower Manhattan,Midtown,6.56,1.0,efectivo,23.64
+2026-11-16 22:22,Queens,Upper West Side,9.62,1.0,tarjeta,32.92
+2026-11-16 23:30,Midtown,Midtown,4.18,3.0,tarjeta,18.06
+2026-11-17 00:07,Lower Manhattan,Queens,7.32,5.0,tarjeta,23.27
+2026-11-17 00:07,Lower Manhattan,Queens,7.32,5.0,tarjeta,23.27
+2026-11-17 00:14,Brooklyn,Upper East Side,7.35,1.0,tarjeta,25.86
+2026-11-17 01:40,Upper West Side,Upper East Side,4.59,1.0,tarjeta,17.02
+2026-11-17 01:40,Upper West Side,Upper East Side,4.59,1.0,tarjeta,17.02
+2026-11-17 05:50,Midtown,Upper West Side,3.2,3.0,tarjeta,13.28
+2026-11-17 06:00,Upper West Side,Harlem,3.45,1.0,tarjeta,13.37
+2026-11-17 06:07,Upper West Side,Lower Manhattan,8.48,6.0,tarjeta,32.22
+2026-11-17 06:43,Brooklyn,Harlem,12.86,5.0,,42.49
+2026-11-17 06:43,Brooklyn,Harlem,12.86,5.0,,42.49
+2026-11-17 06:50,Midtown,Midtown,3.85,,efectivo,14.71
+2026-11-17 06:53,Brooklyn,Midtown,11.71,1.0,efectivo,40.54
+2026-11-17 07:22,Midtown,Midtown,2.78,1.0,efectivo,12.38
+2026-11-17 07:26,Upper West Side,Queens,9.37,1.0,tarjeta,40.43
+2026-11-17 07:26,Upper West Side,Queens,9.37,1.0,tarjeta,40.43
+2026-11-17 07:36,Midtown,Brooklyn,9.22,,efectivo,36.53
+2026-11-17 07:43,Lower Manhattan,Brooklyn,8.75,1.0,efectivo,37.48
+2026-11-17 07:43,Lower Manhattan,Brooklyn,8.75,1.0,efectivo,37.48
+2026-11-17 08:37,Upper East Side,Midtown,4.41,2.0,tarjeta,20.04
+2026-11-17 08:44,Upper East Side,Midtown,4.43,1.0,tarjeta,20.99
+2026-11-17 09:17,Brooklyn,Lower Manhattan,13.71,1.0,efectivo,52.7
+2026-11-17 09:29,Lower Manhattan,Queens,8.86,1.0,tarjeta,36.64
+2026-11-17 09:54,Midtown,Upper West Side,4.2,1.0,efectivo,21.94
+2026-11-17 10:41,Upper West Side,JFK Airport,19.98,2.0,tarjeta,70.0
+2026-11-17 10:57,Midtown,Midtown,0.49,1.0,tarjeta,5.58
+2026-11-17 11:04,Lower Manhattan,JFK Airport,19.53,1.0,tarjeta,70.0
+2026-11-17 11:14,Harlem,Brooklyn,12.22,3.0,tarjeta,40.38
+2026-11-17 11:20,Midtown,Midtown,0.4,1.0,tarjeta,5.33
+2026-11-17 12:30,Harlem,Midtown,9.03,3.0,tarjeta,33.24
+2026-11-17 12:56,Midtown,Midtown,1.44,2.0,tarjeta,14.45
+2026-11-17 13:13,Upper West Side,Midtown,4.61,1.0,tarjeta,17.62
+2026-11-17 13:13,Upper West Side,Midtown,4.61,1.0,tarjeta,17.62
+2026-11-17 13:19,Midtown,JFK Airport,32.85,,tarjeta,70.0
+2026-11-17 13:19,Midtown,JFK Airport,32.85,,tarjeta,70.0
+2026-11-17 14:14,Brooklyn,Midtown,7.25,,tarjeta,24.22
+2026-11-17 15:20,Midtown,Queens,6.63,2.0,efectivo,24.82
+2026-11-17 15:25,Upper East Side,Midtown,3.95,5.0,tarjeta,16.85
+2026-11-17 15:58,Lower Manhattan,Upper East Side,8.52,4.0,tarjeta,32.22
+2026-11-17 17:59,Upper West Side,Queens,8.77,1.0,efectivo,34.92
+2026-11-17 18:16,Brooklyn,Midtown,7.35,2.0,tarjeta,30.06
+2026-11-17 18:57,Midtown,Upper East Side,4.15,4.0,efectivo,19.85
+2026-11-17 20:15,Midtown,Lower Manhattan,6.7,1.0,efectivo,28.37
+2026-11-17 20:23,Lower Manhattan,Midtown,5.12,2.0,tarjeta,18.98
+2026-11-17 22:08,Upper West Side,Midtown,3.89,4.0,tarjeta,13.93
+2026-11-17 22:15,Midtown,Upper West Side,3.19,1.0,tarjeta,17.8
+2026-11-17 22:36,Upper West Side,Midtown,4.22,1.0,tarjeta,18.12
+2026-11-18 00:05,Upper East Side,Brooklyn,6.67,1.0,efectivo,24.48
+2026-11-18 00:07,JFK Airport,Queens,17.3,1.0,tarjeta,66.91
+2026-11-18 00:30,Midtown,JFK Airport,,1.0,tarjeta,70.0
+2026-11-18 03:01,Queens,Harlem,10.1,1.0,tarjeta,34.76
+2026-11-18 06:07,Lower Manhattan,Lower Manhattan,2.28,2.0,efectivo,12.62
+2026-11-18 06:52,JFK Airport,Upper West Side,24.64,1.0,tarjeta,70.0
+2026-11-18 07:17,Queens,Brooklyn,9.48,1.0,tarjeta,38.27
+2026-11-18 07:36,Harlem,Upper West Side,4.64,1.0,efectivo,20.57
+2026-11-18 07:36,Harlem,Upper West Side,4.64,1.0,efectivo,20.57
+2026-11-18 08:10,Midtown,Lower Manhattan,6.47,1.0,efectivo,27.22
+2026-11-18 08:56,JFK Airport,Upper East Side,28.5,1.0,tarjeta,70.0
+2026-11-18 08:56,JFK Airport,Upper East Side,28.5,1.0,tarjeta,70.0
+2026-11-18 08:57,JFK Airport,Brooklyn,17.68,1.0,tarjeta,70.57
+2026-11-18 09:57,Midtown,Harlem,8.12,1.0,tarjeta,33.3
+2026-11-18 10:56,Harlem,Midtown,8.09,1.0,efectivo,28.44
+2026-11-18 12:46,Lower Manhattan,Midtown,7.11,1.0,efectivo,29.56
+2026-11-18 12:48,JFK Airport,Upper West Side,23.79,1.0,tarjeta,70.0
+2026-11-18 13:41,Queens,Midtown,8.83,1.0,tarjeta,31.36
+2026-11-18 15:23,Upper East Side,Harlem,4.45,1.0,tarjeta,21.0
+2026-11-18 16:11,Harlem,Harlem,0.4,1.0,tarjeta,7.07
+2026-11-18 16:16,Midtown,Upper East Side,4.29,1.0,efectivo,20.86
+2026-11-18 16:16,Midtown,Upper East Side,4.29,1.0,efectivo,20.86
+2026-11-18 17:26,Midtown,Midtown,0.74,4.0,tarjeta,4.38
+2026-11-18 17:30,Lower Manhattan,Queens,12.73,,efectivo,50.5
+2026-11-18 17:52,Lower Manhattan,JFK Airport,25.48,1.0,tarjeta,70.0
+2026-11-18 17:56,JFK Airport,Upper West Side,,1.0,tarjeta,70.0
+2026-11-18 18:02,Midtown,Lower Manhattan,5.52,2.0,tarjeta,26.51
+2026-11-18 18:02,Midtown,Lower Manhattan,5.52,2.0,tarjeta,26.51
+2026-11-18 18:08,Midtown,Midtown,0.4,2.0,efectivo,8.96
+2026-11-18 18:38,Midtown,Upper West Side,5.09,1.0,efectivo,23.89
+2026-11-18 19:12,Brooklyn,Brooklyn,0.4,1.0,tarjeta,6.7
+2026-11-18 19:16,Lower Manhattan,Brooklyn,9.19,1.0,efectivo,38.68
+2026-11-18 19:55,Midtown,Midtown,0.69,1.0,efectivo,5.27
+2026-11-18 20:42,Upper East Side,Brooklyn,6.05,1.0,tarjeta,20.14
+2026-11-18 20:42,Upper East Side,Upper West Side,2.52,1.0,tarjeta,14.94
+2026-11-18 20:42,Upper East Side,Upper West Side,2.52,1.0,tarjeta,14.94
+2026-11-18 20:42,Upper East Side,Brooklyn,6.05,1.0,tarjeta,20.14
+2026-11-18 22:26,Midtown,Midtown,1.65,,efectivo,8.39
+2026-11-18 22:29,Queens,Brooklyn,15.51,1.0,efectivo,52.4
+2026-11-18 23:24,Midtown,Brooklyn,9.2,1.0,tarjeta,35.29
+2026-11-19 00:00,Upper East Side,Lower Manhattan,7.74,1.0,efectivo,29.47
+2026-11-19 02:21,Brooklyn,Lower Manhattan,10.52,1.0,efectivo,34.74
+2026-11-19 06:04,JFK Airport,Lower Manhattan,22.24,2.0,tarjeta,70.0
+2026-11-19 06:16,Midtown,Lower Manhattan,5.44,1.0,tarjeta,20.8
+2026-11-19 06:49,Upper East Side,Brooklyn,9.38,2.0,tarjeta,34.44
+2026-11-19 07:31,Lower Manhattan,Midtown,5.77,6.0,tarjeta,26.53
+2026-11-19 07:31,Lower Manhattan,Midtown,5.77,6.0,tarjeta,26.53
+2026-11-19 07:57,Brooklyn,Midtown,9.15,1.0,efectivo,36.66
+2026-11-19 08:31,Midtown,Midtown,0.4,2.0,efectivo,7.55
+2026-11-19 08:36,Lower Manhattan,Midtown,5.56,1.0,tarjeta,21.18
+2026-11-19 08:41,Lower Manhattan,Upper East Side,9.87,2.0,tarjeta,42.38
+2026-11-19 08:41,Lower Manhattan,Upper East Side,9.87,2.0,tarjeta,42.38
+2026-11-19 08:43,Brooklyn,Midtown,7.74,1.0,efectivo,30.24
+2026-11-19 10:33,Lower Manhattan,Upper East Side,10.05,2.0,tarjeta,39.07
+2026-11-19 10:39,JFK Airport,Lower Manhattan,23.91,1.0,efectivo,70.0
+2026-11-19 10:53,Upper West Side,Queens,9.05,4.0,tarjeta,32.63
+2026-11-19 10:55,Midtown,Brooklyn,8.45,1.0,efectivo,32.0
+2026-11-19 11:02,Harlem,Midtown,5.11,2.0,efectivo,19.27
+2026-11-19 12:08,Midtown,Midtown,1.04,1.0,tarjeta,9.3
+2026-11-19 12:17,Brooklyn,Harlem,9.89,1.0,efectivo,32.3
+2026-11-19 12:56,Queens,Brooklyn,15.09,1.0,tarjeta,52.55
+2026-11-19 12:56,Queens,Brooklyn,15.09,1.0,tarjeta,52.55
+2026-11-19 13:04,Midtown,Upper West Side,4.51,1.0,tarjeta,17.72
+2026-11-19 13:04,Midtown,Upper West Side,4.51,1.0,tarjeta,17.72
+2026-11-19 13:14,Lower Manhattan,Midtown,4.99,1.0,,20.02
+2026-11-19 13:55,Upper East Side,Midtown,4.84,1.0,tarjeta,21.68
+2026-11-19 13:55,Upper East Side,Midtown,4.84,1.0,tarjeta,21.68
+2026-11-19 13:58,Midtown,Brooklyn,11.21,,tarjeta,39.43
+2026-11-19 14:20,Harlem,Upper West Side,2.69,1.0,efectivo,11.78
+2026-11-19 14:22,Lower Manhattan,Upper East Side,7.77,1.0,efectivo,29.28
+2026-11-19 14:34,Upper West Side,JFK Airport,26.4,1.0,tarjeta,70.0
+2026-11-19 14:49,Harlem,Upper East Side,4.11,1.0,efectivo,19.34
+2026-11-19 15:12,Brooklyn,Midtown,9.97,1.0,tarjeta,37.01
+2026-11-19 15:12,Brooklyn,Midtown,9.97,1.0,tarjeta,37.01
+2026-11-19 15:26,Lower Manhattan,Lower Manhattan,1.44,1.0,tarjeta,7.97
+2026-11-19 17:10,Upper East Side,Lower Manhattan,7.87,3.0,tarjeta,29.3
+2026-11-19 17:48,Brooklyn,JFK Airport,22.43,1.0,efectivo,90.43
+2026-11-19 17:50,Midtown,Upper East Side,3.24,1.0,efectivo,16.14
+2026-11-19 18:02,Midtown,Queens,12.63,6.0,efectivo,46.79
+2026-11-19 18:16,Midtown,Upper West Side,5.16,1.0,tarjeta,21.66
+2026-11-19 18:44,Midtown,Midtown,1.4,1.0,tarjeta,12.19
+2026-11-19 18:45,Upper East Side,Upper East Side,0.62,1.0,tarjeta,4.87
+2026-11-19 18:45,Upper East Side,Upper East Side,0.62,1.0,tarjeta,4.87
+2026-11-19 19:10,Queens,Upper East Side,13.07,1.0,tarjeta,49.92
+2026-11-19 19:10,Queens,Upper East Side,13.07,1.0,tarjeta,49.92
+2026-11-19 20:02,Upper West Side,Harlem,4.15,1.0,tarjeta,20.53
+2026-11-19 20:20,Queens,Midtown,7.09,1.0,tarjeta,27.58
+2026-11-19 20:35,Upper East Side,Midtown,3.27,3.0,efectivo,19.58
+2026-11-19 21:02,Lower Manhattan,Brooklyn,9.08,3.0,tarjeta,32.41
+2026-11-19 21:49,Midtown,JFK Airport,21.35,1.0,tarjeta,70.0
+2026-11-19 22:43,Midtown,Upper West Side,3.8,1.0,efectivo,15.88
+2026-11-19 22:43,Brooklyn,Harlem,8.51,4.0,efectivo,33.41
+2026-11-19 22:43,Midtown,Upper West Side,3.8,1.0,efectivo,15.88
+2026-11-19 23:36,Upper East Side,Lower Manhattan,7.94,1.0,tarjeta,28.92
+2026-11-19 23:36,Upper East Side,Lower Manhattan,7.94,1.0,tarjeta,28.92
+2026-11-19 23:40,Harlem,Upper East Side,4.3,1.0,efectivo,16.34
+2026-11-20 01:11,Upper West Side,Lower Manhattan,9.54,1.0,tarjeta,35.29
+2026-11-20 01:11,Upper West Side,Lower Manhattan,9.54,1.0,tarjeta,35.29
+2026-11-20 04:10,Brooklyn,Midtown,8.27,1.0,efectivo,33.08
+2026-11-20 06:07,Brooklyn,Midtown,5.43,2.0,tarjeta,23.32
+2026-11-20 06:25,Brooklyn,JFK Airport,18.75,1.0,efectivo,69.49
+2026-11-20 07:02,Upper West Side,Lower Manhattan,7.47,1.0,efectivo,30.16
+2026-11-20 07:02,Upper West Side,Lower Manhattan,7.47,1.0,efectivo,30.16
+2026-11-20 07:33,Midtown,Harlem,8.39,1.0,tarjeta,34.51
+2026-11-20 07:41,Midtown,Lower Manhattan,6.22,,tarjeta,26.41
+2026-11-20 07:41,Midtown,Lower Manhattan,6.22,,tarjeta,26.41
+2026-11-20 07:47,Midtown,Queens,9.55,2.0,tarjeta,41.46
+2026-11-20 07:47,Midtown,Queens,9.55,2.0,tarjeta,41.46
+2026-11-20 08:18,Midtown,JFK Airport,32.22,2.0,efectivo,70.0
+2026-11-20 08:21,Midtown,Harlem,5.08,1.0,tarjeta,25.21
+2026-11-20 09:00,Queens,Brooklyn,10.57,1.0,tarjeta,41.4
+2026-11-20 09:11,Harlem,JFK Airport,19.53,1.0,tarjeta,70.0
+2026-11-20 09:18,Harlem,Lower Manhattan,15.95,1.0,tarjeta,58.38
+2026-11-20 09:50,Midtown,Midtown,1.18,1.0,tarjeta,9.34
+2026-11-20 09:50,Midtown,Midtown,1.18,1.0,tarjeta,9.34
+2026-11-20 10:33,Harlem,Upper West Side,3.69,1.0,tarjeta,14.18
+2026-11-20 11:35,Midtown,Midtown,0.48,1.0,efectivo,5.12
+2026-11-20 11:46,JFK Airport,Midtown,25.22,2.0,tarjeta,70.0
+2026-11-20 12:35,Upper West Side,Upper East Side,4.54,4.0,efectivo,16.69
+2026-11-20 12:35,Upper West Side,Upper West Side,0.86,2.0,efectivo,6.94
+2026-11-20 12:41,Midtown,Lower Manhattan,4.53,3.0,tarjeta,19.66
+2026-11-20 12:54,Harlem,Lower Manhattan,13.24,1.0,tarjeta,46.37
+2026-11-20 13:33,Harlem,Brooklyn,7.75,1.0,tarjeta,31.79
+2026-11-20 14:13,Queens,Brooklyn,14.65,3.0,efectivo,49.34
+2026-11-20 14:13,Queens,Brooklyn,14.65,3.0,efectivo,49.34
+2026-11-20 15:24,Queens,Midtown,9.07,1.0,tarjeta,33.31
+2026-11-20 16:40,Queens,Lower Manhattan,9.52,5.0,tarjeta,39.28
+2026-11-20 16:42,Upper East Side,Queens,13.33,1.0,tarjeta,52.97
+2026-11-20 17:03,Upper East Side,Lower Manhattan,9.38,1.0,tarjeta,39.19
+2026-11-20 17:50,Upper West Side,Upper East Side,3.42,1.0,tarjeta,16.04
+2026-11-20 18:12,Midtown,Upper West Side,3.9,,tarjeta,18.46
+2026-11-20 18:18,Queens,Lower Manhattan,8.58,4.0,tarjeta,35.26
+2026-11-20 18:21,Brooklyn,Lower Manhattan,9.66,1.0,tarjeta,40.98
+2026-11-20 18:23,Queens,Queens,0.75,3.0,tarjeta,7.42
+2026-11-20 18:23,Queens,Queens,0.75,3.0,tarjeta,7.42
+2026-11-20 18:57,JFK Airport,JFK Airport,1.01,1.0,efectivo,13.75
+2026-11-20 19:00,Lower Manhattan,Midtown,5.0,3.0,tarjeta,23.71
+2026-11-20 19:20,Lower Manhattan,Midtown,4.93,1.0,tarjeta,25.1
+2026-11-20 19:55,Lower Manhattan,Brooklyn,9.88,3.0,tarjeta,40.43
+2026-11-20 20:27,Upper West Side,Queens,10.89,1.0,efectivo,37.6
+2026-11-20 20:41,Midtown,Upper East Side,5.09,1.0,tarjeta,22.58
+2026-11-20 20:41,Midtown,Upper East Side,5.09,1.0,tarjeta,22.58
+2026-11-20 20:47,Queens,Lower Manhattan,5.63,3.0,efectivo,24.65
+2026-11-20 21:36,Lower Manhattan,Brooklyn,12.45,1.0,tarjeta,40.91
+2026-11-20 22:14,Queens,Upper West Side,8.12,4.0,tarjeta,30.31
+2026-11-20 22:14,Queens,Upper West Side,8.12,4.0,tarjeta,30.31
+2026-11-20 22:20,Midtown,Midtown,2.01,6.0,tarjeta,9.89
+2026-11-20 22:21,JFK Airport,Brooklyn,16.19,1.0,tarjeta,58.73
+2026-11-20 23:29,Brooklyn,Brooklyn,1.51,1.0,tarjeta,9.59
+2026-11-21 00:31,Midtown,Midtown,0.4,1.0,efectivo,7.94
+2026-11-21 05:25,Brooklyn,Midtown,10.09,2.0,tarjeta,38.32
+2026-11-21 06:40,JFK Airport,Midtown,37.29,1.0,tarjeta,70.0
+2026-11-21 07:28,Upper West Side,Midtown,4.24,1.0,tarjeta,17.17
+2026-11-21 08:31,JFK Airport,Brooklyn,6.18,4.0,tarjeta,28.64
+2026-11-21 09:07,Brooklyn,Midtown,10.84,2.0,tarjeta,37.46
+2026-11-21 10:08,Queens,Harlem,14.11,2.0,tarjeta,47.28
+2026-11-21 10:18,Midtown,Lower Manhattan,5.35,1.0,tarjeta,20.7
+2026-11-21 10:40,JFK Airport,Lower Manhattan,26.36,1.0,tarjeta,70.0
+2026-11-21 10:44,Midtown,Lower Manhattan,6.73,1.0,tarjeta,23.86
+2026-11-21 11:06,Lower Manhattan,Upper East Side,8.1,1.0,tarjeta,30.08
+2026-11-21 11:19,Lower Manhattan,Midtown,6.15,2.0,tarjeta,24.98
+2026-11-21 11:29,JFK Airport,Upper West Side,32.98,1.0,tarjeta,70.0
+2026-11-21 12:08,Midtown,Midtown,0.82,1.0,efectivo,6.68
+2026-11-21 12:48,Queens,Upper West Side,7.73,1.0,efectivo,29.99
+2026-11-21 13:22,Upper West Side,Lower Manhattan,10.0,1.0,tarjeta,37.69
+2026-11-21 13:55,Upper East Side,Queens,8.06,1.0,efectivo,30.62
+2026-11-21 16:39,Midtown,Queens,4.83,,efectivo,20.72
+2026-11-21 17:16,Midtown,Upper West Side,4.82,1.0,tarjeta,20.88
+2026-11-21 18:08,Midtown,JFK Airport,32.57,2.0,tarjeta,70.0
+2026-11-21 18:34,Brooklyn,Upper East Side,12.3,1.0,efectivo,39.89
+2026-11-21 18:47,Midtown,Midtown,2.43,1.0,tarjeta,10.7
+2026-11-21 19:58,Upper West Side,Midtown,2.91,2.0,tarjeta,13.13
+2026-11-21 20:06,Upper West Side,Upper East Side,3.49,2.0,efectivo,12.49
+2026-11-21 20:42,Brooklyn,Lower Manhattan,10.47,1.0,efectivo,37.31
+2026-11-21 20:42,Brooklyn,Lower Manhattan,10.47,1.0,efectivo,37.31
+2026-11-21 22:25,Midtown,Queens,6.12,1.0,tarjeta,23.68
+2026-11-21 23:00,Lower Manhattan,Upper East Side,8.1,1.0,tarjeta,29.96
+2026-11-21 23:08,Lower Manhattan,Lower Manhattan,5.92,1.0,tarjeta,25.45
+2026-11-22 03:10,Harlem,Upper East Side,4.36,1.0,tarjeta,22.1
+2026-11-22 03:10,Harlem,Upper East Side,4.36,1.0,tarjeta,22.1
+2026-11-22 04:47,JFK Airport,Queens,15.44,3.0,efectivo,56.33
+2026-11-22 06:25,Midtown,Midtown,2.3,1.0,tarjeta,10.4
+2026-11-22 07:11,Upper East Side,Upper West Side,4.21,2.0,efectivo,20.57
+2026-11-22 07:13,JFK Airport,Midtown,25.38,,tarjeta,70.0
+2026-11-22 07:13,JFK Airport,Midtown,25.38,,tarjeta,70.0
+2026-11-22 07:21,Upper East Side,JFK Airport,30.39,1.0,efectivo,70.0
+2026-11-22 07:52,Harlem,Midtown,9.55,1.0,tarjeta,33.8
+2026-11-22 08:50,Midtown,Upper East Side,3.9,,,12.84
+2026-11-22 08:50,Midtown,Upper East Side,3.9,,,12.84
+2026-11-22 10:12,Queens,Upper West Side,9.0,1.0,tarjeta,32.42
+2026-11-22 10:12,Queens,Upper West Side,9.0,1.0,tarjeta,32.42
+2026-11-22 10:33,Queens,Midtown,11.24,1.0,tarjeta,41.36
+2026-11-22 11:28,Midtown,Upper West Side,3.74,1.0,efectivo,15.65
+2026-11-22 12:28,Brooklyn,Brooklyn,2.02,1.0,,12.24
+2026-11-22 12:40,Brooklyn,Upper West Side,11.22,1.0,tarjeta,39.35
+2026-11-22 13:46,Brooklyn,Lower Manhattan,6.49,,tarjeta,23.57
+2026-11-22 13:57,Brooklyn,Brooklyn,2.75,1.0,tarjeta,18.2
+2026-11-22 14:15,JFK Airport,Lower Manhattan,31.67,1.0,tarjeta,70.0
+2026-11-22 15:38,Midtown,Upper East Side,4.51,2.0,tarjeta,19.9
+2026-11-22 15:38,Midtown,Upper East Side,4.51,2.0,tarjeta,19.9
+2026-11-22 15:55,Midtown,Upper East Side,3.38,1.0,tarjeta,16.42
+2026-11-22 15:55,Midtown,Upper East Side,3.38,1.0,tarjeta,16.42
+2026-11-22 16:54,Midtown,Brooklyn,11.66,1.0,efectivo,39.55
+2026-11-22 16:56,Midtown,Lower Manhattan,6.51,3.0,tarjeta,25.69
+2026-11-22 17:25,Lower Manhattan,Lower Manhattan,0.53,1.0,tarjeta,8.68
+2026-11-22 17:30,Midtown,Midtown,2.1,1.0,tarjeta,10.06
+2026-11-22 18:17,Midtown,Midtown,2.67,2.0,tarjeta,15.65
+2026-11-22 18:54,Lower Manhattan,Midtown,5.99,2.0,efectivo,23.54
+2026-11-22 20:16,Midtown,Lower Manhattan,4.37,3.0,tarjeta,15.84
+2026-11-22 20:27,Midtown,Queens,9.62,3.0,efectivo,30.7
+2026-11-22 20:30,Upper West Side,Upper East Side,3.61,1.0,tarjeta,15.71
+2026-11-22 21:09,Queens,Brooklyn,12.08,2.0,tarjeta,40.07
+2026-11-22 21:13,Upper East Side,Lower Manhattan,10.56,1.0,tarjeta,35.54
+2026-11-22 22:25,Lower Manhattan,Midtown,5.32,2.0,tarjeta,22.24
+2026-11-22 22:48,Midtown,Harlem,5.44,,efectivo,17.88
+2026-11-22 23:10,Brooklyn,Midtown,12.11,1.0,tarjeta,44.08
+2026-11-22 23:51,Brooklyn,Midtown,10.39,1.0,efectivo,37.27
+2026-11-22 23:51,Brooklyn,Midtown,10.39,1.0,efectivo,37.27
+2026-11-23 02:21,Upper East Side,JFK Airport,31.02,2.0,efectivo,70.0
+2026-11-23 02:47,Upper East Side,Midtown,4.54,4.0,tarjeta,16.9
+2026-11-23 05:25,Midtown,Lower Manhattan,6.72,1.0,tarjeta,28.79
+2026-11-23 06:43,Lower Manhattan,Brooklyn,13.77,2.0,efectivo,44.82
+2026-11-23 06:43,Lower Manhattan,Brooklyn,13.77,2.0,efectivo,44.82
+2026-11-23 07:05,Upper East Side,Brooklyn,10.24,1.0,tarjeta,40.44
+2026-11-23 07:05,Upper East Side,Brooklyn,10.24,1.0,tarjeta,40.44
+2026-11-23 07:07,Upper East Side,Queens,10.25,1.0,tarjeta,40.72
+2026-11-23 07:24,JFK Airport,Upper East Side,28.43,1.0,efectivo,70.0
+2026-11-23 07:25,Lower Manhattan,Lower Manhattan,1.33,1.0,tarjeta,12.78
+2026-11-23 07:40,Queens,Midtown,9.64,1.0,tarjeta,39.74
+2026-11-23 07:49,Lower Manhattan,Brooklyn,11.52,1.0,tarjeta,41.82
+2026-11-23 08:03,Harlem,Midtown,7.99,1.0,,33.7
+2026-11-23 08:11,Midtown,Queens,8.11,1.0,tarjeta,32.63
+2026-11-23 08:21,Brooklyn,Upper East Side,13.46,1.0,efectivo,50.99
+2026-11-23 08:46,Midtown,Harlem,6.77,1.0,efectivo,24.13
+2026-11-23 09:08,Upper East Side,Midtown,3.55,1.0,efectivo,15.46
+2026-11-23 10:11,Queens,JFK Airport,18.74,2.0,tarjeta,71.18
+2026-11-23 14:05,Midtown,Upper West Side,6.17,3.0,efectivo,21.24
+2026-11-23 14:42,Queens,Midtown,,1.0,tarjeta,36.43
+2026-11-23 15:01,Upper East Side,Midtown,5.01,1.0,tarjeta,18.72
+2026-11-23 15:34,Midtown,Midtown,0.69,1.0,efectivo,6.25
+2026-11-23 16:08,Midtown,Harlem,8.72,4.0,efectivo,34.12
+2026-11-23 16:20,Lower Manhattan,Midtown,5.81,1.0,tarjeta,22.07
+2026-11-23 16:53,Upper West Side,Upper West Side,2.07,1.0,tarjeta,14.45
+2026-11-23 16:53,Upper West Side,Upper West Side,2.07,1.0,tarjeta,14.45
+2026-11-23 17:02,Upper West Side,Midtown,3.16,,tarjeta,14.56
+2026-11-23 17:02,Upper West Side,Midtown,3.16,,tarjeta,14.56
+2026-11-23 17:08,Lower Manhattan,Queens,12.11,1.0,tarjeta,45.86
+2026-11-23 17:12,Upper East Side,Upper East Side,2.26,1.0,tarjeta,11.27
+2026-11-23 17:45,Lower Manhattan,Midtown,6.55,2.0,tarjeta,28.45
+2026-11-23 18:55,Upper West Side,Queens,11.93,1.0,tarjeta,48.23
+2026-11-23 19:02,JFK Airport,Midtown,30.91,1.0,efectivo,70.0
+2026-11-23 19:18,Upper West Side,Midtown,4.46,1.0,tarjeta,19.32
+2026-11-23 19:41,Brooklyn,Upper West Side,9.67,,tarjeta,38.4
+2026-11-23 19:48,Lower Manhattan,Upper East Side,7.35,1.0,efectivo,32.36
+2026-11-23 20:12,Brooklyn,Upper West Side,7.73,2.0,efectivo,28.57
+2026-11-23 21:11,Midtown,Brooklyn,9.9,5.0,tarjeta,35.82
+2026-11-23 21:34,Midtown,Brooklyn,8.33,2.0,tarjeta,34.36
+2026-11-23 22:36,Brooklyn,Harlem,12.15,1.0,tarjeta,43.1
+2026-11-23 23:06,Upper West Side,Harlem,4.6,1.0,efectivo,20.39
+2026-11-23 23:30,Midtown,Midtown,4.18,3.0,tarjeta,18.06
+2026-11-23 23:57,Upper West Side,Midtown,1.9,,tarjeta,12.19
+2026-11-24 05:22,Midtown,Upper West Side,3.17,1.0,tarjeta,15.53
+2026-11-24 05:22,Midtown,Upper West Side,3.17,1.0,tarjeta,15.53
+2026-11-24 06:49,Lower Manhattan,Midtown,6.6,1.0,tarjeta,23.7
+2026-11-24 07:58,Midtown,Lower Manhattan,5.83,1.0,tarjeta,26.18
+2026-11-24 08:26,Upper East Side,Brooklyn,7.96,1.0,tarjeta,32.03
+2026-11-24 08:44,Upper East Side,Midtown,4.43,1.0,tarjeta,20.99
+2026-11-24 09:17,Brooklyn,Lower Manhattan,13.71,1.0,efectivo,52.7
+2026-11-24 09:29,Lower Manhattan,Queens,8.86,1.0,tarjeta,36.64
+2026-11-24 09:36,Midtown,Lower Manhattan,6.76,1.0,efectivo,29.81
+2026-11-24 09:36,Midtown,Lower Manhattan,6.76,1.0,efectivo,29.81
+2026-11-24 09:51,Upper West Side,Midtown,4.08,1.0,tarjeta,17.14
+2026-11-24 10:57,Midtown,Midtown,0.49,1.0,tarjeta,5.58
+2026-11-24 11:52,Upper West Side,Midtown,2.78,3.0,efectivo,11.8
+2026-11-24 12:21,Harlem,Upper East Side,5.55,1.0,tarjeta,24.38
+2026-11-24 12:24,JFK Airport,Midtown,24.29,1.0,efectivo,70.0
+2026-11-24 13:21,Harlem,Midtown,8.34,2.0,efectivo,30.76
+2026-11-24 14:14,Brooklyn,Midtown,7.25,,tarjeta,24.22
+2026-11-24 15:30,Harlem,Lower Manhattan,15.57,1.0,tarjeta,52.46
+2026-11-24 16:46,Midtown,Midtown,0.89,1.0,tarjeta,5.71
+2026-11-24 17:59,Upper West Side,Queens,8.77,1.0,efectivo,34.92
+2026-11-24 18:16,Brooklyn,Midtown,7.35,2.0,tarjeta,30.06
+2026-11-24 18:19,Brooklyn,Midtown,10.56,2.0,efectivo,42.01
+2026-11-24 18:19,Brooklyn,Midtown,10.56,2.0,efectivo,42.01
+2026-11-24 18:39,Lower Manhattan,Brooklyn,8.44,1.0,efectivo,32.62
+2026-11-24 18:43,Upper West Side,Midtown,4.19,2.0,tarjeta,19.19
+2026-11-24 18:48,Upper East Side,Lower Manhattan,10.19,2.0,tarjeta,40.66
+2026-11-24 19:34,Harlem,Queens,11.98,2.0,tarjeta,45.32
+2026-11-24 22:04,Lower Manhattan,Midtown,6.45,2.0,efectivo,25.46
+2026-11-24 22:08,Upper West Side,Midtown,3.89,4.0,tarjeta,13.93
+2026-11-24 22:15,Midtown,Upper West Side,3.19,1.0,tarjeta,17.8
+2026-11-24 22:36,Upper West Side,Midtown,4.22,1.0,tarjeta,18.12
+2026-11-24 23:08,Queens,Queens,0.86,1.0,tarjeta,7.75
+2026-11-24 23:17,Midtown,Upper East Side,4.7,1.0,tarjeta,17.77
+2026-11-25 00:05,Upper East Side,Brooklyn,6.67,1.0,efectivo,24.48
+2026-11-25 00:13,Lower Manhattan,Midtown,5.57,1.0,tarjeta,19.88
+2026-11-25 06:07,Lower Manhattan,Lower Manhattan,2.28,2.0,efectivo,12.62
+2026-11-25 08:00,Queens,Lower Manhattan,11.1,1.0,efectivo,45.16
+2026-11-25 08:10,Midtown,Lower Manhattan,6.47,1.0,efectivo,27.22
+2026-11-25 08:18,Upper East Side,Midtown,5.07,1.0,tarjeta,24.28
+2026-11-25 08:25,Midtown,Upper East Side,3.74,1.0,tarjeta,15.16
+2026-11-25 08:43,Brooklyn,Upper East Side,10.7,1.0,tarjeta,42.48
+2026-11-25 08:46,Midtown,Upper East Side,3.75,1.0,tarjeta,20.3
+2026-11-25 10:01,Upper West Side,Lower Manhattan,7.58,1.0,tarjeta,29.26
+2026-11-25 10:10,Harlem,Midtown,5.13,1.0,tarjeta,20.99
+2026-11-25 10:37,Midtown,Midtown,0.4,1.0,tarjeta,5.63
+2026-11-25 10:56,Harlem,Midtown,8.09,1.0,efectivo,28.44
+2026-11-25 11:23,Midtown,Midtown,0.84,1.0,tarjeta,7.25
+2026-11-25 11:59,JFK Airport,Lower Manhattan,18.61,2.0,tarjeta,70.0
+2026-11-25 12:09,Upper West Side,Upper East Side,3.53,1.0,tarjeta,16.55
+2026-11-25 13:41,Queens,Midtown,8.83,1.0,tarjeta,31.36
+2026-11-25 15:23,Upper East Side,Harlem,4.45,1.0,tarjeta,21.0
+2026-11-25 15:40,Midtown,Midtown,2.94,1.0,efectivo,11.06
+2026-11-25 16:26,Upper East Side,Midtown,4.46,1.0,efectivo,20.6
+2026-11-25 16:43,Brooklyn,Queens,11.75,6.0,tarjeta,43.09
+2026-11-25 16:50,JFK Airport,Midtown,22.57,1.0,tarjeta,70.0
+2026-11-25 17:30,Lower Manhattan,Queens,12.73,,efectivo,50.5
+2026-11-25 17:52,Lower Manhattan,JFK Airport,25.48,1.0,tarjeta,70.0
+2026-11-25 18:14,Harlem,Brooklyn,6.81,,efectivo,27.2
+2026-11-25 18:37,Midtown,Harlem,7.67,1.0,tarjeta,35.26
+2026-11-25 18:44,Upper East Side,Midtown,3.87,1.0,tarjeta,17.92
+2026-11-25 19:40,Midtown,Lower Manhattan,5.61,1.0,tarjeta,22.57
+2026-11-25 20:21,Brooklyn,Midtown,8.81,1.0,tarjeta,27.18
+2026-11-25 21:05,JFK Airport,Upper East Side,24.09,1.0,tarjeta,70.0
+2026-11-25 21:17,Midtown,Upper West Side,3.68,2.0,tarjeta,17.23
+2026-11-25 21:17,Midtown,Upper West Side,3.68,2.0,tarjeta,17.23
+2026-11-25 21:22,Brooklyn,Midtown,8.65,2.0,efectivo,32.36
+2026-11-25 22:49,Midtown,Queens,9.77,1.0,efectivo,33.78
+2026-11-26 01:30,Lower Manhattan,Harlem,10.3,1.0,efectivo,39.48
+2026-11-26 08:11,Upper East Side,Brooklyn,8.6,1.0,tarjeta,35.0
+2026-11-26 08:23,Lower Manhattan,Midtown,5.86,1.0,tarjeta,23.86
+2026-11-26 08:23,Lower Manhattan,Midtown,5.86,1.0,tarjeta,23.86
+2026-11-26 08:24,Midtown,Lower Manhattan,4.6,6.0,efectivo,21.25
+2026-11-26 08:31,Midtown,Midtown,0.4,2.0,efectivo,7.55
+2026-11-26 08:53,Upper West Side,Brooklyn,14.27,5.0,efectivo,52.49
+2026-11-26 08:58,Lower Manhattan,Lower Manhattan,1.96,1.0,efectivo,11.15
+2026-11-26 09:04,Brooklyn,Queens,12.3,2.0,tarjeta,45.98
+2026-11-26 09:04,Brooklyn,Queens,12.3,2.0,tarjeta,45.98
+2026-11-26 10:13,Lower Manhattan,Upper West Side,8.91,2.0,tarjeta,33.36
+2026-11-26 10:39,JFK Airport,Lower Manhattan,23.91,1.0,efectivo,70.0
+2026-11-26 10:53,Upper West Side,Queens,9.05,4.0,tarjeta,32.63
+2026-11-26 12:08,Midtown,Midtown,1.04,1.0,tarjeta,9.3
+2026-11-26 12:17,Brooklyn,Harlem,9.89,1.0,efectivo,32.3
+2026-11-26 14:10,Midtown,Lower Manhattan,5.19,1.0,tarjeta,21.92
+2026-11-26 14:34,Upper West Side,JFK Airport,26.4,1.0,tarjeta,70.0
+2026-11-26 14:37,Lower Manhattan,Harlem,6.55,1.0,tarjeta,27.55
+2026-11-26 14:37,Lower Manhattan,Harlem,6.55,1.0,tarjeta,27.55
+2026-11-26 14:51,Harlem,Midtown,9.49,,efectivo,34.31
+2026-11-26 15:29,Midtown,Brooklyn,5.94,1.0,tarjeta,24.25
+2026-11-26 15:54,Brooklyn,Upper East Side,11.96,1.0,tarjeta,42.85
+2026-11-26 15:55,Harlem,Brooklyn,6.14,1.0,tarjeta,24.0
+2026-11-26 15:55,Harlem,Brooklyn,6.14,1.0,tarjeta,24.0
+2026-11-26 17:48,Brooklyn,JFK Airport,22.43,1.0,efectivo,90.43
+2026-11-26 18:02,Midtown,Queens,12.63,6.0,efectivo,46.79
+2026-11-26 18:45,Midtown,Upper West Side,4.03,1.0,tarjeta,17.8
+2026-11-26 18:46,Midtown,Brooklyn,10.07,1.0,tarjeta,37.1
+2026-11-26 19:04,Midtown,Upper East Side,2.97,1.0,efectivo,15.13
+2026-11-26 19:15,Midtown,Midtown,1.56,1.0,tarjeta,10.45
+2026-11-26 19:54,Lower Manhattan,Queens,11.53,1.0,efectivo,46.28
+2026-11-26 19:55,JFK Airport,Queens,13.24,2.0,efectivo,57.23
+2026-11-26 19:55,Upper West Side,Midtown,4.1,3.0,tarjeta,20.36
+2026-11-26 19:59,Midtown,Harlem,6.7,1.0,efectivo,27.17
+2026-11-26 20:13,Upper East Side,Lower Manhattan,6.61,2.0,tarjeta,24.35
+2026-11-26 20:20,Queens,Midtown,7.09,1.0,tarjeta,27.58
+2026-11-26 21:26,Brooklyn,Queens,13.95,1.0,tarjeta,48.48
+2026-11-26 22:15,Queens,JFK Airport,12.01,3.0,tarjeta,48.72
+2026-11-26 22:47,Midtown,Midtown,1.03,2.0,tarjeta,9.64
+2026-11-26 22:48,Midtown,JFK Airport,22.59,1.0,tarjeta,70.0
+2026-11-26 23:04,Upper East Side,Queens,11.26,2.0,tarjeta,41.0
+2026-11-27 00:23,Midtown,Midtown,1.56,5.0,efectivo,9.41
+2026-11-27 03:52,Upper East Side,Upper West Side,2.64,1.0,tarjeta,14.63
+2026-11-27 03:52,Upper East Side,Upper West Side,2.64,1.0,tarjeta,14.63
+2026-11-27 04:56,Midtown,Brooklyn,8.75,1.0,tarjeta,31.31
+2026-11-27 06:07,Brooklyn,Midtown,5.43,2.0,tarjeta,23.32
+2026-11-27 07:11,Midtown,Queens,12.94,4.0,efectivo,50.38
+2026-11-27 07:33,Midtown,Harlem,8.39,1.0,tarjeta,34.51
+2026-11-27 07:34,Harlem,Midtown,9.48,1.0,tarjeta,37.12
+2026-11-27 08:21,Midtown,Harlem,5.08,1.0,tarjeta,25.21
+2026-11-27 08:48,Brooklyn,Midtown,7.7,1.0,tarjeta,33.25
+2026-11-27 09:00,Queens,Brooklyn,10.57,1.0,tarjeta,41.4
+2026-11-27 09:11,Harlem,JFK Airport,19.53,1.0,tarjeta,70.0
+2026-11-27 09:56,Upper West Side,Midtown,4.38,3.0,tarjeta,23.54
+2026-11-27 09:56,Upper West Side,Midtown,4.38,3.0,tarjeta,23.54
+2026-11-27 10:40,Midtown,Upper East Side,4.9,1.0,efectivo,17.98
+2026-11-27 12:35,Upper West Side,Upper East Side,4.54,4.0,efectivo,16.69
+2026-11-27 12:35,Upper West Side,Upper West Side,0.86,2.0,efectivo,6.94
+2026-11-27 12:41,Midtown,Lower Manhattan,4.53,3.0,tarjeta,19.66
+2026-11-27 12:55,Brooklyn,Upper East Side,7.33,2.0,efectivo,26.0
+2026-11-27 13:11,Midtown,Brooklyn,5.63,1.0,tarjeta,23.02
+2026-11-27 13:17,Lower Manhattan,Midtown,4.87,1.0,tarjeta,20.71
+2026-11-27 13:33,Harlem,Brooklyn,7.75,1.0,tarjeta,31.79
+2026-11-27 14:24,Upper West Side,Harlem,3.05,3.0,tarjeta,14.92
+2026-11-27 15:00,Queens,Lower Manhattan,11.06,2.0,efectivo,41.38
+2026-11-27 15:31,Midtown,Midtown,0.4,2.0,efectivo,4.96
+2026-11-27 16:09,Midtown,Brooklyn,10.42,1.0,tarjeta,41.58
+2026-11-27 16:24,JFK Airport,JFK Airport,1.11,2.0,tarjeta,12.56
+2026-11-27 16:25,Upper East Side,Midtown,3.82,1.0,tarjeta,19.54
+2026-11-27 16:37,Lower Manhattan,Upper West Side,8.27,1.0,efectivo,33.89
+2026-11-27 16:40,Queens,Lower Manhattan,9.52,5.0,tarjeta,39.28
+2026-11-27 16:45,Midtown,Midtown,1.96,1.0,efectivo,11.88
+2026-11-27 17:01,Brooklyn,Upper West Side,9.67,1.0,tarjeta,36.32
+2026-11-27 17:01,Brooklyn,Upper West Side,9.67,1.0,tarjeta,36.32
+2026-11-27 17:50,Upper West Side,Upper East Side,3.42,1.0,tarjeta,16.04
+2026-11-27 18:52,Lower Manhattan,Upper West Side,8.75,2.0,efectivo,34.19
+2026-11-27 18:57,JFK Airport,JFK Airport,1.01,1.0,efectivo,13.75
+2026-11-27 19:17,Midtown,Midtown,1.68,1.0,efectivo,13.74
+2026-11-27 19:20,Lower Manhattan,Midtown,4.93,1.0,tarjeta,25.1
+2026-11-27 19:43,Upper East Side,Lower Manhattan,7.03,2.0,efectivo,25.58
+2026-11-27 19:58,Midtown,Midtown,0.99,1.0,tarjeta,5.93
+2026-11-27 20:09,Upper West Side,Midtown,3.07,1.0,efectivo,16.99
+2026-11-27 20:27,Upper West Side,Queens,10.89,1.0,efectivo,37.6
+2026-11-27 21:00,Midtown,JFK Airport,26.23,,tarjeta,70.0
+2026-11-27 21:36,Lower Manhattan,Brooklyn,12.45,1.0,tarjeta,40.91
+2026-11-27 21:52,Midtown,Midtown,2.43,5.0,tarjeta,12.43
+2026-11-27 22:21,JFK Airport,Brooklyn,16.19,1.0,tarjeta,58.73
+2026-11-27 22:50,Upper East Side,Harlem,4.18,3.0,tarjeta,19.13
+2026-11-27 23:29,Brooklyn,Brooklyn,1.51,1.0,tarjeta,9.59
+2026-11-27 23:48,Lower Manhattan,Upper West Side,7.75,1.0,efectivo,27.07
+2026-11-28 00:23,Midtown,Midtown,0.4,1.0,tarjeta,3.53
+2026-11-28 04:35,Midtown,Brooklyn,9.94,2.0,tarjeta,35.57
+2026-11-28 06:42,Upper East Side,Upper West Side,3.46,2.0,tarjeta,14.3
+2026-11-28 08:05,Midtown,Midtown,0.97,1.0,efectivo,9.64
+2026-11-28 08:41,Midtown,Harlem,8.8,1.0,tarjeta,31.51
+2026-11-28 08:41,Midtown,Harlem,8.8,1.0,tarjeta,31.51
+2026-11-28 09:15,Queens,Lower Manhattan,11.08,2.0,tarjeta,37.66
+2026-11-28 10:28,Midtown,Lower Manhattan,6.19,1.0,tarjeta,24.44
+2026-11-28 10:45,Lower Manhattan,Lower Manhattan,1.53,1.0,tarjeta,10.28
+2026-11-28 11:25,JFK Airport,Lower Manhattan,30.09,,efectivo,70.0
+2026-11-28 11:58,Midtown,Midtown,0.4,1.0,,7.54
+2026-11-28 13:22,Upper West Side,Lower Manhattan,10.0,1.0,tarjeta,37.69
+2026-11-28 13:34,JFK Airport,Midtown,25.22,1.0,tarjeta,70.0
+2026-11-28 14:04,Harlem,Midtown,5.44,2.0,,21.17
+2026-11-28 14:30,Midtown,Midtown,1.74,1.0,tarjeta,11.47
+2026-11-28 15:01,Upper West Side,Lower Manhattan,7.77,1.0,tarjeta,28.06
+2026-11-28 15:38,Upper West Side,Brooklyn,11.78,1.0,tarjeta,43.85
+2026-11-28 15:46,Midtown,Midtown,2.08,1.0,efectivo,12.64
+2026-11-28 16:39,Midtown,Queens,4.83,,efectivo,20.72
+2026-11-28 16:56,Lower Manhattan,Upper East Side,8.15,1.0,tarjeta,29.63
+2026-11-28 17:33,Lower Manhattan,Midtown,5.12,1.0,tarjeta,21.53
+2026-11-28 17:56,Midtown,Lower Manhattan,6.94,1.0,efectivo,26.28
+2026-11-28 17:56,Midtown,Lower Manhattan,6.94,1.0,efectivo,26.28
+2026-11-28 18:12,Midtown,Midtown,1.24,4.0,efectivo,10.43
+2026-11-28 18:12,Midtown,Midtown,1.24,4.0,efectivo,10.43
+2026-11-28 18:19,Midtown,Lower Manhattan,5.5,5.0,efectivo,19.64
+2026-11-28 18:30,Harlem,Lower Manhattan,12.16,1.0,tarjeta,39.22
+2026-11-28 19:13,Brooklyn,Upper East Side,6.61,1.0,tarjeta,25.21
+2026-11-28 19:51,Lower Manhattan,Lower Manhattan,0.79,1.0,tarjeta,7.42
+2026-11-28 19:58,Upper West Side,Midtown,2.91,2.0,tarjeta,13.13
+2026-11-28 20:06,Upper West Side,Upper East Side,3.49,2.0,efectivo,12.49
+2026-11-28 20:45,Upper East Side,JFK Airport,23.29,3.0,tarjeta,70.0
+2026-11-28 20:46,Midtown,Upper West Side,4.16,1.0,tarjeta,20.23
+2026-11-28 21:07,JFK Airport,Lower Manhattan,27.99,1.0,tarjeta,70.0
+2026-11-28 22:11,Upper East Side,Upper East Side,0.71,3.0,efectivo,5.5
+2026-11-28 22:19,Midtown,Harlem,6.98,2.0,tarjeta,26.51
+2026-11-28 22:25,Midtown,Queens,6.12,1.0,tarjeta,23.68
+2026-11-28 22:58,Upper West Side,Upper West Side,2.65,2.0,tarjeta,9.34
+2026-11-28 23:04,Lower Manhattan,Upper East Side,8.17,1.0,tarjeta,26.66

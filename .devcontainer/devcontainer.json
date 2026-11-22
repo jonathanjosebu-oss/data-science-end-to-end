@@ -25,24 +25,37 @@
 
   "containerEnv": {
     "SPARK_LOCAL_IP": "127.0.0.1",
-    "PIP_DISABLE_PIP_VERSION_CHECK": "1"
+    "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+    // Direccion del servidor de MLflow (Semana 11). MLflow la lee de esta variable,
+    // asi que los notebooks no la escriben: en una empresa apuntaria al servidor del equipo.
+    "MLFLOW_TRACKING_URI": "http://127.0.0.1:5050"
   },
   "remoteEnv": {
     "PATH": "${containerEnv:PATH}:/home/vscode/.local/bin"
   },
 
-  "forwardPorts": [8080, 8085],
+  // Solo MLflow corre siempre. Kestra, pgAdmin, Postgres y Redpanda los levanta cada
+  // laboratorio con docker compose, y el servicio de prediccion, uvicorn o docker run.
+  // VS Code detecta su puerto al arrancar y lo muestra en Ports con esta etiqueta. Cualquier otro puerto (los que abren VS Code y los
+  // kernels de Jupyter para uso interno) no se reenvia ni aparece en Ports.
+  "forwardPorts": [5050],
   "portsAttributes": {
-    "8080": { "label": "Kestra (Semana 4)", "onAutoForward": "notify" },
-    "8085": { "label": "pgAdmin (Semana 3)", "onAutoForward": "notify" },
-    "5432": { "label": "Postgres", "onAutoForward": "silent" },
+    "5050": { "label": "MLflow (Semana 11)", "onAutoForward": "notify" },
+    "8000": { "label": "Servicio de predicción (Semana 12)", "onAutoForward": "notify" },
+    "8080": { "label": "Kestra (Semanas 4 y 7)", "onAutoForward": "notify" },
+    "8085": { "label": "pgAdmin (Semanas 3 y 7)", "onAutoForward": "notify" },
+    "5432": { "label": "Postgres (Semanas 3 y 7)", "onAutoForward": "silent" },
     "9092": { "label": "Redpanda / Kafka (Semana 6)", "onAutoForward": "silent" }
   },
+  "otherPortsAttributes": { "onAutoForward": "ignore" },
 
   // La instalacion pesada va en onCreateCommand (compatible con prebuilds de Codespaces);
   // la verificacion corre despues y se puede repetir a mano: bash .devcontainer/verificar.sh
+  // El servidor de MLflow se levanta cada vez que inicia el contenedor (tambien despues
+  // de detener el Codespace), porque los procesos no sobreviven a un reinicio.
   "onCreateCommand": "bash .devcontainer/on-create.sh",
   "postCreateCommand": "bash .devcontainer/verificar.sh",
+  "postStartCommand": "bash .devcontainer/mlflow-server.sh",
 
   "customizations": {
     "codespaces": {
@@ -58,7 +71,10 @@
       ],
       "settings": {
         "python.defaultInterpreterPath": "/usr/local/bin/python",
-        "python.terminal.activateEnvironment": false
+        "python.terminal.activateEnvironment": false,
+        // Cada notebook corre desde su propia carpeta: pd.read_csv("datos.csv")
+        // y "from preparacion_taxis import ..." encuentran los archivos de al lado.
+        "jupyter.notebookFileRoot": "${fileDirname}"
       }
     }
   },

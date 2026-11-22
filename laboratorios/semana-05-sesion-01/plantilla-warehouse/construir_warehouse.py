@@ -7,7 +7,7 @@ con = duckdb.connect("TODO.duckdb")
 # y por un nombre de tabla propio de tu proyecto.
 con.execute("""
     CREATE OR REPLACE TABLE TODO_nombre_tabla AS
-    SELECT * FROM read_csv_auto('TODO_ruta_del_archivo.csv')
+    SELECT * FROM read_csv_auto('../data/raw/TODO_archivo.csv')
 """)
 
 # TODO: primera consulta, cuántas filas cargaste.

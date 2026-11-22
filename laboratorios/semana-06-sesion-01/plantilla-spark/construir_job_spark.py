@@ -7,7 +7,7 @@ spark.sparkContext.setLogLevel("ERROR")
 
 # TODO: reemplaza por la ruta real del archivo historico de tu proyecto
 # (el mismo que tu pipeline orquestado de la Semana 4 genera o acumula).
-historico = spark.read.csv("TODO_ruta_del_archivo.csv", header=True, inferSchema=True)
+historico = spark.read.csv("../data/raw/TODO_archivo.csv", header=True, inferSchema=True)
 print(f"Particiones de lectura: {historico.rdd.getNumPartitions()}")
 print(f"Filas leidas: {historico.count()}")
 

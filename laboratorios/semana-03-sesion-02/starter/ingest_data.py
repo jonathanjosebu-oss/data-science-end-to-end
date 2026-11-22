@@ -2,8 +2,8 @@
 Ingesta de viajes de taxi de Nueva York (NYC TLC, Yellow Taxi) hacia Postgres.
 
 Descarga los archivos parquet de 3 meses desde la fuente pública de la TLC
-(https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page) y los carga
-en una sola tabla de Postgres, un mes a la vez, en bloques (chunks) para no
+(https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page) y carga los
+primeros 300.000 viajes de cada uno en una sola tabla de Postgres, un mes a la vez, en bloques (chunks) para no
 cargar los 3 meses completos en memoria de una sola vez.
 
 Variables de ambiente esperadas (las mismas que defino en docker-compose.yml
@@ -27,6 +27,10 @@ MESES = ["2023-01", "2023-02", "2023-03"]
 URL_BASE = "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_{mes}.parquet"
 CARPETA_DESCARGA = Path("/tmp/datos_taxis")
 TAMANO_BLOQUE = 100_000
+# Los primeros 300.000 viajes de cada mes: la carga completa (unos 3 millones
+# por mes) tarda mas de 15 minutos, y la sesion es sobre la infraestructura,
+# no sobre el volumen. Con None se carga el mes completo.
+FILAS_POR_MES = 300_000
 
 
 def esperar_postgres(engine, intentos=10, espera_segundos=3):
@@ -79,7 +83,15 @@ def cargar_mes_en_bloques(engine, ruta_parquet, mes, tabla, es_primer_mes):
     primer_bloque_del_mes = True
 
     for lote in archivo_parquet.iter_batches(batch_size=TAMANO_BLOQUE):
+        if FILAS_POR_MES is not None and total_filas >= FILAS_POR_MES:
+            break
         df = lote.to_pandas()
+        if FILAS_POR_MES is not None:
+            df = df.head(FILAS_POR_MES - total_filas)
+        # La TLC no escribe igual el nombre de algunas columnas en todos los
+        # meses (Airport_fee en uno, airport_fee en otro): en minusculas, los
+        # tres meses entran en la misma tabla.
+        df.columns = [columna.lower() for columna in df.columns]
         df["mes_origen"] = mes
 
         reemplazar_tabla = es_primer_mes and primer_bloque_del_mes

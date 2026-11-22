@@ -1,8 +1,8 @@
 # PSet 1: Rúbrica de evaluación
 
-> PSet 1 es uno de los 5 PSets del curso, que en conjunto valen 25% de la nota final (ver `Sistema de Evaluación` del cronograma). Por defecto, los 5 PSets pesan igual entre sí (5% cada uno de la nota total), salvo que yo decida una ponderación distinta.
+> PSet 1 es uno de los 4 PSets del curso, que en conjunto valen 25% de la nota final. Los 4 PSets pesan igual entre sí (6.25% cada uno de la nota total), salvo que yo decida una ponderación distinta.
 
-Los tres entregables de PSet 1 (Canvas de Viabilidad y Riesgos, Documento de propuesta, Presentación de negocio) se evalúan como una sola entrega, con los cinco criterios de esta rúbrica. Cada criterio se califica en una escala de 0 a 4; la nota final del PSet es el promedio de los cinco.
+Los cuatro entregables de PSet 1 (Canvas de Viabilidad y Riesgos, Documento de propuesta, Presentación de negocio y el ambiente del proyecto) se evalúan como una sola entrega, con los seis criterios de esta rúbrica. Cada criterio se califica en una escala de 0 a 4; la nota final del PSet es el promedio de los seis.
 
 ## 1. Formulación del problema y métrica de éxito
 
@@ -49,9 +49,18 @@ Los tres entregables de PSet 1 (Canvas de Viabilidad y Riesgos, Documento de pro
 | 2, En desarrollo | Falta uno de los tres entregables, o hay inconsistencias notorias entre ellos (datos distintos, riesgos distintos). |
 | 1, Insuficiente | Falta más de un entregable, o el contenido es copia directa del laboratorio de clase sin revisión ni mejora. |
 
+## 6. Ambiente reproducible: contenedor e infraestructura
+
+| Nivel | Descripción |
+|---|---|
+| 4, Excelente | `docker build` construye la imagen sin error, en el orden que aprovecha la cache (dependencias antes que código), y `docker run` con un volumen produce el mismo resultado que correr el script de ingesta sin Docker. `requirements.txt` fija las versiones. La base de datos se levanta con un solo comando (`docker compose up -d` o `terraform apply`), y la ingesta se conecta por nombre de servicio, no por `localhost`, con un reintento que tolera que la base todavía no acepte conexiones. La sección "Datos" de `proyecto/README.md` permite obtener los datos desde cero. |
+| 3, Logrado | Imagen e infraestructura funcionan, pero falta uno de los detalles anteriores (versiones sin fijar, orden de instrucciones que invalida la cache, conexión sin reintento, sección "Datos" incompleta). |
+| 2, En desarrollo | La imagen se construye, pero el contenedor no produce el mismo resultado que el script, o la infraestructura necesita pasos a mano que no están documentados. |
+| 1, Insuficiente | Falta el Dockerfile o la infraestructura, o ninguno de los dos corre. |
+
 ## Nota sobre el criterio central
 
-El criterio que atraviesa los cinco puntos, tomado directamente del enunciado de PSet 1: la viabilidad técnica y de negocio debe estar sustentada con evidencia concreta del proyecto propio, no con afirmaciones genéricas, y los riesgos identificados deben ser específicos y verificables, siguiendo el mismo criterio de evidencia usado en la Semana 1, Sesión 2 y en el laboratorio de Semana 2, Sesión 2. Un entregable que suena profesional en el formato pero es vago en el contenido no califica como Excelente en ningún criterio, aunque esté bien escrito.
+El criterio que atraviesa los cinco primeros puntos, tomado directamente del enunciado de PSet 1: la viabilidad técnica y de negocio debe estar sustentada con evidencia concreta del proyecto propio, no con afirmaciones genéricas, y los riesgos identificados deben ser específicos y verificables, siguiendo el mismo criterio de evidencia usado en la Semana 1, Sesión 2 y en el laboratorio de Semana 2, Sesión 2. Un entregable que suena profesional en el formato pero es vago en el contenido no califica como Excelente en ningún criterio, aunque esté bien escrito.
 
 ---
-*Última actualización: 2026-08-31*
+*Última actualización: 2026-11-04*

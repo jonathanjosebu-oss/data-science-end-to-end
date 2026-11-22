@@ -1,0 +1,38 @@
+# Integracion continua: en cada push y en cada pull request, GitHub crea una
+# maquina limpia, instala las librerias del curso y corre las pruebas de tu
+# proyecto. Si alguna falla, el commit queda marcado con una X roja.
+#
+# En tu fork, GitHub Actions viene apagado: activalo una vez en la pestana
+# Actions ("I understand my workflows, go ahead and enable them").
+name: pruebas
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Instalar las librerias del curso
+        run: pip install -r requirements.txt
+
+      - name: Correr las pruebas de psets/proyecto
+        # pytest termina con codigo 5 cuando no encuentra ninguna prueba: pasa
+        # mientras tu proyecto todavia no tiene pruebas (antes de la Semana 12).
+        run: |
+          set +e
+          pytest psets/proyecto -v
+          codigo=$?
+          if [ "$codigo" -eq 5 ]; then
+            echo "Todavia no hay pruebas en psets/proyecto."
+            exit 0
+          fi
+          exit "$codigo"

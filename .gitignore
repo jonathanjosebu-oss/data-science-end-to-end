@@ -6,9 +6,13 @@ venv/
 .ipynb_checkpoints/
 
 # Datos y modelos locales (nunca se suben, ver PSets para dónde documentar su origen)
-data/raw/
-data/processed/
+**/data/raw/*
+**/data/processed/*
+# Las carpetas vacias si se suben, para que la estructura del proyecto exista al clonar.
+!**/data/raw/.gitkeep
+!**/data/processed/.gitkeep
 *.pkl
+*.joblib
 
 # Editor / OS
 .DS_Store
@@ -34,5 +38,16 @@ spark-warehouse/
 metastore_db/
 derby.log
 
+# Registro de MLflow: el del servidor del Codespace (.mlflow/) y el local si trabajas
+# sin servidor (mlruns/). Cada estudiante lo regenera al correr; pesa decenas de MB.
+.mlflow/
+mlruns/
+mlartifacts/
+
 # Material reemplazado (no se sube)
 _to_delete/
+
+# Registros del servicio y del monitoreo (Semana 13): se regeneran al correr
+predicciones.jsonl
+cobros.csv
+modelo_version.txt
