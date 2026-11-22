@@ -2,11 +2,29 @@ version: 2
 
 models:
   - name: stg_clientes
+    describe: Tabla raw de los clientes de la empresa
     columns:
       - name: id_cliente
+        describe: Identificador único de cada cliente (es la clave primaria)
         tests:
           - unique
           - not_null
 
   # TODO 2: agrega stg_pedidos, con las pruebas unique y not_null sobre
   # la columna que identifica cada pedido.
+  - name: stg_pedidos
+    describe: Tabla raw de los pedidos de la empresa
+    columns:
+      - name: id_pedido
+        describe: Identificador único de cada pedido (es la clave primaria)
+        tests:
+          - unique
+          - not_null
+          
+      - name: id_cliente
+        describe: Identificador único de cada cliente (es la clave primaria)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_clientes')
+              field: id_cliente

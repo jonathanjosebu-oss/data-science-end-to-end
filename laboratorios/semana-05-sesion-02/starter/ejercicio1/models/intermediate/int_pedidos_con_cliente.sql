@@ -7,5 +7,5 @@ select
     p.cantidad * p.precio_unitario as monto_total,
     c.ciudad,
     c.segmento
-from raw_pedidos as p
-join raw_clientes as c on p.id_cliente = c.id_cliente
+from {{ ref('stg_pedidos') }} as p
+join {{ ref('stg_clientes') }} as c on p.id_cliente = c.id_cliente

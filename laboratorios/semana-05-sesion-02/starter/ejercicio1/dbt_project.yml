@@ -10,7 +10,7 @@ models:
   proyecto_dbt:
     staging:
       +materialized: view
-    intermedia:
+    intermediate:
       +materialized: view
     marts:
       +materialized: table

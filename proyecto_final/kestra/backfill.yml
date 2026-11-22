@@ -1,0 +1,94 @@
+id: backfill
+namespace: qsrr.proyecto
+
+description: >-
+  Backfill histórico: recorre fechas entre start_date y end_date con el paso
+  elegido y ejecuta ingesta para cada una (una a la vez).
+  Cada fecha se resuelve al commit de RepoRT vigente ese día y se guarda en su
+  propia partición SNAPSHOT_DATE de RAW_REPORT_DATA. Las cargas históricas no
+  reconstruyen Gold; al final se ejecuta una sola vez dbt + Spark sobre el
+  snapshot más reciente, si rebuild_gold = true.
+  Alternativa nativa: como el flow principal usa trigger.date, también se
+  puede lanzar un backfill desde el trigger weekly_schedule en la UI.
+
+inputs:
+  - id: start_date
+    type: DATE
+    defaults: "2024-01-01"
+  - id: end_date
+    type: DATE
+    defaults: "2026-11-01"
+  - id: step
+    type: SELECT
+    values: [WEEK, MONTH, QUARTER]
+    defaults: MONTH
+  - id: source_ref
+    type: STRING
+    defaults: master
+  - id: rebuild_gold
+    type: BOOL
+    defaults: true
+
+tasks:
+  - id: generate_dates
+    type: io.kestra.plugin.scripts.python.Script
+    env:
+      START: "{{ inputs.start_date }}"
+      END: "{{ inputs.end_date }}"
+      STEP: "{{ inputs.step }}"
+    script: |
+      import datetime as dt, json, os
+      start = dt.date.fromisoformat(os.environ["START"])
+      end = dt.date.fromisoformat(os.environ["END"])
+      if start > end:
+          raise SystemExit(f"start_date {start} es posterior a end_date {end}")
+      months = {"MONTH": 1, "QUARTER": 3}.get(os.environ["STEP"])
+      dates, current = [], start
+      while current <= end:
+          dates.append(current.isoformat())
+          if months is None:
+              current += dt.timedelta(weeks=1)
+          else:
+              m = current.month - 1 + months
+              current = current.replace(year=current.year + m // 12, month=m % 12 + 1, day=1)
+      print(f"{len(dates)} snapshots: {dates[0]} .. {dates[-1]}")
+      print("::" + json.dumps({"outputs": {"dates": dates}}) + "::")
+
+  - id: load_each_snapshot
+    type: io.kestra.plugin.core.flow.Loop
+    values: "{{ outputs.generate_dates.vars.dates }}"
+    concurrencyLimit: 1
+    transmitFailed: true
+    tasks:
+      - id: ingest_snapshot
+        type: io.kestra.plugin.core.flow.Subflow
+        namespace: qsrr.proyecto
+        flowId: ingesta
+        wait: true
+        transmitFailed: true
+        inputs:
+          source_ref: "{{ inputs.source_ref }}"
+          snapshot_date: "{{ item.value }}"
+          run_transformations: false
+
+  - id: rebuild_gold
+    type: io.kestra.plugin.core.flow.If
+    condition: "{{ inputs.rebuild_gold }}"
+    then:
+      - id: ingest_latest_and_transform
+        type: io.kestra.plugin.core.flow.Subflow
+        namespace: qsrr.proyecto
+        flowId: ingesta
+        wait: true
+        transmitFailed: true
+        inputs:
+          source_ref: "{{ inputs.source_ref }}"
+          run_transformations: true
+
+errors:
+  - id: log_failure
+    type: io.kestra.plugin.core.log.Log
+    level: ERROR
+    message: >-
+      Backfill {{ execution.id }} interrumpido. Las particiones ya cargadas se
+      conservan; relanza el backfill desde la fecha fallida. Detalle: {{ errorLogs() }}

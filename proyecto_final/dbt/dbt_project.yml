@@ -1,0 +1,35 @@
+name: 'qsrr'
+version: '1.0.0'
+config-version: 2
+
+profile: 'tu_proyecto_dbt'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+vars:
+  # Reglas de limpieza (ver docs/memo_tecnico.md §3). Valores fijados con el
+  # perfil del snapshot de RepoRT cargado el 2026-11-18.
+  flujo_max_ml_min: 5          # > 5 se interpreta como µL/min y se divide por 1000
+  rt_max_min: 120              # tope físico; el máximo observado es 100.5 min
+  rango_max_replicas_min: 0.5  # réplicas con mayor dispersión son ambiguas
+  fraccion_max_excluida: 0.10  # el build falla si se excluye más del 10 %
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  qsrr:
+    +materialized: table
+    bronze:
+      +schema: BRONZE
+    silver:
+      +schema: SILVER
+    gold:
+      +schema: GOLD

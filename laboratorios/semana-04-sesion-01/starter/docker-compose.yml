@@ -10,11 +10,11 @@ services:
 
   kestra:
     image: kestra/kestra:v2.0.7
-    user: "root"
+    user: "root" #usuario raiz 
     command: server standalone
     volumes:
-      - datos_kestra:/app/storage
-      - /var/run/docker.sock:/var/run/docker.sock
+      - datos_kestra:/app/storage   #tenemos 3 volumenes 
+      - /var/run/docker.sock:/var/run/docker.sock  #conecta los contenedoresdocker de la pc con los de kestra 
       - /tmp/kestra-wd:/tmp/kestra-wd
     environment:
       KESTRA_CONFIGURATION: |

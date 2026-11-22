@@ -1,0 +1,269 @@
+id: ingesta
+namespace: qsrr.proyecto
+
+description: >-
+  Pipeline completo RepoRT -> Snowflake RAW -> dbt (Bronze/Silver/Gold) -> Spark (OBT).
+  Cada ejecución carga el snapshot de RepoRT vigente en su fecha lógica
+  (snapshot_date, la fecha del trigger o la fecha de inicio) y lo publica en
+  RAW_REPORT_DATA como partición SNAPSHOT_DATE, sin borrar las demás fechas.
+  Así un backfill reconstruye períodos históricos en lugar de reemplazar el
+  snapshot vigente. Si una tarea falla, el bloque `errors` registra el fallo
+  y limpia la tabla transient y los archivos del stage de esa ejecución.
+
+inputs:
+  - id: source_ref
+    type: STRING
+    defaults: master
+    description: Rama de RepoRT; se resuelve al último commit hasta snapshot_date.
+  - id: snapshot_date
+    type: DATE
+    required: false
+    description: >-
+      Fecha lógica del snapshot (backfill). Vacía = fecha del trigger o de
+      inicio de la ejecución.
+  - id: run_transformations
+    type: BOOL
+    defaults: true
+    description: Ejecuta dbt build y el job Spark de la OBT después de la carga.
+
+variables:
+  snowflake_url: "jdbc:snowflake://{{ env('snowflake_account') }}.snowflakecomputing.com/?warehouse={{ env('snowflake_warehouse') }}&db={{ env('snowflake_database') }}&schema={{ env('snowflake_schema') }}&role={{ env('snowflake_role') }}"
+  snapshot_date: "{{ (inputs.snapshot_date ?? trigger.date ?? execution.startDate) | date('yyyy-MM-dd') }}"
+  raw_table: "{{ env('snowflake_database') }}.{{ env('snowflake_schema') }}.RAW_REPORT_DATA"
+  load_table: "{{ env('snowflake_database') }}.{{ env('snowflake_schema') }}.REPORT_INGEST_LOAD_{{ execution.id }}"
+  stage: "@{{ env('snowflake_database') }}.{{ env('snowflake_schema') }}.REPORT_INGEST_NAMED_STAGE"
+
+tasks:
+  - id: ensure_snowflake_objects
+    type: io.kestra.plugin.jdbc.snowflake.Queries
+    url: "{{ render(vars.snowflake_url) }}"
+    username: "{{ env('snowflake_user') }}"
+    password: "{{ env('snowflake_password') }}"
+    retry:
+      type: constant
+      maxAttempts: 3
+      interval: PT1M
+    description: Stage, formato CSV y esquema de RAW con columnas de linaje (idempotente).
+    sql: |
+      CREATE STAGE IF NOT EXISTS {{ env('snowflake_database') }}.{{ env('snowflake_schema') }}.REPORT_INGEST_NAMED_STAGE;
+      CREATE FILE FORMAT IF NOT EXISTS {{ env('snowflake_database') }}.{{ env('snowflake_schema') }}.REPORT_INGEST_CSV TYPE = CSV COMPRESSION = GZIP FIELD_DELIMITER = ',' SKIP_HEADER = 1 FIELD_OPTIONALLY_ENCLOSED_BY = '"' EMPTY_FIELD_AS_NULL = TRUE;
+      CREATE TABLE IF NOT EXISTS {{ render(vars.raw_table) }} (
+        EXPERIMENT_ID VARCHAR, ID VARCHAR, NAME VARCHAR, FORMULA VARCHAR, RT DOUBLE,
+        SMILES_STD VARCHAR, INCHI_STD VARCHAR, INCHIKEY_STD VARCHAR,
+        CLASSYFIRE_KINGDOM VARCHAR, CLASSYFIRE_SUPERCLASS VARCHAR, CLASSYFIRE_CLASS VARCHAR,
+        CLASSYFIRE_SUBCLASS VARCHAR, CLASSYFIRE_LEVEL5 VARCHAR, CLASSYFIRE_LEVEL6 VARCHAR,
+        COMMENT VARCHAR, COLUMN_NAME VARCHAR, COLUMN_USP_CODE VARCHAR, COLUMN_LENGTH DOUBLE,
+        COLUMN_ID DOUBLE, COLUMN_PARTICLE_SIZE DOUBLE, COLUMN_TEMPERATURE DOUBLE,
+        COLUMN_FLOWRATE DOUBLE, COLUMN_T0 DOUBLE, ELUENT_A_H2O DOUBLE, ELUENT_A_MEOH DOUBLE,
+        ELUENT_A_ACN DOUBLE, ELUENT_B_H2O DOUBLE, ELUENT_B_MEOH DOUBLE, ELUENT_B_ACN DOUBLE
+      );
+      ALTER TABLE {{ render(vars.raw_table) }} ADD COLUMN IF NOT EXISTS SNAPSHOT_DATE DATE;
+      ALTER TABLE {{ render(vars.raw_table) }} ADD COLUMN IF NOT EXISTS SOURCE_REF VARCHAR;
+      ALTER TABLE {{ render(vars.raw_table) }} ADD COLUMN IF NOT EXISTS SOURCE_COMMIT VARCHAR;
+      ALTER TABLE {{ render(vars.raw_table) }} ADD COLUMN IF NOT EXISTS EXECUTION_ID VARCHAR;
+      ALTER TABLE {{ render(vars.raw_table) }} ADD COLUMN IF NOT EXISTS INGESTED_AT TIMESTAMP_TZ;
+
+  - id: extract_dataset
+    type: io.kestra.plugin.scripts.python.Commands
+    description: Descarga los TSV canónicos del commit de RepoRT vigente en snapshot_date.
+    namespaceFiles:
+      enabled: true
+      include:
+        - ingest_repo_rt.py
+    dependencies:
+      - requests
+    env:
+      SOURCE_REF: "{{ inputs.source_ref }}"
+      SNAPSHOT_DATE: "{{ render(vars.snapshot_date) }}"
+    commands:
+      - python ingest_repo_rt.py "$SOURCE_REF" report.csv --as-of "$SNAPSHOT_DATE"
+    outputFiles:
+      - report.csv
+    retry:
+      type: constant
+      maxAttempts: 3
+      interval: PT2M
+
+  - id: upload_to_snowflake_stage
+    type: io.kestra.plugin.jdbc.snowflake.Upload
+    url: "{{ render(vars.snowflake_url) }}"
+    username: "{{ env('snowflake_user') }}"
+    password: "{{ env('snowflake_password') }}"
+    retry:
+      type: constant
+      maxAttempts: 3
+      interval: PT1M
+    from: "{{ outputs.extract_dataset.outputFiles['report.csv'] }}"
+    fileName: report.csv
+    prefix: "{{ execution.id }}"
+    stageName: "{{ render(vars.stage) }}"
+    compress: true
+
+  - id: create_load_table
+    type: io.kestra.plugin.jdbc.snowflake.Query
+    url: "{{ render(vars.snowflake_url) }}"
+    username: "{{ env('snowflake_user') }}"
+    password: "{{ env('snowflake_password') }}"
+    retry:
+      type: constant
+      maxAttempts: 3
+      interval: PT1M
+    sql: |
+      CREATE OR REPLACE TRANSIENT TABLE {{ render(vars.load_table) }} (
+        EXPERIMENT_ID VARCHAR, ID VARCHAR, NAME VARCHAR, FORMULA VARCHAR, RT VARCHAR,
+        SMILES_STD VARCHAR, INCHI_STD VARCHAR, INCHIKEY_STD VARCHAR,
+        CLASSYFIRE_KINGDOM VARCHAR, CLASSYFIRE_SUPERCLASS VARCHAR, CLASSYFIRE_CLASS VARCHAR,
+        CLASSYFIRE_SUBCLASS VARCHAR, CLASSYFIRE_LEVEL5 VARCHAR, CLASSYFIRE_LEVEL6 VARCHAR,
+        COMMENT VARCHAR, COLUMN_NAME VARCHAR, COLUMN_USP_CODE VARCHAR, COLUMN_LENGTH VARCHAR,
+        COLUMN_ID VARCHAR, COLUMN_PARTICLE_SIZE VARCHAR, COLUMN_TEMPERATURE VARCHAR,
+        COLUMN_FLOWRATE VARCHAR, COLUMN_T0 VARCHAR, ELUENT_A_H2O VARCHAR, ELUENT_A_MEOH VARCHAR,
+        ELUENT_A_ACN VARCHAR, ELUENT_B_H2O VARCHAR, ELUENT_B_MEOH VARCHAR, ELUENT_B_ACN VARCHAR
+      )
+
+  - id: copy_to_load_table
+    type: io.kestra.plugin.jdbc.snowflake.Query
+    url: "{{ render(vars.snowflake_url) }}"
+    username: "{{ env('snowflake_user') }}"
+    password: "{{ env('snowflake_password') }}"
+    retry:
+      type: constant
+      maxAttempts: 3
+      interval: PT1M
+    sql: |
+      COPY INTO {{ render(vars.load_table) }}
+      FROM {{ render(vars.stage) }}/{{ execution.id }}/report.csv.gz
+      FILE_FORMAT = (FORMAT_NAME = '{{ env('snowflake_database') }}.{{ env('snowflake_schema') }}.REPORT_INGEST_CSV')
+      ON_ERROR = ABORT_STATEMENT
+
+  - id: publish_snapshot
+    type: io.kestra.plugin.jdbc.snowflake.Queries
+    url: "{{ render(vars.snowflake_url) }}"
+    username: "{{ env('snowflake_user') }}"
+    password: "{{ env('snowflake_password') }}"
+    retry:
+      type: constant
+      maxAttempts: 3
+      interval: PT1M
+    description: >-
+      Reemplaza solo la partición SNAPSHOT_DATE de esta ejecución, en una
+      transacción. Las filas heredadas sin SNAPSHOT_DATE (cargas anteriores al
+      linaje) se retiran en la misma transacción.
+    transaction: true
+    sql: |
+      DELETE FROM {{ render(vars.raw_table) }}
+      WHERE SNAPSHOT_DATE = '{{ render(vars.snapshot_date) }}'::DATE OR SNAPSHOT_DATE IS NULL;
+      INSERT INTO {{ render(vars.raw_table) }} (
+        EXPERIMENT_ID, ID, NAME, FORMULA, RT, SMILES_STD, INCHI_STD, INCHIKEY_STD,
+        CLASSYFIRE_KINGDOM, CLASSYFIRE_SUPERCLASS, CLASSYFIRE_CLASS, CLASSYFIRE_SUBCLASS,
+        CLASSYFIRE_LEVEL5, CLASSYFIRE_LEVEL6, COMMENT, COLUMN_NAME, COLUMN_USP_CODE,
+        COLUMN_LENGTH, COLUMN_ID, COLUMN_PARTICLE_SIZE, COLUMN_TEMPERATURE, COLUMN_FLOWRATE,
+        COLUMN_T0, ELUENT_A_H2O, ELUENT_A_MEOH, ELUENT_A_ACN, ELUENT_B_H2O, ELUENT_B_MEOH,
+        ELUENT_B_ACN, SNAPSHOT_DATE, SOURCE_REF, SOURCE_COMMIT, EXECUTION_ID, INGESTED_AT
+      )
+      SELECT
+        EXPERIMENT_ID, ID, NAME, FORMULA, TRY_TO_DOUBLE(RT), SMILES_STD, INCHI_STD, INCHIKEY_STD,
+        CLASSYFIRE_KINGDOM, CLASSYFIRE_SUPERCLASS, CLASSYFIRE_CLASS, CLASSYFIRE_SUBCLASS,
+        CLASSYFIRE_LEVEL5, CLASSYFIRE_LEVEL6, COMMENT, COLUMN_NAME, COLUMN_USP_CODE,
+        TRY_TO_DOUBLE(COLUMN_LENGTH), TRY_TO_DOUBLE(COLUMN_ID), TRY_TO_DOUBLE(COLUMN_PARTICLE_SIZE),
+        TRY_TO_DOUBLE(COLUMN_TEMPERATURE), TRY_TO_DOUBLE(COLUMN_FLOWRATE), TRY_TO_DOUBLE(COLUMN_T0),
+        TRY_TO_DOUBLE(ELUENT_A_H2O), TRY_TO_DOUBLE(ELUENT_A_MEOH), TRY_TO_DOUBLE(ELUENT_A_ACN),
+        TRY_TO_DOUBLE(ELUENT_B_H2O), TRY_TO_DOUBLE(ELUENT_B_MEOH), TRY_TO_DOUBLE(ELUENT_B_ACN),
+        '{{ render(vars.snapshot_date) }}'::DATE,
+        '{{ inputs.source_ref }}',
+        '{{ outputs.extract_dataset.vars.source_commit }}',
+        '{{ execution.id }}',
+        CURRENT_TIMESTAMP()
+      FROM {{ render(vars.load_table) }};
+
+  - id: cleanup_load
+    type: io.kestra.plugin.jdbc.snowflake.Queries
+    url: "{{ render(vars.snowflake_url) }}"
+    username: "{{ env('snowflake_user') }}"
+    password: "{{ env('snowflake_password') }}"
+    retry:
+      type: constant
+      maxAttempts: 3
+      interval: PT1M
+    sql: |
+      DROP TABLE IF EXISTS {{ render(vars.load_table) }};
+      REMOVE {{ render(vars.stage) }}/{{ execution.id }}/;
+
+  - id: transformations
+    type: io.kestra.plugin.core.flow.If
+    condition: "{{ inputs.run_transformations }}"
+    then:
+      - id: dbt_build
+        type: io.kestra.plugin.dbt.cli.DbtCLI
+        description: Bronze/Silver/Gold y todas las pruebas sobre el snapshot recién cargado.
+        taskRunner:
+          type: io.kestra.plugin.scripts.runner.docker.Docker
+          pullPolicy: NEVER
+        containerImage: qsrr-dbt:1.11
+        namespaceFiles:
+          enabled: true
+          include:
+            - dbt/**
+        projectDir: dbt
+        env:
+          SNOWFLAKE_ACCOUNT: "{{ env('snowflake_account') }}"
+          SNOWFLAKE_USER: "{{ env('snowflake_user') }}"
+          SNOWFLAKE_PASSWORD: "{{ env('snowflake_password') }}"
+          SNOWFLAKE_ROLE: "{{ env('snowflake_role') }}"
+          SNOWFLAKE_WAREHOUSE: "{{ env('snowflake_warehouse') }}"
+          SNOWFLAKE_DATABASE: "{{ env('snowflake_database') }}"
+          SNOWFLAKE_SCHEMA: "{{ env('snowflake_schema') }}"
+          DBT_PROFILES_DIR: /opt/dbt/profiles
+        commands:
+          - >-
+            dbt build --project-dir dbt
+            --vars '{"snapshot_date": "{{ render(vars.snapshot_date) }}"}'
+
+      - id: spark_obt
+        type: io.kestra.plugin.scripts.shell.Commands
+        description: >-
+          Construye OBT_QSRR_FINAL. El job valida unicidad de dimensiones y
+          grano antes de escribir; si falla termina con código 1 y la tarea falla.
+        taskRunner:
+          type: io.kestra.plugin.scripts.runner.docker.Docker
+          pullPolicy: NEVER
+          # Kestra crea el directorio de trabajo como root; el usuario `spark`
+          # de la imagen no podría leer los archivos de namespace.
+          user: root
+        containerImage: qsrr-spark:3.5.3
+        namespaceFiles:
+          enabled: true
+          include:
+            - spark/obt_processing.py
+        env:
+          SNOWFLAKE_ACCOUNT: "{{ env('snowflake_account') }}"
+          SNOWFLAKE_USER: "{{ env('snowflake_user') }}"
+          SNOWFLAKE_PASSWORD: "{{ env('snowflake_password') }}"
+          SNOWFLAKE_ROLE: "{{ env('snowflake_role') }}"
+          SNOWFLAKE_WAREHOUSE: "{{ env('snowflake_warehouse') }}"
+          SNOWFLAKE_DATABASE: "{{ env('snowflake_database') }}"
+          SNOWFLAKE_SCHEMA: "{{ env('snowflake_schema') }}"
+        commands:
+          - /opt/spark/bin/spark-submit spark/obt_processing.py
+
+errors:
+  - id: log_failure
+    type: io.kestra.plugin.core.log.Log
+    level: ERROR
+    message: >-
+      Falló {{ flow.namespace }}.{{ flow.id }} (ejecución {{ execution.id }},
+      snapshot {{ render(vars.snapshot_date) }}). Se limpian la tabla transient
+      y los archivos del stage. Detalle: {{ errorLogs() }}
+
+  - id: cleanup_on_failure
+    type: io.kestra.plugin.jdbc.snowflake.Queries
+    url: "{{ render(vars.snowflake_url) }}"
+    username: "{{ env('snowflake_user') }}"
+    password: "{{ env('snowflake_password') }}"
+    sql: |
+      DROP TABLE IF EXISTS {{ render(vars.load_table) }};
+      REMOVE {{ render(vars.stage) }}/{{ execution.id }}/;
+
+triggers:
+  - id: weekly_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 2 * * 1"
