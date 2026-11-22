@@ -25,7 +25,7 @@
   <rect x="270" y="150" width="170" height="110" class="box" fill="#ede9fe" stroke="#a78bfa"/>
   <text x="355" y="190" class="label">Kestra</text>
   <text x="355" y="220" class="sub">Schedule, retries,</text>
-  <text x="355" y="241" class="sub">backfill por SHA</text>
+  <text x="355" y="241" class="sub">backfill por fecha</text>
 
   <rect x="500" y="130" width="210" height="150" class="box" fill="#e0f2fe" stroke="#38bdf8"/>
   <text x="605" y="170" class="label">Snowflake</text>
@@ -44,7 +44,7 @@
   <rect x="770" y="318" width="180" height="100" class="box" fill="#bbf7d0" stroke="#22c55e"/>
   <text x="860" y="355" class="label">dbt Gold</text>
   <text x="860" y="381" class="sub">GOLD fact + dims</text>
-  <text x="860" y="402" class="sub">22/22 acciones PASS</text>
+  <text x="860" y="402" class="sub">44/44 acciones PASS</text>
 
   <rect x="1010" y="318" width="160" height="100" class="box" fill="#ffedd5" stroke="#fb923c"/>
   <text x="1090" y="355" class="label">Spark</text>
@@ -63,5 +63,5 @@
   <path d="M950 368 H1005" class="arrow"/>
   <path d="M1090 418 V445" class="arrow"/>
 
-  <text x="50" y="540" class="foot">Ejecución: Docker Compose local (Kestra + Spark); dbt Core en el entorno local. Los datos procesados se almacenan en Snowflake.</text>
+  <text x="50" y="540" class="foot">Docker Compose levanta Kestra e importa flows y scripts; Kestra lanza dbt y Spark en contenedores. Los datos viven en Snowflake.</text>
 </svg>

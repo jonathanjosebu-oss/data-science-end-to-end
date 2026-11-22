@@ -3,6 +3,7 @@
 import argparse
 import csv
 import io
+import json
 import sys
 import threading
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
@@ -84,6 +85,10 @@ METADATA_FIELDS = {
     "eluent.B.acn": "eluent_b_acn",
 }
 
+# Campos que RepoRT agregó después: en commits antiguos pueden faltar en la
+# metadata. Se cargan vacíos (NULL) en vez de abortar el backfill.
+OPTIONAL_METADATA = {"column.t0"}
+
 
 def session() -> requests.Session:
     if not hasattr(THREAD_LOCAL, "session"):
@@ -134,6 +139,25 @@ def load_experiment(ref: str, data_path: str) -> tuple[str, list[dict[str, str]]
     return experiment_id, measurements, metadata_rows[0]
 
 
+def resolve_commit(ref: str, as_of: str | None) -> tuple[str, str]:
+    """Devuelve (sha, fecha) del último commit de `ref` hasta el final de `as_of`.
+
+    Sin `as_of` resuelve la punta actual de `ref`. Así cada carga queda ligada a
+    un commit inmutable y un backfill reconstruye lo que RepoRT publicaba en esa
+    fecha, en vez de volver a leer la versión vigente.
+    """
+    params = {"sha": ref, "per_page": 1}
+    if as_of:
+        params["until"] = f"{as_of}T23:59:59Z"
+    response = session().get(f"{API_ROOT}/commits", params=params, timeout=(15, 60))
+    response.raise_for_status()
+    commits = response.json()
+    if not commits:
+        raise RuntimeError(f"RepoRT ref '{ref}' no tiene commits hasta {as_of}")
+    commit = commits[0]
+    return commit["sha"], commit["commit"]["committer"]["date"]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("source_ref", help="Rama o commit de RepoRT")
@@ -144,9 +168,17 @@ def main() -> None:
         default=0,
         help="Limita la descarga para una prueba local; 0 descarga todos",
     )
+    parser.add_argument(
+        "--as-of",
+        default=None,
+        help="Fecha YYYY-MM-DD: usa el último commit de source_ref hasta ese día (backfill)",
+    )
     args = parser.parse_args()
 
-    tree_url = f"{API_ROOT}/git/trees/{quote(args.source_ref, safe='')}?recursive=1"
+    commit_sha, commit_date = resolve_commit(args.source_ref, args.as_of)
+    print(f"RepoRT ref={args.source_ref} as_of={args.as_of} -> commit {commit_sha} ({commit_date})")
+
+    tree_url = f"{API_ROOT}/git/trees/{commit_sha}?recursive=1"
     tree = session().get(tree_url, timeout=(15, 60))
     tree.raise_for_status()
     data_paths = sorted(
@@ -174,9 +206,10 @@ def main() -> None:
             for _ in range(8):
                 path = next(paths, None)
                 if path is not None:
-                    pending[executor.submit(load_experiment, args.source_ref, path)] = path
+                    pending[executor.submit(load_experiment, commit_sha, path)] = path
 
             row_count = 0
+            experiments_missing_optional = 0
             while pending:
                 finished, _ = wait(pending, return_when=FIRST_COMPLETED)
                 for future in finished:
@@ -184,7 +217,9 @@ def main() -> None:
                     experiment_id, measurements, metadata = future.result()
                     required_measurements = set(MEASUREMENT_FIELDS) - {"comment"}
                     missing_measurements = required_measurements - measurements[0].keys()
-                    missing_metadata = set(METADATA_FIELDS) - metadata.keys()
+                    missing_metadata = set(METADATA_FIELDS) - OPTIONAL_METADATA - metadata.keys()
+                    if OPTIONAL_METADATA - metadata.keys():
+                        experiments_missing_optional += 1
                     if missing_measurements or missing_metadata:
                         raise ValueError(
                             f"Esquema inesperado en {path}: "
@@ -204,7 +239,7 @@ def main() -> None:
                         row.setdefault("comment", "")
                         row.update(
                             {
-                                output_name: metadata[source_name]
+                                output_name: metadata.get(source_name, "")
                                 for source_name, output_name in METADATA_FIELDS.items()
                             }
                         )
@@ -214,7 +249,7 @@ def main() -> None:
                     next_path = next(paths, None)
                     if next_path is not None:
                         pending[
-                            executor.submit(load_experiment, args.source_ref, next_path)
+                            executor.submit(load_experiment, commit_sha, next_path)
                         ] = next_path
         except Exception:
             for future in pending:
@@ -226,10 +261,19 @@ def main() -> None:
     if row_count == 0:
         raise RuntimeError("La descarga terminó sin registros")
     print(
-        f"RepoRT ref={args.source_ref}: "
+        f"RepoRT commit={commit_sha}: "
         f"{len(data_paths)} experimentos, {row_count} registros, "
-        f"archivo={args.output_path}"
+        f"archivo={args.output_path}; "
+        f"{experiments_missing_optional} experimentos sin {sorted(OPTIONAL_METADATA)}"
     )
+    # Salidas de Kestra (formato de log de scripts): el flow las usa para el linaje.
+    outputs = {
+        "source_commit": commit_sha,
+        "commit_date": commit_date,
+        "experiments": len(data_paths),
+        "rows": row_count,
+    }
+    print("::" + json.dumps({"outputs": outputs}) + "::")
 
 
 if __name__ == "__main__":

@@ -29,10 +29,11 @@
   <text x="432" y="192" class="field">PK hecho_id</text>
   <text x="432" y="224" class="field">FK compuesto_id</text>
   <text x="432" y="256" class="field">FK condicion_id</text>
-  <text x="432" y="300" class="field">tiempo_retencion</text>
-  <text x="432" y="332" class="field">factor_retencion (nulo: no disponible)</text>
-  <text x="432" y="385" class="field">Grano: medición canónica por</text>
-  <text x="432" y="410" class="field">(experiment_id, id) de RepoRT</text>
+  <text x="432" y="288" class="field">experimento_id (degenerada)</text>
+  <text x="432" y="320" class="field">tiempo_retencion (mediana)</text>
+  <text x="432" y="346" class="field">n_mediciones, rango_replicas_min</text>
+  <text x="432" y="392" class="field">Grano: una fila por</text>
+  <text x="432" y="417" class="field">(experimento, compuesto)</text>
 
   <rect x="780" y="145" width="270" height="260" class="box" fill="#ffedd5" stroke="#fb923c"/>
   <text x="807" y="184" class="table">DIM_CONDICIONES</text>
@@ -47,5 +48,5 @@
   <path d="M780 270 H730" class="arrow"/>
   <text x="55" y="500" class="foot">Las pruebas dbt validan claves no nulas/únicas y relaciones desde la tabla de hechos.</text>
   <text x="55" y="535" class="foot">La OBT desnormaliza estas dimensiones para consumo de modelado; star schema facilita análisis relacional.</text>
-  <text x="55" y="570" class="foot">Conteos validados: hecho 183,198; dimensión compuesto 97,688; dimensión condición 151.</text>
+  <text x="55" y="570" class="foot">Conteos validados: hecho 166,137; dimensión compuesto 96,855; dimensión condición 151.</text>
 </svg>

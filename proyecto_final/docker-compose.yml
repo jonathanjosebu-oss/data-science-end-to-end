@@ -1,0 +1,121 @@
+# Proyecto final QSRR-Predict: un solo comando levanta toda la infraestructura.
+#   docker compose up -d --build
+# Kestra importa sus flows y archivos al arrancar (servicio kestra-deploy).
+x-snowflake-env: &snowflake-env
+  SNOWFLAKE_ACCOUNT: ${SNOWFLAKE_ACCOUNT:?Copy .env.example to .env and set Snowflake credentials}
+  SNOWFLAKE_USER: ${SNOWFLAKE_USER:?Set SNOWFLAKE_USER in .env}
+  SNOWFLAKE_PASSWORD: ${SNOWFLAKE_PASSWORD:?Set SNOWFLAKE_PASSWORD in .env}
+  SNOWFLAKE_ROLE: ${SNOWFLAKE_ROLE:?Set SNOWFLAKE_ROLE in .env}
+  SNOWFLAKE_WAREHOUSE: ${SNOWFLAKE_WAREHOUSE:?Set SNOWFLAKE_WAREHOUSE in .env}
+  SNOWFLAKE_DATABASE: ${SNOWFLAKE_DATABASE:?Set SNOWFLAKE_DATABASE in .env}
+  SNOWFLAKE_SCHEMA: ${SNOWFLAKE_SCHEMA:?Set SNOWFLAKE_SCHEMA in .env}
+
+services:
+  kestra:
+    image: kestra/kestra:v2.0.7
+    user: "root"
+    command: server local
+    ports:
+      - "8080:8080"
+    volumes:
+      - kestra_data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/kestra-wd:/tmp/kestra-wd
+    environment:
+      ENV_SNOWFLAKE_ACCOUNT: ${SNOWFLAKE_ACCOUNT}
+      ENV_SNOWFLAKE_USER: ${SNOWFLAKE_USER}
+      ENV_SNOWFLAKE_PASSWORD: ${SNOWFLAKE_PASSWORD}
+      ENV_SNOWFLAKE_ROLE: ${SNOWFLAKE_ROLE}
+      ENV_SNOWFLAKE_WAREHOUSE: ${SNOWFLAKE_WAREHOUSE}
+      ENV_SNOWFLAKE_DATABASE: ${SNOWFLAKE_DATABASE}
+      ENV_SNOWFLAKE_SCHEMA: ${SNOWFLAKE_SCHEMA}
+      KESTRA_CONFIGURATION: |
+        kestra:
+          server:
+            basic-auth:
+              username: ${KESTRA_USER:?Set KESTRA_USER (an email) in .env}
+              password: ${KESTRA_PASSWORD:?Set KESTRA_PASSWORD in .env}
+          tasks:
+            tmp-dir:
+              path: /tmp/kestra-wd/tmp
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/ui/ > /dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    depends_on:
+      dbt-image:
+        condition: service_completed_successfully
+      spark:
+        condition: service_started
+    restart: unless-stopped
+
+  # Importa flows y archivos de namespace cuando Kestra está sano y termina.
+  # Redesplegar tras cambiar código: docker compose run --rm kestra-deploy
+  kestra-deploy:
+    image: curlimages/curl:8.11.1
+    entrypoint: ["/bin/sh", "/opt/proyecto/kestra/deploy.sh"]
+    environment:
+      KESTRA_URL: http://kestra:8080
+      KESTRA_USER: ${KESTRA_USER}
+      KESTRA_PASSWORD: ${KESTRA_PASSWORD}
+    volumes:
+      - ./:/opt/proyecto:ro
+    depends_on:
+      kestra:
+        condition: service_healthy
+    restart: "no"
+
+  # Construye la imagen de dbt que Kestra lanza en la tarea dbt_build.
+  dbt-image:
+    build:
+      context: ./dbt
+    image: qsrr-dbt:1.11
+    command: ["dbt", "--version"]
+    restart: "no"
+
+  # dbt a mano: docker compose run --rm dbt dbt build
+  dbt:
+    image: qsrr-dbt:1.11
+    profiles: ["manual"]
+    environment: *snowflake-env
+    working_dir: /opt/dbt
+    volumes:
+      - ./dbt/models:/opt/dbt/models:ro
+      - ./dbt/macros:/opt/dbt/macros:ro
+      - ./dbt/tests:/opt/dbt/tests:ro
+      - ./dbt/dbt_project.yml:/opt/dbt/dbt_project.yml:ro
+    command: ["dbt", "build"]
+
+  spark:
+    build:
+      context: ./spark
+    image: qsrr-spark:3.5.3
+    entrypoint: ["/opt/entrypoint.sh"]
+    command: ["/bin/bash", "-lc", "sleep infinity"]
+    working_dir: /opt/proyecto
+    environment: *snowflake-env
+    volumes:
+      - ./:/opt/proyecto:ro
+    restart: unless-stopped
+
+  mlflow:
+    build:
+      context: ./mlflow
+    image: qsrr-mlflow:2.22.0
+    command:
+      - sh
+      - -c
+      - "mkdir -p /mlflow/artifacts && exec mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:////mlflow/mlflow.db --artifacts-destination /mlflow/artifacts --serve-artifacts"
+    ports:
+      - "127.0.0.1:5000:5000"
+    volumes:
+      - mlflow_data:/mlflow
+    restart: unless-stopped
+
+  # Pendiente (PSet 4): api (FastAPI) y tablero.
+
+volumes:
+  kestra_data:
+  mlflow_data:

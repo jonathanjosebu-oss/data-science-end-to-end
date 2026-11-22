@@ -5,19 +5,58 @@ sources:
     schema: RAW
     tables:
       - name: RAW_REPORT_DATA
-        description: "Datos crudos importados desde RepoRT mediante Kestra"
+        description: >-
+          Datos crudos de RepoRT cargados por Kestra. Conserva un snapshot por
+          SNAPSHOT_DATE (fecha lógica de la carga o del backfill) y el commit de
+          RepoRT del que proviene.
+        columns:
+          - name: SNAPSHOT_DATE
+            tests:
+              - not_null
+          - name: SOURCE_COMMIT
+            tests:
+              - not_null
 
 models:
   - name: stg_report_data
-    description: "Capa Bronze: Datos estandarizados y limpios desde Raw"
+    description: "Capa Bronze: nombres y tipos estandarizados del snapshot elegido, sin descartar filas"
     columns:
       - name: registro_id
         tests:
           - not_null
           - unique
 
+  - name: int_registros_clasificados
+    description: >-
+      Capa Silver (auditoría): una fila por registro Bronze con el motivo de
+      exclusión aplicado (nulo = se conserva).
+    columns:
+      - name: registro_id
+        tests:
+          - not_null
+          - unique
+      - name: motivo_exclusion
+        tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - rt_no_positivo
+                  - sin_inchikey
+                  - no_retenido_rt_menor_igual_t0
+                  - rt_fuera_de_rango
+                  - replicas_inconsistentes
+      - name: flujo_ml_min
+        tests:
+          - en_rango:
+              arguments:
+                min_valor: 0
+                max_valor: "{{ var('flujo_max_ml_min') }}"
+                inclusivo_min: false
+
   - name: int_retencion_filtrada
-    description: "Capa Silver: una observación por registro de origen, solo con retención positiva"
+    description: >-
+      Capa Silver: una observación por (experimento, compuesto); réplicas
+      consistentes colapsadas en la mediana.
     columns:
       - name: registro_id
         tests:
@@ -26,14 +65,42 @@ models:
       - name: tiempo_retencion
         tests:
           - not_null
+          - en_rango:
+              arguments:
+                min_valor: 0
+                max_valor: "{{ var('rt_max_min') }}"
+                inclusivo_min: false
+      - name: rango_replicas_min
+        tests:
+          - not_null
+          - en_rango:
+              arguments:
+                min_valor: 0
+                max_valor: "{{ var('rango_max_replicas_min') }}"
+      - name: n_mediciones
+        tests:
+          - not_null
+          - en_rango:
+              arguments:
+                min_valor: 1
+      - name: flujo_ml_min
+        tests:
+          - en_rango:
+              arguments:
+                min_valor: 0
+                max_valor: "{{ var('flujo_max_ml_min') }}"
+                inclusivo_min: false
 
   - name: fact_retencion_cromatografica
-    description: "Capa Gold; grano: una fila por medición canónica de RepoRT"
+    description: "Capa Gold; grano: una fila por (experimento, compuesto)"
     columns:
       - name: hecho_id
         tests:
           - not_null
           - unique
+      - name: experimento_id
+        tests:
+          - not_null
       - name: compuesto_id
         tests:
           - not_null
@@ -48,6 +115,14 @@ models:
               arguments:
                 to: ref('dim_condiciones')
                 field: condicion_id
+      - name: tiempo_retencion
+        tests:
+          - not_null
+          - en_rango:
+              arguments:
+                min_valor: 0
+                max_valor: "{{ var('rt_max_min') }}"
+                inclusivo_min: false
 
   - name: dim_compuesto
     description: "Dimensión de compuestos; una fila por InChIKey"
