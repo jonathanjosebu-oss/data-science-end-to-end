@@ -11,3 +11,5 @@ dbt/dbt_packages/
 dbt/config/
 mlflow_data/
 registros/
+# El modelo del fixture sí se versiona: CI no tiene acceso a MLflow (PSet 4 §3).
+!tests/fixtures/modelo/model.pkl
