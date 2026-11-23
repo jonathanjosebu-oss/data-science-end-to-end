@@ -43,6 +43,17 @@ def solicitud_valida() -> dict:
         "tipo_columna": COLUMNA,
         "fase_movil": FASE_ACN,
         "flujo_ml_min": 0.4,
+        "t0_min": 0.5,
+        "columna_longitud_mm": 100,
+        "columna_diametro_mm": 2.1,
+        "columna_particula_um": 1.7,
+        "ph_a": 2.7,
+        "ph_b": 2.7,
+        "gradiente": [
+            {"t_min": 0, "a_pct": 95, "b_pct": 5},
+            {"t_min": 10, "a_pct": 5, "b_pct": 95},
+            {"t_min": 12, "a_pct": 5, "b_pct": 95},
+        ],
         "compuestos": [
             {"id": "cafeina", "smiles": "Cn1cnc2c1c(=O)n(C)c(=O)n2C"},
             {"id": "ibuprofeno", "smiles": "CC(C)Cc1ccc(cc1)C(C)C(=O)O"},

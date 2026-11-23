@@ -14,14 +14,20 @@ flavors:
     sklearn_version: 1.5.2
 is_signature_from_type_hint: false
 mlflow_version: 2.22.0
-model_size_bytes: 729468
-model_uuid: 71ecf6f9d3d94582a43ba24ecb67c21a
+model_size_bytes: 731753
+model_uuid: eaaa0631783f40d6a00257dd368b2145
 prompts: null
 signature:
   inputs: '[{"type": "string", "name": "smiles", "required": true}, {"type": "string",
     "name": "tipo_columna", "required": true}, {"type": "string", "name": "fase_movil",
-    "required": true}, {"type": "double", "name": "flujo_ml_min", "required": true}]'
+    "required": true}, {"type": "double", "name": "flujo_ml_min", "required": true},
+    {"type": "double", "name": "t0_min", "required": true}, {"type": "double", "name":
+    "columna_longitud_mm", "required": true}, {"type": "double", "name": "columna_diametro_mm",
+    "required": true}, {"type": "double", "name": "columna_particula_um", "required":
+    true}, {"type": "double", "name": "ph_a", "required": true}, {"type": "double",
+    "name": "ph_b", "required": true}, {"type": "string", "name": "gradiente", "required":
+    true}]'
   outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "float64", "shape": [-1]}}]'
   params: null
 type_hint_from_example: false
-utc_time_created: '2026-11-22 23:55:09.197377'
+utc_time_created: '2026-11-23 01:42:53.147730'

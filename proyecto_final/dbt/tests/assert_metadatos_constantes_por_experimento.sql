@@ -8,3 +8,9 @@ having count(distinct coalesce(tipo_columna, '<MISSING>')) > 1
     or count(distinct fase_movil) > 1
     or count(distinct coalesce(to_varchar(flujo_ml_min), '<MISSING>')) > 1
     or count(distinct coalesce(to_varchar(t0_min), '<MISSING>')) > 1
+    or count(distinct coalesce(to_varchar(columna_longitud_mm), '<MISSING>')) > 1
+    or count(distinct coalesce(to_varchar(columna_diametro_mm), '<MISSING>')) > 1
+    or count(distinct coalesce(to_varchar(columna_particula_um), '<MISSING>')) > 1
+    or count(distinct coalesce(to_varchar(ph_a), '<MISSING>')) > 1
+    or count(distinct coalesce(to_varchar(ph_b), '<MISSING>')) > 1
+    or count(distinct coalesce(gradiente, '<MISSING>')) > 1

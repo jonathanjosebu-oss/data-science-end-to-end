@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Mapping
 from functools import lru_cache
@@ -27,7 +28,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils.validation import check_is_fitted
 
-FEATURE_COLUMNS = (
+# Las 16 features del PSet 3 (champion v1).
+LEGACY_FEATURE_COLUMNS = (
     "mol_weight",
     "mol_logp",
     "mol_tpsa",
@@ -45,6 +47,31 @@ FEATURE_COLUMNS = (
     "elu_b_acn",
     "flow_ml_min",
 )
+# PSet 4: descriptores del método conocidos antes de inyectar (dim_metodo).
+METHOD_FEATURE_COLUMNS = (
+    "t0_min",
+    "col_length_mm",
+    "col_diameter_mm",
+    "col_particle_um",
+    "col_volume_ml",
+    "ph_a",
+    "ph_b",
+    "grad_org_start",
+    "grad_org_max",
+    "grad_time_to_max_min",
+    "grad_slope_org_per_min",
+    "grad_duration_min",
+)
+FEATURE_COLUMNS = LEGACY_FEATURE_COLUMNS + METHOD_FEATURE_COLUMNS
+METHOD_RAW_COLUMNS = (
+    "t0_min",
+    "columna_longitud_mm",
+    "columna_diametro_mm",
+    "columna_particula_um",
+    "ph_a",
+    "ph_b",
+    "gradiente",
+)
 MOLECULE_FEATURE_COLUMNS = (
     "mol_weight",
     "mol_logp",
@@ -61,7 +88,7 @@ RAW_FEATURE_COLUMNS = (
     "tipo_columna",
     "fase_movil",
     "flujo_ml_min",
-)
+) + METHOD_RAW_COLUMNS
 
 _PHASE_PATTERN = re.compile(
     r"([AB])\[\s*H2O=([^;]+);\s*MeOH=([^;]+);\s*ACN=([^\]]+)\]",
@@ -118,6 +145,86 @@ def _molecule_feature_values(smiles: Any) -> tuple[float, ...]:
     )
 
 
+def parse_gradient(value: Any) -> list[list[float | None]]:
+    """Programa de gradiente serializado por la ingesta (JSON
+    ``[[t_min, %A, %B, %C, %D, flujo], ...]``); lista vacía si no hay o es inválido."""
+    if not isinstance(value, str) or not value.strip():
+        return []
+    try:
+        steps = json.loads(value)
+    except (TypeError, ValueError):
+        return []
+    valid = []
+    for step in steps if isinstance(steps, list) else []:
+        if isinstance(step, list) and len(step) >= 3 and step[0] is not None:
+            valid.append([None if v is None else float(v) for v in (step + [None] * 6)[:6]])
+    return sorted(valid, key=lambda s: s[0])
+
+
+def serialize_gradient(steps: list[list[float | None]]) -> str:
+    """Inverso de parse_gradient (lo usa la API para armar la misma entrada)."""
+    return json.dumps([[None if v is None else float(v) for v in s] for s in steps], separators=(",", ":"))
+
+
+@lru_cache(maxsize=2_000)
+def gradient_features(gradient: Any, mobile_phase: Any) -> tuple[float, ...]:
+    """Resumen físico del gradiente en % de solvente orgánico (MeOH + ACN).
+
+    El % orgánico de cada paso combina el %A y %B del programa con la
+    composición de cada eluyente (``fase_movil``). Devuelve: % orgánico
+    inicial, máximo, tiempo hasta el máximo, pendiente (%/min) y duración.
+    """
+    steps = parse_gradient(gradient)
+    phase = _mobile_phase_features(mobile_phase)
+    org_a = np.nansum([phase["elu_a_meoh"], phase["elu_a_acn"]]) / 100
+    org_b = np.nansum([phase["elu_b_meoh"], phase["elu_b_acn"]]) / 100
+    rows = [(s[0], s[1], s[2]) for s in steps if s[1] is not None and s[2] is not None]
+    if len(rows) < 1:
+        return (np.nan,) * 5
+    times = np.array([r[0] for r in rows], dtype=float)
+    organic = np.array([r[1] * org_a + r[2] * org_b for r in rows], dtype=float)
+    start = float(organic[0])
+    peak_index = int(np.argmax(organic))
+    peak = float(organic[peak_index])
+    time_to_max = float(times[peak_index] - times[0])
+    slope = (peak - start) / time_to_max if time_to_max > 0 else 0.0
+    return (start, peak, time_to_max, slope, float(times[-1] - times[0]))
+
+
+def method_features(frame: pd.DataFrame) -> pd.DataFrame:
+    """Features del método; columnas ausentes en la entrada quedan como NaN."""
+    def numeric(column: str) -> pd.Series:
+        if column not in frame:
+            return pd.Series(np.nan, index=frame.index)
+        return pd.to_numeric(frame[column], errors="coerce").astype(float)
+
+    length = numeric("columna_longitud_mm")
+    diameter = numeric("columna_diametro_mm")
+    gradient = frame["gradiente"] if "gradiente" in frame else pd.Series(None, index=frame.index)
+    grad = pd.DataFrame(
+        [gradient_features(g if isinstance(g, str) else None, p) for g, p in zip(gradient, frame["fase_movil"])],
+        index=frame.index,
+        columns=[
+            "grad_org_start", "grad_org_max", "grad_time_to_max_min",
+            "grad_slope_org_per_min", "grad_duration_min",
+        ],
+    )
+    result = pd.DataFrame(
+        {
+            "t0_min": numeric("t0_min"),
+            "col_length_mm": length,
+            "col_diameter_mm": diameter,
+            "col_particle_um": numeric("columna_particula_um"),
+            # Volumen geométrico de la columna (mm³ -> mL): escala el tiempo muerto.
+            "col_volume_ml": np.pi * (diameter / 2) ** 2 * length / 1000,
+            "ph_a": numeric("ph_a"),
+            "ph_b": numeric("ph_b"),
+        },
+        index=frame.index,
+    )
+    return pd.concat([result, grad], axis=1)
+
+
 def _molecule_features(smiles: Any) -> dict[str, float]:
     values = _molecule_feature_values(smiles)
     return dict(zip(MOLECULE_FEATURE_COLUMNS, values, strict=True))
@@ -126,6 +233,7 @@ def _molecule_features(smiles: Any) -> dict[str, float]:
 def clear_feature_caches() -> None:
     _mobile_phase_features.cache_clear()
     _molecule_feature_values.cache_clear()
+    gradient_features.cache_clear()
 
 
 def valid_smiles_mask(frame: pd.DataFrame) -> pd.Series:
@@ -141,11 +249,12 @@ def valid_smiles_mask(frame: pd.DataFrame) -> pd.Series:
 
 
 def model_inputs(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series, pd.Series]:
-    required = set(RAW_FEATURE_COLUMNS) | {"tiempo_retencion", "inchikey"}
+    required = (set(RAW_FEATURE_COLUMNS) - set(METHOD_RAW_COLUMNS)) | {"tiempo_retencion", "inchikey"}
     missing = required.difference(frame.columns)
     if missing:
         raise ValueError(f"Missing modeling columns: {sorted(missing)}")
-    X = frame.loc[:, RAW_FEATURE_COLUMNS].copy()
+    # Los descriptores del método son opcionales (NaN -> imputación del pipeline).
+    X = frame.reindex(columns=list(RAW_FEATURE_COLUMNS)).copy()
     y = pd.to_numeric(frame["tiempo_retencion"], errors="raise").astype(float)
     groups = frame["inchikey"].astype(str)
     return X, y, groups
@@ -173,7 +282,13 @@ class MoleculeConditionFeatures(TransformerMixin, BaseEstimator):
         if missing:
             raise ValueError(f"Missing raw feature columns: {sorted(missing)}")
         self.n_features_in_ = X.shape[1]
+        self.feature_columns_ = FEATURE_COLUMNS
         return self
+
+    def _output_columns(self) -> tuple[str, ...]:
+        # Modelos registrados antes del PSet 4 (v1) no tienen feature_columns_:
+        # siguen produciendo sus 16 columnas, así el rollback a v1 funciona.
+        return getattr(self, "feature_columns_", LEGACY_FEATURE_COLUMNS)
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         check_is_fitted(self)
@@ -194,10 +309,13 @@ class MoleculeConditionFeatures(TransformerMixin, BaseEstimator):
         result["flow_ml_min"] = pd.to_numeric(
             X["flujo_ml_min"], errors="coerce"
         )
-        return result.loc[:, FEATURE_COLUMNS]
+        columns = self._output_columns()
+        if any(c in METHOD_FEATURE_COLUMNS for c in columns):
+            result = pd.concat([result, method_features(X)], axis=1)
+        return result.loc[:, list(columns)]
 
     def get_feature_names_out(self, input_features: Any = None) -> np.ndarray:
-        return np.asarray(FEATURE_COLUMNS, dtype=object)
+        return np.asarray(self._output_columns(), dtype=object)
 
 
 class ConditionMedianRegressor(RegressorMixin, BaseEstimator):

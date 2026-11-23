@@ -62,16 +62,27 @@ tasks:
       ALTER TABLE {{ render(vars.raw_table) }} ADD COLUMN IF NOT EXISTS SOURCE_COMMIT VARCHAR;
       ALTER TABLE {{ render(vars.raw_table) }} ADD COLUMN IF NOT EXISTS EXECUTION_ID VARCHAR;
       ALTER TABLE {{ render(vars.raw_table) }} ADD COLUMN IF NOT EXISTS INGESTED_AT TIMESTAMP_TZ;
+      -- PSet 4: pH de los eluyentes y programa de gradiente (JSON por experimento).
+      -- Las particiones cargadas antes quedan con NULL en estas columnas.
+      ALTER TABLE {{ render(vars.raw_table) }} ADD COLUMN IF NOT EXISTS ELUENT_A_PH DOUBLE;
+      ALTER TABLE {{ render(vars.raw_table) }} ADD COLUMN IF NOT EXISTS ELUENT_B_PH DOUBLE;
+      ALTER TABLE {{ render(vars.raw_table) }} ADD COLUMN IF NOT EXISTS GRADIENT_PROGRAM VARCHAR;
 
   - id: extract_dataset
     type: io.kestra.plugin.scripts.python.Commands
     description: Descarga los TSV canónicos del commit de RepoRT vigente en snapshot_date.
+    # Contenedor propio (como dbt y Spark): evita que Kestra instale Python con
+    # uv en el directorio compartido, que en Docker Desktop (Windows) queda sin
+    # permiso de ejecución.
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+    containerImage: python:3.11-slim
     namespaceFiles:
       enabled: true
       include:
         - ingest_repo_rt.py
-    dependencies:
-      - requests
+    beforeCommands:
+      - pip install --quiet --disable-pip-version-check requests==2.32.3
     env:
       SOURCE_REF: "{{ inputs.source_ref }}"
       SNAPSHOT_DATE: "{{ render(vars.snapshot_date) }}"
@@ -117,7 +128,8 @@ tasks:
         COMMENT VARCHAR, COLUMN_NAME VARCHAR, COLUMN_USP_CODE VARCHAR, COLUMN_LENGTH VARCHAR,
         COLUMN_ID VARCHAR, COLUMN_PARTICLE_SIZE VARCHAR, COLUMN_TEMPERATURE VARCHAR,
         COLUMN_FLOWRATE VARCHAR, COLUMN_T0 VARCHAR, ELUENT_A_H2O VARCHAR, ELUENT_A_MEOH VARCHAR,
-        ELUENT_A_ACN VARCHAR, ELUENT_B_H2O VARCHAR, ELUENT_B_MEOH VARCHAR, ELUENT_B_ACN VARCHAR
+        ELUENT_A_ACN VARCHAR, ELUENT_B_H2O VARCHAR, ELUENT_B_MEOH VARCHAR, ELUENT_B_ACN VARCHAR,
+        ELUENT_A_PH VARCHAR, ELUENT_B_PH VARCHAR, GRADIENT_PROGRAM VARCHAR
       )
 
   - id: copy_to_load_table
@@ -158,7 +170,8 @@ tasks:
         CLASSYFIRE_LEVEL5, CLASSYFIRE_LEVEL6, COMMENT, COLUMN_NAME, COLUMN_USP_CODE,
         COLUMN_LENGTH, COLUMN_ID, COLUMN_PARTICLE_SIZE, COLUMN_TEMPERATURE, COLUMN_FLOWRATE,
         COLUMN_T0, ELUENT_A_H2O, ELUENT_A_MEOH, ELUENT_A_ACN, ELUENT_B_H2O, ELUENT_B_MEOH,
-        ELUENT_B_ACN, SNAPSHOT_DATE, SOURCE_REF, SOURCE_COMMIT, EXECUTION_ID, INGESTED_AT
+        ELUENT_B_ACN, ELUENT_A_PH, ELUENT_B_PH, GRADIENT_PROGRAM,
+        SNAPSHOT_DATE, SOURCE_REF, SOURCE_COMMIT, EXECUTION_ID, INGESTED_AT
       )
       SELECT
         EXPERIMENT_ID, ID, NAME, FORMULA, TRY_TO_DOUBLE(RT), SMILES_STD, INCHI_STD, INCHIKEY_STD,
@@ -168,6 +181,7 @@ tasks:
         TRY_TO_DOUBLE(COLUMN_TEMPERATURE), TRY_TO_DOUBLE(COLUMN_FLOWRATE), TRY_TO_DOUBLE(COLUMN_T0),
         TRY_TO_DOUBLE(ELUENT_A_H2O), TRY_TO_DOUBLE(ELUENT_A_MEOH), TRY_TO_DOUBLE(ELUENT_A_ACN),
         TRY_TO_DOUBLE(ELUENT_B_H2O), TRY_TO_DOUBLE(ELUENT_B_MEOH), TRY_TO_DOUBLE(ELUENT_B_ACN),
+        TRY_TO_DOUBLE(ELUENT_A_PH), TRY_TO_DOUBLE(ELUENT_B_PH), NULLIF(GRADIENT_PROGRAM, ''),
         '{{ render(vars.snapshot_date) }}'::DATE,
         '{{ inputs.source_ref }}',
         '{{ outputs.extract_dataset.vars.source_commit }}',

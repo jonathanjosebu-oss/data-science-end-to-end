@@ -45,8 +45,8 @@ from api.esquemas import (
     SolicitudPrediccion,
 )
 from src.business_metrics import ORDEN_CONFIABLE_MIN
-from src.pipeline import RAW_FEATURE_COLUMNS
-from src.reentrenar import BASELINE_ARTIFACT, MODEL_NAME, baseline_predict
+from src.pipeline import RAW_FEATURE_COLUMNS, method_features, serialize_gradient
+from src.reentrenar import BASELINE_ARTIFACT, MODEL_NAME, baseline_predict, out_of_domain
 from src.reentrenar import DOMAIN_ARTIFACT as DOMINIO_ARTIFACT
 
 
@@ -283,7 +283,45 @@ def _advertencias(solicitud: SolicitudPrediccion) -> list[str]:
         avisos.append("flujo_ml_min faltante: se imputa con la mediana de entrenamiento")
     elif rango and not rango[0] <= solicitud.flujo_ml_min <= rango[1]:
         avisos.append("flujo_ml_min fuera del rango de entrenamiento")
+    faltantes = [
+        campo
+        for campo in ("t0_min", "columna_longitud_mm", "columna_diametro_mm", "ph_a", "gradiente")
+        if getattr(solicitud, campo) is None
+    ]
+    if faltantes:
+        avisos.append("descriptores del método faltantes (se imputan): " + ", ".join(faltantes))
     return avisos
+
+
+def _num(valor: float | None) -> float:
+    return np.nan if valor is None else float(valor)
+
+
+def _entrada_modelo(solicitud: SolicitudPrediccion) -> pd.DataFrame:
+    """Entrada cruda con la firma del modelo; el gradiente se serializa con la
+    misma función que lee la OBT (src/pipeline.py), no con una copia."""
+    gradiente = (
+        serialize_gradient(
+            [[p.t_min, p.a_pct, p.b_pct, p.c_pct, p.d_pct, p.flujo_ml_min] for p in solicitud.gradiente]
+        )
+        if solicitud.gradiente
+        else None
+    )
+    return pd.DataFrame(
+        {
+            "smiles": [c.smiles for c in solicitud.compuestos],
+            "tipo_columna": solicitud.tipo_columna,
+            "fase_movil": solicitud.fase_movil,
+            "flujo_ml_min": _num(solicitud.flujo_ml_min),
+            "t0_min": _num(solicitud.t0_min),
+            "columna_longitud_mm": _num(solicitud.columna_longitud_mm),
+            "columna_diametro_mm": _num(solicitud.columna_diametro_mm),
+            "columna_particula_um": _num(solicitud.columna_particula_um),
+            "ph_a": _num(solicitud.ph_a),
+            "ph_b": _num(solicitud.ph_b),
+            "gradiente": gradiente,
+        }
+    ).loc[:, list(RAW_FEATURE_COLUMNS)]
 
 
 def _pares_en_riesgo(ids: list[str], pred: np.ndarray) -> list[ParEnRiesgo]:
@@ -305,14 +343,7 @@ def predecir(solicitud: SolicitudPrediccion) -> RespuestaPrediccion:
     inicio = time.perf_counter()
     almacen.revisar_alias()
     ids = [c.id for c in solicitud.compuestos]
-    entrada = pd.DataFrame(
-        {
-            "smiles": [c.smiles for c in solicitud.compuestos],
-            "tipo_columna": solicitud.tipo_columna,
-            "fase_movil": solicitud.fase_movil,
-            "flujo_ml_min": np.nan if solicitud.flujo_ml_min is None else solicitud.flujo_ml_min,
-        }
-    ).loc[:, list(RAW_FEATURE_COLUMNS)]
+    entrada = _entrada_modelo(solicitud)
     respaldo = almacen.usa_respaldo
     if respaldo:
         if almacen.linea_base is None:
@@ -322,6 +353,8 @@ def predecir(solicitud: SolicitudPrediccion) -> RespuestaPrediccion:
         pred = np.asarray(almacen.modelo.predict(entrada), dtype=float)
 
     pares = _pares_en_riesgo(ids, pred)
+    # Guardia de dominio: el método es el mismo para todos los analitos.
+    fuera = out_of_domain(method_features(entrada.iloc[:1]), almacen.dominio).iloc[0]
     orden = np.argsort(pred, kind="mergesort")
     orden_elucion = [
         ParAdyacente(
@@ -332,7 +365,13 @@ def predecir(solicitud: SolicitudPrediccion) -> RespuestaPrediccion:
         )
         for a, b in zip(orden[:-1], orden[1:])
     ]
-    if pares:
+    if fuera:
+        decision = "revisar_condiciones"
+        accion = (
+            "No preparar reactivos todavía: el método está fuera del dominio de entrenamiento "
+            f"({', '.join(fuera)}) y la predicción no es confiable. Confirmar con una corrida exploratoria."
+        )
+    elif pares:
         decision = "revisar_condiciones"
         accion = (
             f"No preparar reactivos todavía: {len(pares)} par(es) de picos adyacentes con riesgo "
@@ -342,6 +381,8 @@ def predecir(solicitud: SolicitudPrediccion) -> RespuestaPrediccion:
         decision = "aprobar_condiciones"
         accion = "Preparar reactivos e inyectar: no se predice coelución entre picos adyacentes. El analista valida antes de correr."
     advertencias = _advertencias(solicitud)
+    if fuera:
+        advertencias.insert(0, "método fuera del dominio de entrenamiento: " + ", ".join(fuera))
     if respaldo:
         advertencias.insert(0, "respaldo: predicción con la línea base (mediana por condición), no con el modelo")
 
@@ -367,6 +408,7 @@ def predecir(solicitud: SolicitudPrediccion) -> RespuestaPrediccion:
                 "prediccion_min": p.tiempo_retencion_min,
                 "decision": decision,
                 "respaldo_usado": respaldo,
+                "fuera_de_dominio": bool(fuera),
                 "modelo": MODEL_NAME,
                 "version_modelo": almacen.version,
                 "alias": almacen.alias,
@@ -389,6 +431,7 @@ def predecir(solicitud: SolicitudPrediccion) -> RespuestaPrediccion:
         alias=None if respaldo else almacen.alias,
         run_id=None if respaldo else almacen.run_id,
         respaldo_usado=respaldo,
+        fuera_de_dominio=bool(fuera),
         advertencias=advertencias,
         latencia_ms=latencia,
     )

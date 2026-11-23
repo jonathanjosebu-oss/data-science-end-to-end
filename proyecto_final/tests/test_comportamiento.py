@@ -7,13 +7,15 @@
 3. Lipofilia: dentro de la misma condición, una molécula claramente más
    lipofílica (ΔLogP > 2) no debe predecirse, en promedio, antes que una polar.
 
-DEFECTO CONOCIDO del champion v1: incumple 1 y 2. El flujo funciona como proxy
-del método (SMRT usa 0,1 mL/min; los métodos con 1,0 tienen gradientes largos)
-porque la OBT no incluye el programa de gradiente. Restringir la monotonía
-corrige el flujo pero sube el error en lotes nuevos un 23 % y no corrige las
-series homólogas (ver src/reentrenar.py y docs/cambios.md). Ambas pruebas se
-marcan xfail(strict=True): CI no se bloquea por un defecto documentado, pero
-si un modelo futuro las cumple, la prueba falla para obligar a quitar la marca.
+DEFECTO CONOCIDO: el champion incumple 1 y 2. En v1 el flujo funcionaba como
+proxy del método (SMRT usa 0,1 mL/min; los métodos con 1,0 tienen gradientes
+largos). Agregar el gradiente, t0 y las dimensiones de columna (v2) lo reduce
+pero no lo elimina: el flujo aumenta la retención en el 72,5 % de los
+compuestos (v1: 100 %) y fallan 10/24 casos de series homólogas (v1: 13/24).
+Restringir la monotonía corrige el flujo pero sube el error en lotes nuevos un
+23 % (ver src/reentrenar.py y docs/cambios.md). Ambas pruebas se marcan
+xfail(strict=True): CI no se bloquea por un defecto documentado, pero si un
+modelo futuro las cumple, la prueba falla para obligar a quitar la marca.
 Cumplirlas es criterio de preferencia en la promoción de un challenger.
 """
 
@@ -39,7 +41,7 @@ SERIES_HOMOLOGAS = {
 TOL = 1e-9
 DEFECTO_FLUJO = pytest.mark.xfail(
     strict=True,
-    reason="Defecto conocido v1: el flujo actúa como proxy del método (falta el gradiente)",
+    reason="Defecto conocido (v1 100 %, v2 72,5 % de compuestos): el flujo sigue actuando en parte como proxy del método",
 )
 
 
@@ -56,7 +58,7 @@ def test_mas_flujo_no_aumenta_la_retencion(modelo, muestra_fija):
 
 @pytest.mark.xfail(
     strict=True,
-    reason="Defecto conocido v1: caídas en series homólogas (descriptores sin restricción)",
+    reason="Defecto conocido (v1 13/24, v2 10/24 casos): caídas en series homólogas",
 )
 def test_homologo_mas_largo_no_eluye_antes(modelo):
     violaciones = []

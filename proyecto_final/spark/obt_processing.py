@@ -101,15 +101,18 @@ def main() -> int:
         fact = read_table(spark, options, "FACT_RETENCION_CROMATOGRAFICA").cache()
         dim_compuesto = read_table(spark, options, "DIM_COMPUESTO").cache()
         dim_condiciones = read_table(spark, options, "DIM_CONDICIONES").cache()
+        dim_metodo = read_table(spark, options, "DIM_METODO").cache()
 
         # 1. Validaciones previas a los joins.
         failures: list[str] = []
         failures += key_failures(dim_compuesto, "DIM_COMPUESTO", "COMPUESTO_ID")
         failures += key_failures(dim_compuesto, "DIM_COMPUESTO", "INCHIKEY")
         failures += key_failures(dim_condiciones, "DIM_CONDICIONES", "CONDICION_ID")
+        failures += key_failures(dim_metodo, "DIM_METODO", "EXPERIMENTO_ID")
         failures += key_failures(fact, "FACT_RETENCION_CROMATOGRAFICA", "HECHO_ID")
         failures += orphan_failures(fact, dim_compuesto, "COMPUESTO_ID", "DIM_COMPUESTO")
         failures += orphan_failures(fact, dim_condiciones, "CONDICION_ID", "DIM_CONDICIONES")
+        failures += orphan_failures(fact, dim_metodo, "EXPERIMENTO_ID", "DIM_METODO")
         if failures:
             raise ValidationError("; ".join(failures))
 
@@ -117,6 +120,7 @@ def main() -> int:
         obt = (
             fact.join(dim_compuesto, on="COMPUESTO_ID", how="inner")
             .join(dim_condiciones, on="CONDICION_ID", how="inner")
+            .join(dim_metodo, on="EXPERIMENTO_ID", how="inner")
             .select(
                 "HECHO_ID",
                 "EXPERIMENTO_ID",
@@ -128,6 +132,13 @@ def main() -> int:
                 "TIEMPO_RETENCION",
                 "N_MEDICIONES",
                 "RANGO_REPLICAS_MIN",
+                "T0_MIN",
+                "COLUMNA_LONGITUD_MM",
+                "COLUMNA_DIAMETRO_MM",
+                "COLUMNA_PARTICULA_UM",
+                "PH_A",
+                "PH_B",
+                "GRADIENTE",
                 "SNAPSHOT_DATE",
                 "SOURCE_COMMIT",
             )

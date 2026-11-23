@@ -34,6 +34,14 @@ select
         ']'
     ) as fase_movil,
     try_to_double(to_varchar(s.column_flowrate)) as flujo_reportado,
+    -- PSet 4: descriptores del método. RepoRT usa 0 cuando no se reportó la
+    -- dimensión o el pH (un pH 0 o una columna de 0 mm no son físicos).
+    nullif(try_to_double(to_varchar(s.column_length)), 0) as columna_longitud_mm,
+    nullif(try_to_double(to_varchar(s.column_id)), 0) as columna_diametro_mm,
+    nullif(try_to_double(to_varchar(s.column_particle_size)), 0) as columna_particula_um,
+    nullif(try_to_double(to_varchar(s.eluent_a_ph)), 0) as ph_a,
+    nullif(try_to_double(to_varchar(s.eluent_b_ph)), 0) as ph_b,
+    nullif(trim(s.gradient_program), '') as gradiente,
     s.snapshot_date,
     s.source_commit
 from source_data as s

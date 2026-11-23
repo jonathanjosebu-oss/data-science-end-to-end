@@ -49,6 +49,10 @@ OUTPUT_COLUMNS = [
     "eluent_b_h2o",
     "eluent_b_meoh",
     "eluent_b_acn",
+    # PSet 4: descriptores del método que el modelo no usaba.
+    "eluent_a_ph",
+    "eluent_b_ph",
+    "gradient_program",
 ]
 
 MEASUREMENT_FIELDS = {
@@ -83,11 +87,36 @@ METADATA_FIELDS = {
     "eluent.B.h2o": "eluent_b_h2o",
     "eluent.B.meoh": "eluent_b_meoh",
     "eluent.B.acn": "eluent_b_acn",
+    "eluent.A.pH": "eluent_a_ph",
+    "eluent.B.pH": "eluent_b_ph",
 }
 
 # Campos que RepoRT agregó después: en commits antiguos pueden faltar en la
 # metadata. Se cargan vacíos (NULL) en vez de abortar el backfill.
-OPTIONAL_METADATA = {"column.t0"}
+OPTIONAL_METADATA = {"column.t0", "eluent.A.pH", "eluent.B.pH"}
+
+# Columnas de <id>_gradient.tsv, en orden. El programa se guarda como JSON
+# [[t_min, A, B, C, D, flujo], ...]; src/pipeline.py::parse_gradient lo lee.
+GRADIENT_COLUMNS = ("t [min]", "A [%]", "B [%]", "C [%]", "D [%]", "flow rate [ml/min]")
+
+
+def _number_or_none(value: str | None) -> float | None:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if number == number else None  # descarta NaN
+
+
+def gradient_program(text: str) -> str:
+    """Serializa el programa de gradiente; cadena vacía si no hay pasos."""
+    rows = parse_tsv(text) if text.strip() else []
+    steps = [
+        [_number_or_none(row.get(column)) for column in GRADIENT_COLUMNS]
+        for row in rows
+    ]
+    steps = [step for step in steps if step[0] is not None]
+    return json.dumps(steps, separators=(",", ":")) if steps else ""
 
 
 def session() -> requests.Session:
@@ -118,15 +147,27 @@ def parse_tsv(text: str) -> list[dict[str, str]]:
     return list(csv.DictReader(io.StringIO(text), delimiter="\t"))
 
 
+def get_optional_text(url: str) -> str:
+    """Como get_text, pero un 404 (archivo ausente en ese commit) devuelve ''."""
+    response = session().get(url, timeout=(15, 120))
+    if response.status_code == 404:
+        return ""
+    response.raise_for_status()
+    return response.text
+
+
 def load_experiment(ref: str, data_path: str) -> tuple[str, list[dict[str, str]], dict[str, str]]:
     experiment_id = data_path.split("/")[1]
     metadata_path = f"processed_data/{experiment_id}/{experiment_id}_metadata.tsv"
+    gradient_path = f"processed_data/{experiment_id}/{experiment_id}_gradient.tsv"
     encoded_ref = quote(ref, safe="")
     data_url = f"{RAW_ROOT}/{encoded_ref}/{data_path}"
     metadata_url = f"{RAW_ROOT}/{encoded_ref}/{metadata_path}"
+    gradient_url = f"{RAW_ROOT}/{encoded_ref}/{gradient_path}"
 
     data_text = get_text(data_url)
     metadata_text = get_text(metadata_url)
+    gradient_text = get_optional_text(gradient_url)
     measurements = parse_tsv(data_text)
     metadata_rows = parse_tsv(metadata_text)
     if not measurements:
@@ -136,7 +177,9 @@ def load_experiment(ref: str, data_path: str) -> tuple[str, list[dict[str, str]]
             f"{metadata_path} debe tener una fila de metadata; "
             f"se encontraron {len(metadata_rows)}"
         )
-    return experiment_id, measurements, metadata_rows[0]
+    metadata = dict(metadata_rows[0])
+    metadata["__gradient_program"] = gradient_program(gradient_text)
+    return experiment_id, measurements, metadata
 
 
 def resolve_commit(ref: str, as_of: str | None) -> tuple[str, str]:
@@ -243,6 +286,7 @@ def main() -> None:
                                 for source_name, output_name in METADATA_FIELDS.items()
                             }
                         )
+                        row["gradient_program"] = metadata["__gradient_program"]
                         writer.writerow(row)
                         row_count += 1
 

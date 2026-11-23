@@ -93,6 +93,14 @@ def _query(database: str) -> str:
             o.FASE_MOVIL,
             TRY_TO_DOUBLE(o.FLUJO_ML_MIN) AS FLUJO_ML_MIN,
             TRY_TO_DOUBLE(o.TIEMPO_RETENCION) AS TIEMPO_RETENCION,
+            -- PSet 4: descriptores del método (GOLD.DIM_METODO).
+            o.T0_MIN,
+            o.COLUMNA_LONGITUD_MM,
+            o.COLUMNA_DIAMETRO_MM,
+            o.COLUMNA_PARTICULA_UM,
+            o.PH_A,
+            o.PH_B,
+            o.GRADIENTE,
             s.SMILES
         FROM {database}.GOLD.OBT_QSRR_FINAL AS o
         LEFT JOIN smiles_by_compound AS s
@@ -149,6 +157,10 @@ def fetch_c18_data() -> tuple[pd.DataFrame, dict[str, Any]]:
         frame["tiempo_retencion"], errors="coerce"
     )
     frame["flujo_ml_min"] = pd.to_numeric(frame["flujo_ml_min"], errors="coerce")
+    for column in ("t0_min", "columna_longitud_mm", "columna_diametro_mm",
+                   "columna_particula_um", "ph_a", "ph_b"):
+        frame[column] = pd.to_numeric(frame[column], errors="coerce")
+    frame["gradiente"] = frame["gradiente"].astype("string")
     loaded_at = datetime.now(timezone.utc).isoformat()
     metadata = {
         "source_tables": (

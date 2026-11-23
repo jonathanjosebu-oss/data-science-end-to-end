@@ -91,6 +91,58 @@ models:
                 max_valor: "{{ var('flujo_max_ml_min') }}"
                 inclusivo_min: false
 
+  - name: dim_metodo
+    description: >-
+      Capa Gold; grano: una fila por experimento (método). Descriptores
+      conocidos antes de inyectar: columna, t0, pH y programa de gradiente.
+    columns:
+      - name: experimento_id
+        tests:
+          - not_null
+          - unique
+      - name: t0_min
+        tests:
+          - en_rango:
+              arguments:
+                min_valor: 0
+                max_valor: 30
+                inclusivo_min: false
+      - name: columna_longitud_mm
+        # Mínimo 1 mm: el experimento 0008 usa una columna de 5 mm (Hypersil
+        # GOLD, t0 = 0,044 min, coherente con su volumen); el primer rango
+        # (10 mm) lo marcó como error y se verificó que es real.
+        tests:
+          - en_rango:
+              arguments:
+                min_valor: 1
+                max_valor: 500
+      - name: columna_diametro_mm
+        tests:
+          - en_rango:
+              arguments:
+                min_valor: 0.05
+                max_valor: 10
+      - name: columna_particula_um
+        tests:
+          - en_rango:
+              arguments:
+                min_valor: 0.5
+                max_valor: 20
+      - name: ph_a
+        tests:
+          - en_rango:
+              arguments:
+                min_valor: 0
+                max_valor: 14
+                inclusivo_min: false
+      - name: ph_b
+        tests:
+          - en_rango:
+              arguments:
+                min_valor: 0
+                max_valor: 14
+                inclusivo_min: false
+
   - name: fact_retencion_cromatografica
     description: "Capa Gold; grano: una fila por (experimento, compuesto)"
     columns:
@@ -101,6 +153,10 @@ models:
       - name: experimento_id
         tests:
           - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_metodo')
+                field: experimento_id
       - name: compuesto_id
         tests:
           - not_null

@@ -133,13 +133,51 @@ DOMAIN_ARTIFACT = "dominio.json"
 
 
 def training_domain(frame: pd.DataFrame) -> dict[str, Any]:
-    """Categorías y rangos vistos en entrenamiento (advertencias y monitoreo)."""
+    """Categorías y rangos vistos en entrenamiento (advertencias, guardia de
+    dominio de la API y monitoreo de valores fuera de rango)."""
+    from src.pipeline import method_features
+
     flow = pd.to_numeric(frame["flujo_ml_min"], errors="coerce").dropna()
+    features = method_features(frame.reset_index(drop=True))
+    rangos = {
+        column: [float(values.min()), float(values.max())]
+        for column, values in features.items()
+        if values.notna().any()
+    }
     return {
         "tipo_columna": sorted(frame["tipo_columna"].dropna().astype(str).unique()),
         "fase_movil": sorted(frame["fase_movil"].dropna().astype(str).unique()),
         "flujo_ml_min": [float(flow.min()), float(flow.max())],
+        # Rangos de los descriptores del método (features derivadas).
+        "rangos_metodo": rangos,
     }
+
+
+# Descriptores excluidos de la guardia (siguen en el monitoreo de rangos).
+# ph_b: en entrenamiento solo varía de 2 a 3, así que casi todo método nuevo
+# cae fuera, pero esas filas no tienen más error (RMSE 2,12 frente a 3,31 en
+# los lotes); el pH de un eluyente orgánico es además nominal.
+DOMAIN_GUARD_EXCLUDED = frozenset({"ph_b"})
+
+
+def out_of_domain(features: pd.DataFrame, domain: dict[str, Any]) -> pd.Series:
+    """Por fila, lista de descriptores del método fuera del rango de entrenamiento.
+
+    Los árboles no extrapolan: un valor fuera de rango se trata como el extremo
+    visto. En los lotes simulados con el champion v2, las filas marcadas (columna
+    de 1 mm, gradiente de 100 min, t0 fuera de rango) tienen RMSE ~9,8 min frente
+    a ~2,0 en las demás. Los nulos no cuentan (se imputan).
+    """
+    ranges = domain.get("rangos_metodo", {})
+    flags = pd.Series([[] for _ in range(len(features))], index=features.index, dtype=object)
+    for column, (low, high) in ranges.items():
+        if column not in features or column in DOMAIN_GUARD_EXCLUDED:
+            continue
+        values = pd.to_numeric(features[column], errors="coerce")
+        outside = values.notna() & ((values < low) | (values > high))
+        for index in features.index[outside]:
+            flags.at[index] = flags.at[index] + [column]
+    return flags
 
 
 def baseline_predict(baseline: dict[str, Any], frame: pd.DataFrame) -> np.ndarray:

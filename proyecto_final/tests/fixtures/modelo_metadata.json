@@ -1,14 +1,14 @@
 {
   "model_name": "qsrr-predict-modelo",
-  "version": 1,
+  "version": 2,
   "alias": "champion",
-  "run_id": "f6617bca84494ea3a5a9609787a6b462",
-  "cv_rmse_mean": 2.4888837215895077,
-  "cv_rmse_std": 0.053537236402455377,
-  "muestra_fija_rmse": 1.1477260515008147,
-  "muestra_fija_mae": 0.7940009413962492,
-  "pair_lower_error_quantile": -9.468438431175331,
-  "pair_upper_error_quantile": 9.757802185511476,
+  "run_id": "ac566f02d1c746a683554232c7573927",
+  "cv_rmse_mean": 2.343200640130041,
+  "cv_rmse_std": 0.034774276215500284,
+  "muestra_fija_rmse": 1.6775871921502064,
+  "muestra_fija_mae": 1.3789003974480838,
+  "pair_lower_error_quantile": -7.642027350348993,
+  "pair_upper_error_quantile": 8.347907772183406,
   "corte_experimento": "0275",
   "dominio": {
     "tipo_columna": [
@@ -44,6 +44,56 @@
     "flujo_ml_min": [
       0.1,
       1.0
-    ]
+    ],
+    "rangos_metodo": {
+      "t0_min": [
+        0.18375,
+        3.174
+      ],
+      "col_length_mm": [
+        50.0,
+        250.0
+      ],
+      "col_diameter_mm": [
+        2.1,
+        4.6
+      ],
+      "col_particle_um": [
+        1.6,
+        5.0
+      ],
+      "col_volume_ml": [
+        0.17318029502913734,
+        4.1547562843725006
+      ],
+      "ph_a": [
+        2.0,
+        11.0
+      ],
+      "ph_b": [
+        2.0,
+        3.0
+      ],
+      "grad_org_start": [
+        0.0,
+        30.400000000000002
+      ],
+      "grad_org_max": [
+        30.400000000000002,
+        100.0
+      ],
+      "grad_time_to_max_min": [
+        0.0,
+        50.0
+      ],
+      "grad_slope_org_per_min": [
+        0.0,
+        52.631578947368425
+      ],
+      "grad_duration_min": [
+        3.0,
+        65.0
+      ]
+    }
   }
 }

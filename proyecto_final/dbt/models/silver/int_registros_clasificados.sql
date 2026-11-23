@@ -51,6 +51,12 @@ select
     n.flujo_reportado,
     n.flujo_ml_min,
     n.flujo_convertido_desde_ul,
+    n.columna_longitud_mm,
+    n.columna_diametro_mm,
+    n.columna_particula_um,
+    n.ph_a,
+    n.ph_b,
+    n.gradiente,
     r.n_mediciones,
     r.rango_replicas_min,
     coalesce(

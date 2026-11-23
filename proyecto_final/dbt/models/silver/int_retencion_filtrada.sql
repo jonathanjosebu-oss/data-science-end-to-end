@@ -20,6 +20,12 @@ select
     max(tipo_columna) as tipo_columna,
     max(fase_movil) as fase_movil,
     max(flujo_ml_min) as flujo_ml_min,
+    max(columna_longitud_mm) as columna_longitud_mm,
+    max(columna_diametro_mm) as columna_diametro_mm,
+    max(columna_particula_um) as columna_particula_um,
+    max(ph_a) as ph_a,
+    max(ph_b) as ph_b,
+    max(gradiente) as gradiente,
     max(snapshot_date) as snapshot_date,
     max(source_commit) as source_commit
 from conservadas
