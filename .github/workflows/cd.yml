@@ -1,0 +1,55 @@
+# CD del código: cuando ci.yml termina en verde sobre un push a la rama
+# principal (merge), construye la imagen de la API y la publica en GitHub
+# Container Registry con el hash del commit como tag. docker-compose.yml usa
+# ghcr.io/<owner>/qsrr-api:${API_IMAGE_TAG}.
+#
+# El modelo NO se despliega aquí: la imagen no contiene el modelo; la API lo
+# lee del Model Registry por alias, y mover el alias 'champion' requiere la
+# aprobación humana del flujo de reentrenamiento (kestra/reentrenamiento.yml).
+name: cd
+
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+    branches: [main, master]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publicar-imagen:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Nombre de la imagen
+        id: imagen
+        run: |
+          owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')
+          echo "nombre=ghcr.io/${owner}/qsrr-api" >> "$GITHUB_OUTPUT"
+          echo "tag=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Construir y publicar
+        working-directory: proyecto_final
+        run: |
+          docker build -f api/Dockerfile \
+            --label org.opencontainers.image.source=https://github.com/${{ github.repository }} \
+            --label org.opencontainers.image.revision=${{ steps.imagen.outputs.tag }} \
+            -t ${{ steps.imagen.outputs.nombre }}:${{ steps.imagen.outputs.tag }} \
+            -t ${{ steps.imagen.outputs.nombre }}:latest .
+          docker push ${{ steps.imagen.outputs.nombre }}:${{ steps.imagen.outputs.tag }}
+          docker push ${{ steps.imagen.outputs.nombre }}:latest
+          echo "Publicada ${{ steps.imagen.outputs.nombre }}:${{ steps.imagen.outputs.tag }}" >> "$GITHUB_STEP_SUMMARY"

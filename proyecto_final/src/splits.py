@@ -74,6 +74,160 @@ def stratified_compound_sample(
     return sample, metadata
 
 
+TRAINING_SEGMENT = "entrenamiento"
+
+
+def experiment_order(experiment_ids: pd.Series) -> pd.Series:
+    """Ordinal key for RepoRT experiment IDs ("0001", "0002", ...).
+
+    RepoRT assigns IDs sequentially as datasets are contributed, so the ID is
+    the best available proxy of arrival time (the OBT has no dates).
+    """
+    numeric = pd.to_numeric(experiment_ids, errors="coerce")
+    if numeric.isna().any():
+        bad = experiment_ids[numeric.isna()].unique()[:5]
+        raise ValueError(f"Non-numeric experiment IDs cannot be ordered: {list(bad)}")
+    return numeric.astype(int)
+
+
+def experiment_time_split(
+    frame: pd.DataFrame,
+    *,
+    train_fraction: float = 0.75,
+    n_lots: int = 10,
+) -> tuple[pd.DataFrame, dict[str, object]]:
+    """Split by experiment arrival order: early experiments train, later ones
+    form ``n_lots`` consecutive production lots.
+
+    Defaults chosen on the C18 OBT (219 experiments, 137 539 rows, of which
+    experiment 0186/SMRT alone holds 58 %): 0.75 puts the cutoff at 0275 and
+    leaves 10 lots of ~1.3k-6.5k rows; 0.80+ produces lots of <250 rows,
+    too small for stable PSI/RMSE.
+
+    Experiments are never split across segments. Lots are cut so that each one
+    has roughly the same number of rows; a single experiment larger than the
+    target lot size becomes its own lot.
+    """
+    required = {"hecho_id", "experimento_id"}
+    missing = required.difference(frame.columns)
+    if missing:
+        raise ValueError(f"Missing split columns: {sorted(missing)}")
+    if not 0 < train_fraction < 1:
+        raise ValueError("train_fraction must be between 0 and 1")
+    if n_lots < 1:
+        raise ValueError("n_lots must be positive")
+
+    sizes = (
+        frame.assign(_order=experiment_order(frame["experimento_id"]))
+        .groupby(["_order", "experimento_id"], sort=True)
+        .size()
+        .reset_index(name="rows")
+    )
+    if len(sizes) < n_lots + 1:
+        raise ValueError("Not enough experiments for the requested lots")
+    total = int(sizes["rows"].sum())
+    cumulative = sizes["rows"].cumsum()
+    # Training: every experiment that starts before the cutoff share.
+    in_training = (cumulative - sizes["rows"]) < train_fraction * total
+    sizes["segment"] = np.where(in_training, TRAINING_SEGMENT, "")
+
+    post = sizes.loc[~in_training].copy()
+    if len(post) < n_lots:
+        raise ValueError("Not enough post-cutoff experiments for the requested lots")
+    target = post["rows"].sum() / n_lots
+    lot = 1
+    current = 0
+    labels = []
+    remaining_experiments = len(post)
+    for rows in post["rows"]:
+        remaining_lots = n_lots - lot
+        # Close the lot when it reached its target, or when the experiments
+        # left are just enough to give one to every lot still to be filled.
+        if (
+            remaining_lots > 0
+            and current > 0
+            and (current >= target or remaining_experiments <= remaining_lots)
+        ):
+            lot += 1
+            current = 0
+        labels.append(f"lote_{lot:02d}")
+        current += rows
+        remaining_experiments -= 1
+    sizes.loc[~in_training, "segment"] = labels
+
+    segment_by_experiment = sizes.set_index("experimento_id")["segment"]
+    manifest = pd.DataFrame(
+        {
+            "hecho_id": frame["hecho_id"].astype(str).to_numpy(),
+            "experimento_id": frame["experimento_id"].astype(str).to_numpy(),
+        }
+    )
+    manifest["segment"] = manifest["experimento_id"].map(segment_by_experiment)
+    cutoff = sizes.loc[in_training, "experimento_id"].iloc[-1]
+    summary = (
+        sizes.groupby("segment", sort=True)
+        .agg(
+            experiments=("experimento_id", "size"),
+            rows=("rows", "sum"),
+            first_experiment=("experimento_id", "first"),
+            last_experiment=("experimento_id", "last"),
+        )
+        .reset_index()
+    )
+    metadata = {
+        "method": "experiment-ID arrival order; experiments never split",
+        "train_fraction": train_fraction,
+        "n_lots": int(summary["segment"].str.startswith("lote_").sum()),
+        "cutoff_experiment": str(cutoff),
+        "segments": summary.to_dict(orient="records"),
+    }
+    return manifest, metadata
+
+
+LOTS_PATH = PROJECT_ROOT / "data" / "lotes_manifest.csv"
+LOTS_METADATA_PATH = PROJECT_ROOT / "data" / "lotes_manifest.metadata.json"
+LOTS_SUMMARY_PATH = PROJECT_ROOT / "docs" / "lotes.csv"
+
+
+def create_or_load_lots(
+    frame: pd.DataFrame,
+    *,
+    source_sha256: str,
+    train_fraction: float = 0.75,
+    n_lots: int = 10,
+) -> tuple[pd.DataFrame, dict[str, object]]:
+    """Persist the experiment-order split once; refuse silent changes.
+
+    Returns ``frame`` with a ``segment`` column ("entrenamiento", "lote_01"...).
+    """
+    manifest, metadata = experiment_time_split(
+        frame, train_fraction=train_fraction, n_lots=n_lots
+    )
+    metadata = {"source_sha256": source_sha256, **metadata}
+    if LOTS_PATH.is_file() and LOTS_METADATA_PATH.is_file():
+        saved = json.loads(LOTS_METADATA_PATH.read_text(encoding="utf-8"))
+        if saved != json.loads(json.dumps(metadata)):
+            raise ValueError(
+                "The saved lot manifest belongs to another dataset or setting. "
+                "Remove data/lotes_manifest.* only after deciding to rebuild lots."
+            )
+    else:
+        LOTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        manifest.sort_values("hecho_id").to_csv(LOTS_PATH, index=False)
+        LOTS_METADATA_PATH.write_text(
+            json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
+        LOTS_SUMMARY_PATH.parent.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(metadata["segments"]).to_csv(LOTS_SUMMARY_PATH, index=False)
+
+    segment = frame["hecho_id"].astype(str).map(
+        manifest.set_index("hecho_id")["segment"]
+    )
+    if segment.isna().any():
+        raise ValueError("Some observations have no segment in the lot manifest")
+    return frame.assign(segment=segment.to_numpy()), metadata
+
+
 def create_or_load_holdout(
     frame: pd.DataFrame,
     *,

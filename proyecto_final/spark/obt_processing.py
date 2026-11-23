@@ -128,6 +128,8 @@ def main() -> int:
                 "TIEMPO_RETENCION",
                 "N_MEDICIONES",
                 "RANGO_REPLICAS_MIN",
+                "SNAPSHOT_DATE",
+                "SOURCE_COMMIT",
             )
             .cache()
         )

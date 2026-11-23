@@ -1,0 +1,11 @@
+# Dependencias del servicio. Las del modelo coinciden con las registradas
+# en MLflow (src/experiments.py::MODEL_PIP_REQUIREMENTS).
+scikit-learn==1.5.2
+pandas==2.2.2
+numpy==1.26.4
+scipy==1.15.3
+rdkit==2024.9.6
+mlflow-skinny==2.22.0
+fastapi==0.115.6
+uvicorn==0.34.0
+pydantic==2.10.4

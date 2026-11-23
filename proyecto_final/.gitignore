@@ -9,3 +9,5 @@ dbt/target/
 dbt/logs/
 dbt/dbt_packages/
 dbt/config/
+mlflow_data/
+registros/

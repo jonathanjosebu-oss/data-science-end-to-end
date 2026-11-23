@@ -110,12 +110,38 @@ services:
       - "mkdir -p /mlflow/artifacts && exec mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:////mlflow/mlflow.db --artifacts-destination /mlflow/artifacts --serve-artifacts"
     ports:
       - "127.0.0.1:5000:5000"
+    # Carpeta local (excluida de Git): backend SQLite y artefactos del
+    # Model Registry. Se puede respaldar copiándola; no se pierde con `down -v`.
     volumes:
-      - mlflow_data:/mlflow
+      - ./mlflow_data:/mlflow
     restart: unless-stopped
 
-  # Pendiente (PSet 4): api (FastAPI) y tablero.
+  # API de predicción. La imagen la publica cd.yml en GHCR con el hash del
+  # commit como tag (API_IMAGE_TAG en .env). Sin tag publicado, se construye
+  # localmente: docker compose build api
+  api:
+    image: ghcr.io/jonathanjosebu-oss/qsrr-api:${API_IMAGE_TAG:-local}
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MODELO_URI: models:/qsrr-predict-modelo@champion
+      MODELO_TTL_S: "30"
+      USAR_RESPALDO: ${USAR_RESPALDO:-false}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?Set ADMIN_TOKEN in .env}
+    volumes:
+      # Registros JSONL de predicciones y solicitudes; Kestra los carga a
+      # Snowflake (PREDICCIONES) en cada lote.
+      - ./registros:/app/registros
+    depends_on:
+      mlflow:
+        condition: service_started
+    restart: unless-stopped
+
+  # Pendiente (PSet 4): tablero.
 
 volumes:
   kestra_data:
-  mlflow_data:

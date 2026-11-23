@@ -14,3 +14,10 @@ ipykernel==6.29.5
 pyarrow==16.1.0
 reportlab==5.1.0
 pytest==8.3.4
+# PSet 4: servicio, pruebas de la API y tablero
+fastapi==0.115.6
+uvicorn==0.34.0
+pydantic==2.10.4
+httpx==0.28.1
+requests==2.32.3
+streamlit==1.41.1

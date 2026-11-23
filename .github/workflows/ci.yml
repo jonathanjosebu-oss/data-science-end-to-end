@@ -1,0 +1,49 @@
+# CI del proyecto final (proyecto_final/): en cada push y pull request instala
+# las dependencias, construye la imagen de la API y corre pytest.
+# GitHub solo ejecuta workflows en .github/workflows/ de la raíz del repo, por
+# eso este archivo vive aquí y no en proyecto_final/.github/.
+# En CI no hay servidor de MLflow: las pruebas usan el modelo exportado con
+# mlflow.sklearn.save_model en proyecto_final/tests/fixtures/.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: proyecto_final
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: proyecto_final/requirements.txt
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Construir la imagen de la API
+        run: docker build -f api/Dockerfile -t qsrr-api:ci .
+
+      - name: Ejecutar pytest
+        run: python -m pytest tests/ -v
+
+      - name: Prueba de humo del contenedor (modelo del fixture)
+        run: |
+          docker run -d --name api -p 8000:8000 \
+            -e MODELO_URI=/app/fixtures/modelo \
+            -e MODELO_METADATA=/app/fixtures/modelo_metadata.json \
+            -v "$PWD/tests/fixtures:/app/fixtures:ro" qsrr-api:ci
+          for i in $(seq 1 30); do curl -fsS localhost:8000/salud && break; sleep 2; done
+          curl -fsS localhost:8000/modelo
+          curl -fsS -X POST localhost:8000/predecir -H 'content-type: application/json' \
+            -d '{"tipo_columna":"Waters ACQUITY UPLC BEH C18","fase_movil":"A[H2O=100; MeOH=0; ACN=0] B[H2O=0; MeOH=0; ACN=100]","flujo_ml_min":0.4,"compuestos":[{"id":"cafeina","smiles":"Cn1cnc2c1c(=O)n(C)c(=O)n2C"}]}'
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:8000/predecir -H 'content-type: application/json' -d '{"tipo_columna":"C18"}')
+          test "$code" = "422"
+          docker rm -f api

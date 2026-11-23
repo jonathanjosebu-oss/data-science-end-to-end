@@ -1,0 +1,49 @@
+{
+  "model_name": "qsrr-predict-modelo",
+  "version": 1,
+  "alias": "champion",
+  "run_id": "f6617bca84494ea3a5a9609787a6b462",
+  "cv_rmse_mean": 2.4888837215895077,
+  "cv_rmse_std": 0.053537236402455377,
+  "muestra_fija_rmse": 1.1477260515008147,
+  "muestra_fija_mae": 0.7940009413962492,
+  "pair_lower_error_quantile": -9.468438431175331,
+  "pair_upper_error_quantile": 9.757802185511476,
+  "corte_experimento": "0275",
+  "dominio": {
+    "tipo_columna": [
+      "Advanced Chromatography Technologies ACE C18",
+      "Agilent InfinityLab Poroshell 120 EC-C18",
+      "Agilent ZORBAX Eclipse Plus C18",
+      "Agilent ZORBAX Eclipse XDB-C18",
+      "Agilent ZORBAX Extend-C18",
+      "Agilent ZORBAX RRHD Eclipse Plus C18",
+      "Hichrom Alltima HP C18",
+      "Merck Supelco Ascentis Express C18",
+      "Merck Supelco SUPELCOSIL LC-C18",
+      "Phenomenex Kinetex C18",
+      "Phenomenex Kinetex EVO C18",
+      "Phenomenex Kinetex PS C18",
+      "Phenomenex Kinetex XB-C18",
+      "Phenomenex Luna C18",
+      "Phenomenex Luna Omega Polar C18",
+      "Thermo Scientific Accucore C18",
+      "Waters ACQUITY UPLC BEH C18",
+      "Waters Symmetry C18",
+      "Waters XBridge C18"
+    ],
+    "fase_movil": [
+      "A[H2O=0; MeOH=0; ACN=0] B[H2O=0; MeOH=0; ACN=0]",
+      "A[H2O=100; MeOH=0; ACN=0] B[H2O=0; MeOH=0; ACN=100]",
+      "A[H2O=100; MeOH=0; ACN=0] B[H2O=0; MeOH=0; ACN=80]",
+      "A[H2O=100; MeOH=0; ACN=0] B[H2O=0; MeOH=100; ACN=0]",
+      "A[H2O=100; MeOH=0; ACN=0] B[H2O=10; MeOH=90; ACN=0]",
+      "A[H2O=60; MeOH=0; ACN=40] B[H2O=0; MeOH=0; ACN=10]",
+      "A[H2O=90; MeOH=0; ACN=5] B[H2O=0; MeOH=0; ACN=100]"
+    ],
+    "flujo_ml_min": [
+      0.1,
+      1.0
+    ]
+  }
+}

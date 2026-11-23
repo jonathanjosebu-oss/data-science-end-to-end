@@ -115,6 +115,14 @@ models:
               arguments:
                 to: ref('dim_condiciones')
                 field: condicion_id
+      - name: snapshot_date
+        description: "Partición de RAW de la que salió el hecho (linaje)."
+        tests:
+          - not_null
+      - name: source_commit
+        description: "Commit de RepoRT de ese snapshot (linaje)."
+        tests:
+          - not_null
       - name: tiempo_retencion
         tests:
           - not_null

@@ -84,6 +84,9 @@ def _query(database: str) -> str:
         )
         SELECT
             o.HECHO_ID,
+            o.EXPERIMENTO_ID,
+            o.SNAPSHOT_DATE,
+            o.SOURCE_COMMIT,
             UPPER(TRIM(o.INCHIKEY)) AS INCHIKEY,
             o.NOMBRE_COMPUESTO,
             o.TIPO_COLUMNA,
@@ -138,6 +141,9 @@ def fetch_c18_data() -> tuple[pd.DataFrame, dict[str, Any]]:
 
     frame.columns = [column.lower() for column in frame.columns]
     frame["hecho_id"] = frame["hecho_id"].astype("string")
+    frame["experimento_id"] = frame["experimento_id"].astype("string")
+    frame["snapshot_date"] = frame["snapshot_date"].astype("string")
+    frame["source_commit"] = frame["source_commit"].astype("string")
     frame["inchikey"] = frame["inchikey"].astype("string")
     frame["tiempo_retencion"] = pd.to_numeric(
         frame["tiempo_retencion"], errors="coerce"
@@ -151,7 +157,9 @@ def fetch_c18_data() -> tuple[pd.DataFrame, dict[str, Any]]:
         ),
         "scope": "RepoRT C18; positive retention-time observations",
         "snapshot_read_at_utc": loaded_at,
-        "source_ref": os.getenv("REPORRT_SOURCE_REF", "not-recorded"),
+        # Linaje leído de la propia OBT: snapshot de RAW y commit de RepoRT.
+        "snapshot_dates": sorted(frame["snapshot_date"].dropna().unique().tolist()),
+        "source_commits": sorted(frame["source_commit"].dropna().unique().tolist()),
         "sha256": canonical_data_hash(frame),
         "rows": int(len(frame)),
     }

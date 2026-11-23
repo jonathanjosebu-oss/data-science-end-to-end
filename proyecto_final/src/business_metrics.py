@@ -135,6 +135,50 @@ differ by at most 0.5 min under the same condition. It is independent of the
 model; the alert rule (model uncertainty) is evaluated against it."""
 
 
+ORDEN_CONFIABLE_MIN = 2.0
+"""Separación predicha a partir de la cual el orden de elución es confiable.
+
+En los 10 lotes posteriores al corte (93 métodos, champion v1) el modelo
+ordena bien el 91 % de los pares separados 2-4 min y el 96 % de los de
+4-8 min, frente al 70 % de los separados 0,5-1 min. Valor secundario: no
+cambia la decisión aprobar/revisar."""
+
+
+def elution_order_accuracy(
+    y_true: Sequence[float],
+    y_pred: Sequence[float],
+    method_groups: Sequence[object],
+    *,
+    min_gap_min: float = ORDEN_CONFIABLE_MIN,
+    max_rows_per_method: int = 400,
+    random_state: int = 0,
+) -> dict[str, float | int]:
+    """Share of same-method pairs whose elution order the model gets right,
+    restricted to pairs truly separated by more than ``min_gap_min``."""
+    frame = pd.DataFrame(
+        {"y": np.asarray(y_true, float), "p": np.asarray(y_pred, float),
+         "g": pd.Series(method_groups).astype(str).to_numpy()}
+    )
+    rng = np.random.default_rng(random_state)
+    correct = total = 0
+    for _, group in frame.groupby("g", sort=True):
+        if len(group) < 2:
+            continue
+        if len(group) > max_rows_per_method:
+            group = group.iloc[rng.choice(len(group), max_rows_per_method, replace=False)]
+        i, j = np.triu_indices(len(group), k=1)
+        dy = group["y"].to_numpy()[j] - group["y"].to_numpy()[i]
+        dp = group["p"].to_numpy()[j] - group["p"].to_numpy()[i]
+        keep = np.abs(dy) > min_gap_min
+        correct += int((np.sign(dy[keep]) == np.sign(dp[keep])).sum())
+        total += int(keep.sum())
+    return {
+        "orden_pares": total,
+        "orden_exactitud": correct / total if total else float("nan"),
+        "orden_umbral_min": float(min_gap_min),
+    }
+
+
 def _alert_scores(alerts: np.ndarray, events: np.ndarray) -> dict[str, float]:
     event_count = int(events.sum())
     alert_count = int(alerts.sum())

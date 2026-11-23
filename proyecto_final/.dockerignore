@@ -1,0 +1,13 @@
+.venv/
+.env
+data/
+mlflow_data/
+registros/
+notebooks/
+docs/
+dbt/
+spark/
+kestra/
+**/__pycache__/
+**/.pytest_cache/
+**/.ipynb_checkpoints/

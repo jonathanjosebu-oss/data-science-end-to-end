@@ -1,0 +1,27 @@
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.11.16
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.5.2
+is_signature_from_type_hint: false
+mlflow_version: 2.22.0
+model_size_bytes: 729468
+model_uuid: 71ecf6f9d3d94582a43ba24ecb67c21a
+prompts: null
+signature:
+  inputs: '[{"type": "string", "name": "smiles", "required": true}, {"type": "string",
+    "name": "tipo_columna", "required": true}, {"type": "string", "name": "fase_movil",
+    "required": true}, {"type": "double", "name": "flujo_ml_min", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "float64", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2026-11-22 23:55:09.197377'

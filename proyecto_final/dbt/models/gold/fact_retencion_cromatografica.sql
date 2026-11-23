@@ -17,5 +17,8 @@ select
     ) as condicion_id,
     tiempo_retencion,
     n_mediciones,
-    rango_replicas_min
+    rango_replicas_min,
+    -- Linaje (PSet 4 §10.6): snapshot de RAW y commit de RepoRT de origen.
+    snapshot_date,
+    source_commit
 from silver
