@@ -1,0 +1,22 @@
+lote,lote_evaluado,ts,alerta,metrica,valor,umbral,ventana,severidad,receptor,accion,diagnostico
+1,,2026-11-22 19:19:18.824480-08:00,categoria_no_vista,categoria_no_vista:tipo_columna,0.6682692307692307,0.5,1 lote,Baja,Equipo de datos,Informativa: ampliar el catálogo de columnas y fases,
+1,,2026-11-22 19:19:18.824480-08:00,errores_4xx,tasa_4xx,0.14457831325301204,0.05,1 lote,Media,Equipo de datos,Revisar la calidad de las solicitudes,
+2,,2026-11-22 19:20:24.283898-08:00,categoria_no_vista,categoria_no_vista:tipo_columna,1.0,0.5,1 lote,Baja,Equipo de datos,Informativa: ampliar el catálogo de columnas y fases,
+3,,2026-11-22 19:21:32.142355-08:00,categoria_no_vista,categoria_no_vista:tipo_columna,1.0,0.5,1 lote,Baja,Equipo de datos,Informativa: ampliar el catálogo de columnas y fases,
+4,,2026-11-22 19:22:42.265769-08:00,categoria_no_vista,categoria_no_vista:tipo_columna,0.9913098770665536,0.5,1 lote,Baja,Equipo de datos,Informativa: ampliar el catálogo de columnas y fases,
+4,,2026-11-22 19:22:42.265769-08:00,categoria_no_vista,categoria_no_vista:fase_movil,0.8427299703264095,0.5,1 lote,Baja,Equipo de datos,Informativa: ampliar el catálogo de columnas y fases,
+5,,2026-11-22 19:23:52.028161-08:00,deriva_datos,"psi (mol_tpsa, mol_h_donors)",2.0,2.0,1 lote,Media,Equipo de datos,Revisar la fuente; no reentrenar si el desempeño se mantiene,
+7,6.0,2026-11-22 19:26:16.000835-08:00,desempeno_sesgo,sesgo_abs,1.8841389358324372,1.8130652132812966,1 lote,Alta,Ciencia de datos + laboratorio,"Revisar equipo y método (volumen de retardo, temperatura); con 2 lotes seguidos se reentrena",deriva conceptual
+8,7.0,2026-11-22 19:27:22.077817-08:00,desempeno_rmse,rmse,5.339927293947466,3.6594542861000368,1 lote,Alta,Ciencia de datos,Diagnosticar; con 2 lotes seguidos se reentrena,deriva conceptual
+8,7.0,2026-11-22 19:27:22.077817-08:00,desempeno_sesgo,sesgo_abs,3.2024218939544475,1.8130652132812966,1 lote,Alta,Ciencia de datos + laboratorio,"Revisar equipo y método (volumen de retardo, temperatura); con 2 lotes seguidos se reentrena",deriva conceptual
+8,7.0,2026-11-22 19:27:22.077817-08:00,reentrenamiento,alerta_desempeno,1.0,,2 lotes consecutivos,Alta,Ciencia de datos,Lanzar reentrenamiento.yml (challenger + aprobación humana),"desempeño: alerta de RMSE o sesgo en 2 lotes consecutivos (6, 7)"
+9,,2026-11-22 19:55:58.174426-08:00,categoria_no_vista,categoria_no_vista:tipo_columna,1.0,0.5,1 lote,Baja,Equipo de datos,Informativa: ampliar el catálogo de columnas y fases,
+9,,2026-11-22 19:55:58.174426-08:00,categoria_no_vista,categoria_no_vista:fase_movil,1.0,0.5,1 lote,Baja,Equipo de datos,Informativa: ampliar el catálogo de columnas y fases,
+9,8.0,2026-11-22 19:55:58.174426-08:00,desempeno_rmse,rmse,5.073472301165489,3.6594542861000368,1 lote,Alta,Ciencia de datos,Diagnosticar; con 2 lotes seguidos se reentrena,deriva conceptual
+10,,2026-11-22 19:57:05.023173-08:00,categoria_no_vista,categoria_no_vista:tipo_columna,1.0,0.5,1 lote,Baja,Equipo de datos,Informativa: ampliar el catálogo de columnas y fases,
+10,,2026-11-22 19:57:05.023173-08:00,deriva_datos,"psi (mol_weight, mol_tpsa, mol_h_acceptors, mol_rotatable_bonds)",4.0,2.0,1 lote,Media,Equipo de datos,Revisar la fuente; no reentrenar si el desempeño se mantiene,
+10,9.0,2026-11-22 19:57:05.023173-08:00,desempeno_sesgo,sesgo_abs,2.772599320241692,1.8130652132812966,1 lote,Alta,Ciencia de datos + laboratorio,"Revisar equipo y método (volumen de retardo, temperatura); con 2 lotes seguidos se reentrena",deriva conceptual
+10,,2026-11-22 19:57:05.023173-08:00,fuera_de_dominio,fraccion_fuera_de_dominio,1.0,0.2,1 lote,Alta,Analistas + ciencia de datos,Confirmar con corrida exploratoria; incorporar esos métodos al reentrenar,
+10,9.0,2026-11-22 19:57:05.023173-08:00,reentrenamiento,alerta_desempeno,1.0,,2 lotes consecutivos,Alta,Ciencia de datos,Lanzar reentrenamiento.yml (challenger + aprobación humana),"desempeño: alerta de RMSE o sesgo en 2 lotes consecutivos (8, 9)"
+11,10.0,2026-11-23 16:34:41.158798-08:00,desempeno_rmse,rmse,8.283840821184812,3.6594542861000368,1 lote,Alta,Ciencia de datos,Diagnosticar; con 2 lotes seguidos se reentrena,deriva de datos con impacto
+11,10.0,2026-11-23 16:34:41.158798-08:00,desempeno_sesgo,sesgo_abs,5.674311358589861,1.8130652132812966,1 lote,Alta,Ciencia de datos + laboratorio,"Revisar equipo y método (volumen de retardo, temperatura); con 2 lotes seguidos se reentrena",deriva de datos con impacto

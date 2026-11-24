@@ -47,6 +47,8 @@ services:
     depends_on:
       dbt-image:
         condition: service_completed_successfully
+      jobs-image:
+        condition: service_completed_successfully
       spark:
         condition: service_started
     restart: unless-stopped
@@ -73,6 +75,14 @@ services:
       context: ./dbt
     image: qsrr-dbt:1.11
     command: ["dbt", "--version"]
+    restart: "no"
+
+  # Imagen de las tareas Python de Kestra (simulación, monitoreo, reentrenamiento).
+  jobs-image:
+    build:
+      context: ./jobs
+    image: qsrr-jobs:1.0
+    command: ["python", "-c", "import sklearn, rdkit, mlflow, snowflake.connector; print('qsrr-jobs OK')"]
     restart: "no"
 
   # dbt a mano: docker compose run --rm dbt dbt build
@@ -141,7 +151,26 @@ services:
         condition: service_started
     restart: unless-stopped
 
-  # Pendiente (PSet 4): tablero.
+  # Tablero de monitoreo (Streamlit): lee PRODUCCION.* en Snowflake; sin
+  # credenciales, las exportaciones de docs/*.csv. http://localhost:8501
+  tablero:
+    build:
+      context: .
+      dockerfile: tablero/Dockerfile
+    image: qsrr-tablero:1.0
+    ports:
+      - "8501:8501"
+    environment:
+      <<: *snowflake-env
+    volumes:
+      - ./docs:/app/docs:ro
+    restart: unless-stopped
 
 volumes:
   kestra_data:
+
+# Red con nombre fijo: los contenedores que lanza Kestra (taskRunner Docker)
+# se unen a ella para llegar a `api` y `mlflow` por nombre.
+networks:
+  default:
+    name: qsrr-net

@@ -1,0 +1,101 @@
+id: produccion_lotes
+namespace: qsrr.proyecto
+
+description: >-
+  Simulación de producción (PSet 4 §5). Cada iteración es una semana: lee de
+  Snowflake el lote k, lo envía a la API como lo haría el analista (un método
+  por solicitud), guarda las predicciones en PRODUCCION.PREDICCIONES y publica
+  los tiempos medidos del lote k-1, que llegan una semana después (horizonte).
+  Después lanza monitoreo.yml, que calcula las métricas, dispara alertas y, si
+  corresponde, el reentrenamiento (con pausa de aprobación humana). La semana
+  11 solo recibe los targets del lote 10. Desde el lote 06 los tiempos medidos
+  incluyen la deriva inducida (volumen de retardo +1,0 mL; src/simulacion.py).
+
+inputs:
+  - id: preparar
+    type: BOOL
+    defaults: true
+    description: Reconstruye los lotes en Snowflake desde la OBT y vacía las tablas operativas.
+  - id: desde
+    type: INT
+    defaults: 1
+  - id: hasta
+    type: INT
+    defaults: 11
+    description: Última semana (11 = recibe los targets del lote 10).
+
+tasks:
+  - id: preparar_lotes
+    type: io.kestra.plugin.core.flow.If
+    condition: "{{ inputs.preparar }}"
+    then:
+      - id: preparar
+        type: io.kestra.plugin.scripts.python.Commands
+        taskRunner:
+          type: io.kestra.plugin.scripts.runner.docker.Docker
+          pullPolicy: NEVER
+          networkMode: qsrr-net
+        containerImage: qsrr-jobs:1.0
+        namespaceFiles:
+          enabled: true
+          include:
+            - src/**
+            - monitoreo/**
+        env:
+          SNOWFLAKE_ACCOUNT: "{{ env('snowflake_account') }}"
+          SNOWFLAKE_USER: "{{ env('snowflake_user') }}"
+          SNOWFLAKE_PASSWORD: "{{ env('snowflake_password') }}"
+          SNOWFLAKE_ROLE: "{{ env('snowflake_role') }}"
+          SNOWFLAKE_WAREHOUSE: "{{ env('snowflake_warehouse') }}"
+          SNOWFLAKE_DATABASE: "{{ env('snowflake_database') }}"
+          MLFLOW_TRACKING_URI: http://mlflow:5000
+          API_URL: http://api:8000
+
+        description: OBT C18 -> split por experimento -> 10 lotes (entradas y mediciones ocultas).
+        commands:
+          - python -m src.produccion preparar
+
+  - id: semanas
+    type: io.kestra.plugin.core.flow.Loop
+    values: "{{ range(inputs.desde, inputs.hasta) }}"
+    concurrencyLimit: 1
+    tasks:
+      - id: semana
+        type: io.kestra.plugin.scripts.python.Commands
+        taskRunner:
+          type: io.kestra.plugin.scripts.runner.docker.Docker
+          pullPolicy: NEVER
+          networkMode: qsrr-net
+        containerImage: qsrr-jobs:1.0
+        namespaceFiles:
+          enabled: true
+          include:
+            - src/**
+            - monitoreo/**
+        env:
+          SNOWFLAKE_ACCOUNT: "{{ env('snowflake_account') }}"
+          SNOWFLAKE_USER: "{{ env('snowflake_user') }}"
+          SNOWFLAKE_PASSWORD: "{{ env('snowflake_password') }}"
+          SNOWFLAKE_ROLE: "{{ env('snowflake_role') }}"
+          SNOWFLAKE_WAREHOUSE: "{{ env('snowflake_warehouse') }}"
+          SNOWFLAKE_DATABASE: "{{ env('snowflake_database') }}"
+          MLFLOW_TRACKING_URI: http://mlflow:5000
+          API_URL: http://api:8000
+
+        description: Predice el lote de la semana vía API y recibe los targets del lote anterior.
+        retry:
+          type: constant
+          maxAttempts: 2
+          interval: PT30S
+        commands:
+          - python -m src.produccion semana --semana {{ item.value }}
+
+      - id: monitoreo
+        type: io.kestra.plugin.core.flow.Subflow
+        description: Métricas, alertas y disparo del reentrenamiento para esta semana.
+        namespace: qsrr.proyecto
+        flowId: monitoreo
+        inputs:
+          semana: "{{ item.value }}"
+        wait: true
+        transmitFailed: true

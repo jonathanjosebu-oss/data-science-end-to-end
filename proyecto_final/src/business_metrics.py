@@ -179,6 +179,61 @@ def elution_order_accuracy(
     }
 
 
+def corridas_evitadas(
+    y_true: Sequence[float],
+    y_pred: Sequence[float],
+    method_groups: Sequence[object],
+    interval: tuple[float, float],
+    *,
+    analitos: int = 5,
+    metodos: int = 2_000,
+    separacion_min: float = COELUTION_WINDOW_MIN,
+    random_state: int = 7,
+) -> dict[str, float]:
+    """Métrica de negocio por lote (PSet 1: aprobar o revisar condiciones).
+
+    Simula `metodos` solicitudes de `analitos` compuestos de un mismo método
+    (experimento), ponderadas por su tamaño. El modelo aprueba si ningún par
+    adyacente predicho tiene un intervalo que contenga 0 (regla del PSet 3).
+    Una aprobación es correcta si todos los picos reales quedan separados más
+    de `separacion_min`. Neto = (aprobaciones correctas - aprobaciones
+    fallidas) / métodos: corridas exploratorias evitadas por método; una
+    aprobación fallida cuesta una corrida (repetir). Línea base (revisar
+    siempre, el proceso actual) = 0; "aprobar todo" = separables - no separables.
+    """
+    frame = pd.DataFrame(
+        {"y": np.asarray(y_true, float), "p": np.asarray(y_pred, float),
+         "g": pd.Series(method_groups).astype(str).to_numpy()}
+    )
+    grupos = [g for _, g in frame.groupby("g", sort=True) if len(g) >= analitos]
+    if not grupos:
+        return {"metodos_simulados": 0, "tasa_aprobacion": np.nan, "ahorro": np.nan,
+                "fallo": np.nan, "neto": np.nan, "neto_aprobar_todo": np.nan, "tasa_separable": np.nan}
+    pesos = np.array([len(g) for g in grupos], float)
+    pesos /= pesos.sum()
+    rng = np.random.default_rng(random_state)
+    lower, upper = interval
+    ok = bad = separables = 0
+    for _ in range(metodos):
+        g = grupos[rng.choice(len(grupos), p=pesos)]
+        muestra = g.iloc[rng.choice(len(g), analitos, replace=False)]
+        d = np.diff(np.sort(muestra["p"].to_numpy()))
+        aprueba = not ((d + lower <= 0) & (d + upper >= 0)).any()
+        separable = bool((np.diff(np.sort(muestra["y"].to_numpy())) > separacion_min).all())
+        separables += separable
+        ok += aprueba and separable
+        bad += aprueba and not separable
+    return {
+        "metodos_simulados": metodos,
+        "tasa_aprobacion": (ok + bad) / metodos,
+        "ahorro": ok / metodos,
+        "fallo": bad / metodos,
+        "neto": (ok - bad) / metodos,
+        "neto_aprobar_todo": (separables - (metodos - separables)) / metodos,
+        "tasa_separable": separables / metodos,
+    }
+
+
 def _alert_scores(alerts: np.ndarray, events: np.ndarray) -> dict[str, float]:
     event_count = int(events.sum())
     alert_count = int(alerts.sum())

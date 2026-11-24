@@ -1,0 +1,73 @@
+id: monitoreo
+namespace: qsrr.proyecto
+
+description: >-
+  Monitoreo de una semana (PSet 4 §6). Calcula métricas de sistema, modelo,
+  datos y deriva del lote k y el desempeño técnico y de negocio del lote k-1
+  (su target acaba de llegar); las guarda en PRODUCCION.MONITOREO, registra las
+  alertas en PRODUCCION.ALERTAS y en el log de Kestra, y lanza
+  reentrenamiento.yml si el desempeño cae 2 lotes seguidos o toca por
+  calendario. La deriva de datos sola no reentrena. Umbrales y su
+  justificación: monitoreo/deriva.py y monitoreo/referencia.json.
+
+inputs:
+  - id: semana
+    type: INT
+
+tasks:
+  - id: calcular
+    type: io.kestra.plugin.scripts.python.Commands
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      pullPolicy: NEVER
+      networkMode: qsrr-net
+    containerImage: qsrr-jobs:1.0
+    namespaceFiles:
+      enabled: true
+      include:
+        - src/**
+        - monitoreo/**
+    env:
+      SNOWFLAKE_ACCOUNT: "{{ env('snowflake_account') }}"
+      SNOWFLAKE_USER: "{{ env('snowflake_user') }}"
+      SNOWFLAKE_PASSWORD: "{{ env('snowflake_password') }}"
+      SNOWFLAKE_ROLE: "{{ env('snowflake_role') }}"
+      SNOWFLAKE_WAREHOUSE: "{{ env('snowflake_warehouse') }}"
+      SNOWFLAKE_DATABASE: "{{ env('snowflake_database') }}"
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+
+    commands:
+      - python -m monitoreo.alertas --semana {{ inputs.semana }}
+
+  - id: reportar
+    type: io.kestra.plugin.core.flow.If
+    condition: "{{ outputs.calcular.vars.alertas > 0 }}"
+    then:
+      - id: alerta_en_log
+        type: io.kestra.plugin.core.log.Log
+        level: WARN
+        message: >-
+          Semana {{ inputs.semana }}: {{ outputs.calcular.vars.alertas }} alerta(s);
+          detalle en el log de 'calcular' y en PRODUCCION.ALERTAS.
+    else:
+      - id: sin_alertas
+        type: io.kestra.plugin.core.log.Log
+        message: "Semana {{ inputs.semana }}: sin alertas."
+
+  - id: disparador
+    type: io.kestra.plugin.core.flow.If
+    condition: "{{ outputs.calcular.vars.reentrenar }}"
+    then:
+      - id: aviso_reentrenamiento
+        type: io.kestra.plugin.core.log.Log
+        level: WARN
+        message: "Reentrenamiento disparado en la semana {{ inputs.semana }}: {{ outputs.calcular.vars.motivo }}"
+      - id: reentrenamiento
+        type: io.kestra.plugin.core.flow.Subflow
+        namespace: qsrr.proyecto
+        flowId: reentrenamiento
+        inputs:
+          semana: "{{ inputs.semana }}"
+          motivo: "{{ outputs.calcular.vars.motivo }}"
+        wait: true
+        transmitFailed: true

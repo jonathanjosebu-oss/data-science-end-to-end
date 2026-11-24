@@ -30,11 +30,11 @@ Las rutas son relativas a `proyecto_final/`.
 | 2.7 | Spark: validar la unicidad de las dimensiones antes de los joins (no ocultar duplicados con una fila por clave) y detener el job antes de escribir. | Validación de claves, huérfanos y grano; `exit 1` sin escribir. Probado con un caso negativo. | `spark/obt_processing.py` | ✅ |
 | 2.8 | Infraestructura: integrar dbt en Docker y automatizar la importación del flujo y sus scripts. | Imagen `qsrr-dbt`; el servicio `kestra-deploy` valida e importa los flows y los archivos de namespace en cada arranque. | `docker-compose.yml`, `dbt/Dockerfile`, `kestra/deploy.sh` | ✅ |
 
-## PSet 3 — Experimentación (pendiente de calificación)
+## PSet 3 — Experimentación (9,7/10)
 
 | # | Observación | Cambio | Archivo(s) | Estado |
 |---|---|---|---|---|
-| — | Pendiente de recibir comentarios. | — | — | ⏳ |
+| — | Calificado sin comentarios. | No se requieren correcciones. Los cambios del PSet 4 sobre el modelo (OBT corregida, split por experimento, descriptores del método) están en *Decisiones actualizadas*. | — | ✅ |
 
 ## Decisiones actualizadas
 
@@ -58,3 +58,7 @@ Las rutas son relativas a `proyecto_final/`.
 | Snapshot de origen | Un único snapshot que se reemplaza en cada carga. | Particiones por fecha con su commit de RepoRT; Gold usa la más reciente. | Observación 2.2 y trazabilidad (PSet 4 §10.6). | ✅ |
 | Lectura de SMILES | Desde todas las filas de RAW. | Solo desde el snapshot más reciente, el mismo del que se construyó Gold. | RAW ahora guarda varios snapshots. | ✅ |
 | Estructura del repositorio | `psets/pset-02` y `psets/pset-03` por separado. | Todo en `proyecto_final/`, con un solo `docker-compose.yml`. Las carpetas `psets/` quedan como historial (etiqueta `pset3-entrega`). | PSet 4 §10.1–10.2. | ✅ |
+| Linaje de las corridas (tag `gold_tables`) | Las corridas de 28 features (v2 y reentrenamientos) listaban 3 tablas Gold. | Incluyen `GOLD.DIM_METODO`. Se corrigió el código y las 4 corridas ya registradas (tag `gold_tables_nota`). La v1 (16 features) no la usa y queda igual. | PSet 4 §10.6: la predicción debe rastrearse hasta las tablas Gold reales. | ✅ `src/reentrenar.py` |
+| Tablero | Pendiente. | Streamlit (`tablero/`, puerto 8501) en el `docker-compose.yml`: sistema, modelo, desempeño, negocio y deriva por lote, con alertas y reentrenamientos marcados. Sin credenciales lee `docs/*.csv`. | PSet 4 §6.4. | ✅ |
+| Calendario de reentrenamiento | Cada 6 lotes evaluados. | Cada 8 lotes. La corrida `212bd959` (v3) queda de la ejecución anterior y no tiene decisión. | Con 6 lotes coincidía con el primer lote con deriva y no permitía ver el disparo por desempeño. | ✅ `monitoreo/deriva.py` |
+| Regla de promoción (propuesta) | El challenger se compara con el champion en el lote etiquetado más reciente; la mejora debe superar 1 DE de la CV. | **Propuesto, no aplicado:** comparar en los 2 lotes más recientes y contra la variación entre lotes. El v4 rechazado en la semana 8 habría mejorado los lotes 08–10. | Hallazgo de la simulación (`notebooks/07`, §4.1). Se documenta para no cambiar la regla después de ver los resultados. | ⏳ |

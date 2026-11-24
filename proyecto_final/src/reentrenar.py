@@ -242,7 +242,7 @@ def fit_and_register(
                 "data_tables": dataset_metadata["source_tables"],
                 "obt_snapshot_dates": ",".join(dataset_metadata.get("snapshot_dates", [])),
                 "obt_source_commits": ",".join(dataset_metadata.get("source_commits", [])),
-                "gold_tables": "GOLD.FACT_RETENCION_CROMATOGRAFICA,GOLD.DIM_COMPUESTO,GOLD.DIM_CONDICIONES",
+                "gold_tables": "GOLD.FACT_RETENCION_CROMATOGRAFICA,GOLD.DIM_COMPUESTO,GOLD.DIM_CONDICIONES,GOLD.DIM_METODO",
                 "data_sha256": dataset_metadata["sha256"],
                 "segmentos_entrenamiento": ",".join(training_segments),
                 "hiperparametros_origen": f"champion PSet 3 ({PSET3_CHAMPION_RUN_ID})",
@@ -298,3 +298,201 @@ def fit_and_register(
         "interval": interval,
         **{k: v for k, v in cv.items() if k != "oof"},
     }
+
+
+# ---------------------------------------------------------------------------
+# Ciclo de reentrenamiento (kestra/reentrenamiento.yml, PSet 4 §7.2)
+# ---------------------------------------------------------------------------
+PESO_LOTES_RECIENTES = 10.0
+"""Ventana: todo el histórico (peso 1) + los lotes etiquetados (peso 10).
+Se comparó con histórico sin pesos, pesos exponenciales y una ventana móvil
+(20 % del histórico + lotes): peso 10 fue el mejor en los lotes 07-08 sin
+perder el 09. El histórico completo conserva la cobertura química (SMRT)."""
+
+
+def _lotes_etiquetados(hasta_lote: int) -> pd.DataFrame:
+    """Entradas + targets que ya llegaron, de los lotes 1..hasta_lote."""
+    from src import almacen
+
+    return almacen.consultar(
+        """SELECT e.*, t.TIEMPO_RETENCION FROM LOTES_ENTRADAS e
+           JOIN TARGETS t ON e.HECHO_ID = t.HECHO_ID AND e.LOTE = t.LOTE
+           WHERE e.LOTE <= %s""",
+        (hasta_lote,),
+    )
+
+
+def _params_registrados(run_params: dict[str, str]) -> dict[str, Any]:
+    def convertir(valor: str) -> Any:
+        try:
+            return int(valor)
+        except ValueError:
+            return float(valor)
+
+    return {k.removeprefix("regressor__"): convertir(v) for k, v in run_params.items() if k.startswith("regressor__")}
+
+
+def entrenar_challenger(semana: int, motivo: str) -> dict[str, Any]:
+    """Arma la ventana, reentrena con los hiperparámetros del champion (sin
+    tuning) y registra la versión con alias 'challenger' y tag fase=reentrenamiento."""
+    from mlflow.tracking import MlflowClient
+
+    from src.datos import load_snapshot
+    from src.experiments import configure_tracking
+    from src.splits import TRAINING_SEGMENT, create_or_load_lots
+
+    configure_tracking()
+    client = MlflowClient()
+    champion = client.get_model_version_by_alias(MODEL_NAME, "champion")
+    params = _params_registrados(client.get_run(champion.run_id).data.params)
+    lote_evaluacion = semana - 1  # el más reciente con target: ninguno de los dos lo ve
+    frame, metadata = load_snapshot()
+    frame, _ = create_or_load_lots(frame, source_sha256=metadata["sha256"])
+    historico = frame.loc[frame["segment"].eq(TRAINING_SEGMENT)]
+    recientes = _lotes_etiquetados(lote_evaluacion - 1)
+    columnas = [c for c in historico.columns if c in recientes.columns]
+    ventana = pd.concat([historico[columnas], recientes[columnas]], ignore_index=True)
+    pesos = np.r_[np.ones(len(historico)), np.full(len(recientes), PESO_LOTES_RECIENTES)]
+    lotes = sorted(int(x) for x in recientes["lote"].unique()) if len(recientes) else []
+    descripcion = f"histórico 0006-0275 (peso 1) + lotes {lotes} (peso {PESO_LOTES_RECIENTES:g})"
+    resultado = fit_and_register(
+        ventana,
+        dataset_metadata={**metadata, "rows": len(ventana)},
+        phase="reentrenamiento",
+        reason=motivo,
+        alias="challenger",
+        training_segments=[TRAINING_SEGMENT, *[f"lote_{k:02d}" for k in lotes]],
+        params=params,
+        sample_weight=pesos,
+        extra_tags={"ventana": descripcion, "semana_disparo": str(semana),
+                    "lote_evaluacion": str(lote_evaluacion), "champion_previo": str(champion.version)},
+    )
+    print(f"Challenger v{resultado['version']} registrado ({descripcion}); CV {resultado['cv_rmse_mean']:.3f}")
+    return {"version_challenger": resultado["version"], "run_id": resultado["run_id"],
+            "version_champion": int(champion.version), "lote_evaluacion": lote_evaluacion,
+            "ventana": descripcion, "cv_rmse": resultado["cv_rmse_mean"]}
+
+
+def comparar(semana: int, motivo: str) -> dict[str, Any]:
+    """Champion vs challenger en el lote etiquetado más reciente y regla de promoción.
+
+    Regla (PSet 4 §4): se promueve si el RMSE del challenger es menor que el del
+    champion en más de una desviación estándar de la CV del champion, y su
+    métrica de negocio (corridas evitadas netas) no es peor; ambos evaluados en
+    el mismo lote, que ninguno vio. Las pruebas de comportamiento (xfail) son
+    criterio de preferencia, no de bloqueo."""
+    import mlflow
+    from mlflow.tracking import MlflowClient
+
+    from src import almacen
+    from src.business_metrics import corridas_evitadas
+    from src.experiments import configure_tracking
+    from src.pipeline import model_inputs
+
+    configure_tracking()
+    client = MlflowClient()
+    lote = semana - 1
+    datos = _lotes_etiquetados(lote)
+    datos = datos[datos["lote"] == lote].reset_index(drop=True)
+    y = datos["tiempo_retencion"].to_numpy()
+    resultados = {}
+    for alias in ("champion", "challenger"):
+        mv = client.get_model_version_by_alias(MODEL_NAME, alias)
+        metricas = client.get_run(mv.run_id).data.metrics
+        modelo = mlflow.sklearn.load_model(f"models:/{MODEL_NAME}/{mv.version}")
+        pred = modelo.predict(model_inputs(datos)[0])
+        negocio = corridas_evitadas(
+            y, pred, datos["experimento_id"],
+            (metricas["pair_lower_error_quantile"], metricas["pair_upper_error_quantile"]),
+        )
+        resultados[alias] = {"version": int(mv.version), "rmse": float(np.sqrt(np.mean((pred - y) ** 2))),
+                             "negocio": float(negocio["neto"]), "cv_de": metricas["cv_rmse_std"], "run_id": mv.run_id}
+    ch, cl = resultados["champion"], resultados["challenger"]
+    margen = ch["rmse"] - cl["rmse"]
+    promueve = bool(margen > ch["cv_de"] and cl["negocio"] >= ch["negocio"])
+    explicacion = (
+        f"RMSE lote {lote}: champion v{ch['version']} {ch['rmse']:.3f} vs challenger v{cl['version']} "
+        f"{cl['rmse']:.3f} (mejora {margen:.3f}; umbral 1 DE CV = {ch['cv_de']:.3f}); "
+        f"negocio {ch['negocio']:.3f} vs {cl['negocio']:.3f} -> "
+        + ("la regla RECOMIENDA promover" if promueve else "la regla NO recomienda promover")
+    )
+    tags = client.get_run(cl["run_id"]).data.tags
+    almacen.escribir(
+        "REENTRENAMIENTOS",
+        pd.DataFrame([{
+            "ts": pd.Timestamp.now(tz="UTC"), "lote": semana, "motivo": motivo,
+            "ventana": tags.get("ventana"), "run_id": cl["run_id"],
+            "version_challenger": cl["version"], "version_champion": ch["version"],
+            "lote_evaluacion": lote, "rmse_champion": ch["rmse"], "rmse_challenger": cl["rmse"],
+            "cv_std_champion": ch["cv_de"], "negocio_champion": ch["negocio"],
+            "negocio_challenger": cl["negocio"], "regla_promueve": promueve,
+            "decision_humana": "pendiente", "motivo_decision": None, "version_champion_final": ch["version"],
+        }]),
+        borrar_donde=f"LOTE = {semana}",
+    )
+    for clave, valor in (("rmse_lote_evaluacion", cl["rmse"]), ("rmse_champion_lote_evaluacion", ch["rmse"]),
+                         ("negocio_lote_evaluacion", cl["negocio"])):
+        client.log_metric(cl["run_id"], clave, valor)
+    client.set_tag(cl["run_id"], "regla_promueve", str(promueve))
+    print(explicacion)
+    return {"promueve": promueve, "explicacion": explicacion,
+            "rmse_champion": ch["rmse"], "rmse_challenger": cl["rmse"],
+            "version_champion": ch["version"], "version_challenger": cl["version"]}
+
+
+def decidir(semana: int, aprobar: bool, motivo: str) -> dict[str, Any]:
+    """Aplica la decisión humana: si se aprueba, el alias 'champion' pasa al
+    challenger (la API lo toma sin reconstruir la imagen); si no, el champion
+    queda intacto y se registra el motivo."""
+    from mlflow.tracking import MlflowClient
+
+    from src import almacen
+    from src.experiments import configure_tracking
+
+    configure_tracking()
+    client = MlflowClient()
+    champion = client.get_model_version_by_alias(MODEL_NAME, "champion")
+    challenger = client.get_model_version_by_alias(MODEL_NAME, "challenger")
+    decision = "aprobado" if aprobar else "rechazado"
+    if aprobar:
+        client.set_registered_model_alias(MODEL_NAME, "champion", challenger.version)
+        client.set_model_version_tag(MODEL_NAME, champion.version, "estado", "champion anterior (rollback)")
+    client.delete_registered_model_alias(MODEL_NAME, "challenger")
+    client.set_model_version_tag(MODEL_NAME, challenger.version, "decision_humana", decision)
+    client.set_model_version_tag(MODEL_NAME, challenger.version, "motivo_decision", motivo)
+    client.set_tag(challenger.run_id, "decision_humana", decision)
+    client.set_tag(challenger.run_id, "motivo_decision", motivo)
+    final = int(challenger.version if aprobar else champion.version)
+    almacen.ejecutar(
+        "UPDATE REENTRENAMIENTOS SET DECISION_HUMANA = %s, MOTIVO_DECISION = %s, VERSION_CHAMPION_FINAL = %s WHERE LOTE = %s",
+        (decision, motivo, final, semana),
+    )
+    print(f"Decisión humana: {decision} ({motivo}). Champion vigente: v{final}")
+    return {"decision": decision, "version_champion": final}
+
+
+def main() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Ciclo de reentrenamiento (PSet 4 §7.2)")
+    sub = parser.add_subparsers(dest="accion", required=True)
+    for nombre in ("entrenar", "comparar"):
+        p = sub.add_parser(nombre)
+        p.add_argument("--semana", type=int, required=True)
+        p.add_argument("--motivo", required=True)
+    p = sub.add_parser("decidir")
+    p.add_argument("--semana", type=int, required=True)
+    p.add_argument("--aprobar", choices=["true", "false"], required=True)
+    p.add_argument("--motivo", default="")
+    args = parser.parse_args()
+    if args.accion == "entrenar":
+        salida = entrenar_challenger(args.semana, args.motivo)
+    elif args.accion == "comparar":
+        salida = comparar(args.semana, args.motivo)
+    else:
+        salida = decidir(args.semana, args.aprobar == "true", args.motivo)
+    print("::" + json.dumps({"outputs": salida}, default=str) + "::")
+
+
+if __name__ == "__main__":
+    main()

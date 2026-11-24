@@ -33,6 +33,12 @@ find dbt/dbt_project.yml dbt/models dbt/macros dbt/tests -type f \
   \( -name '*.sql' -o -name '*.yml' \) | sort | while read -r f; do
   upload_file "$f" "$f"
 done
+# PSet 4: código Python de simulación, monitoreo y reentrenamiento. Las tareas
+# corren en la imagen qsrr-jobs e importan src/ (misma preparación que la API).
+find src monitoreo scripts -type f \( -name '*.py' -o -name 'referencia.json' \) \
+  -not -path '*/__pycache__/*' | sort | while read -r f; do
+  upload_file "$f" "$f"
+done
 
 echo "Validando flows:"
 for flow in "${SRC}"/kestra/*.yml; do

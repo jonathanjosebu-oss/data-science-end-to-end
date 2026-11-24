@@ -1,0 +1,110 @@
+id: reentrenamiento
+namespace: qsrr.proyecto
+
+description: >-
+  Reentrenamiento con aprobación humana (PSet 4 §7.2). 1) Ventana: todo el
+  histórico + los lotes con target, con peso 10 en los recientes. 2) Misma
+  preparación (src/pipeline.py) e hiperparámetros del champion, sin tuning.
+  3) Corrida MLflow con tag fase=reentrenamiento y el motivo. 4) Nueva versión
+  con alias 'challenger'. 5) Champion y challenger se evalúan en el lote
+  etiquetado más reciente, que ninguno vio. 6) Regla de promoción (src/
+  reentrenar.py::comparar). 7) Pausa hasta que una persona apruebe o rechace.
+  8) Aprobado: 'champion' pasa al challenger (la API lo toma sin reconstruir la
+  imagen). Rechazado: el champion queda intacto y se registra el motivo.
+
+inputs:
+  - id: semana
+    type: INT
+    description: Semana en que se disparó (el lote de evaluación es semana - 1).
+  - id: motivo
+    type: STRING
+    defaults: "manual"
+
+tasks:
+  - id: entrenar_challenger
+    type: io.kestra.plugin.scripts.python.Commands
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      pullPolicy: NEVER
+      networkMode: qsrr-net
+    containerImage: qsrr-jobs:1.0
+    namespaceFiles:
+      enabled: true
+      include:
+        - src/**
+    env:
+      SNOWFLAKE_ACCOUNT: "{{ env('snowflake_account') }}"
+      SNOWFLAKE_USER: "{{ env('snowflake_user') }}"
+      SNOWFLAKE_PASSWORD: "{{ env('snowflake_password') }}"
+      SNOWFLAKE_ROLE: "{{ env('snowflake_role') }}"
+      SNOWFLAKE_WAREHOUSE: "{{ env('snowflake_warehouse') }}"
+      SNOWFLAKE_DATABASE: "{{ env('snowflake_database') }}"
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MOTIVO: "{{ inputs.motivo }}"
+
+    timeout: PT45M
+    commands:
+      - python -m src.reentrenar entrenar --semana {{ inputs.semana }} --motivo "$MOTIVO"
+
+  - id: comparar
+    type: io.kestra.plugin.scripts.python.Commands
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      pullPolicy: NEVER
+      networkMode: qsrr-net
+    containerImage: qsrr-jobs:1.0
+    namespaceFiles:
+      enabled: true
+      include:
+        - src/**
+    env:
+      SNOWFLAKE_ACCOUNT: "{{ env('snowflake_account') }}"
+      SNOWFLAKE_USER: "{{ env('snowflake_user') }}"
+      SNOWFLAKE_PASSWORD: "{{ env('snowflake_password') }}"
+      SNOWFLAKE_ROLE: "{{ env('snowflake_role') }}"
+      SNOWFLAKE_WAREHOUSE: "{{ env('snowflake_warehouse') }}"
+      SNOWFLAKE_DATABASE: "{{ env('snowflake_database') }}"
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MOTIVO: "{{ inputs.motivo }}"
+
+    commands:
+      - python -m src.reentrenar comparar --semana {{ inputs.semana }} --motivo "$MOTIVO"
+
+  - id: aprobacion
+    type: io.kestra.plugin.core.flow.Pause
+    description: >-
+      {{ outputs.comparar.vars.explicacion }}. Reanudar con aprobar=true para
+      mover el alias champion al challenger, o aprobar=false y el motivo.
+    onResume:
+      - id: aprobar
+        type: BOOL
+        description: "¿Promover el challenger a champion?"
+        defaults: false
+      - id: motivo
+        type: STRING
+        description: Motivo de la decisión (queda en MLflow y en REENTRENAMIENTOS).
+        defaults: "sin comentario"
+
+  - id: decidir
+    type: io.kestra.plugin.scripts.python.Commands
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+      pullPolicy: NEVER
+      networkMode: qsrr-net
+    containerImage: qsrr-jobs:1.0
+    namespaceFiles:
+      enabled: true
+      include:
+        - src/**
+    env:
+      SNOWFLAKE_ACCOUNT: "{{ env('snowflake_account') }}"
+      SNOWFLAKE_USER: "{{ env('snowflake_user') }}"
+      SNOWFLAKE_PASSWORD: "{{ env('snowflake_password') }}"
+      SNOWFLAKE_ROLE: "{{ env('snowflake_role') }}"
+      SNOWFLAKE_WAREHOUSE: "{{ env('snowflake_warehouse') }}"
+      SNOWFLAKE_DATABASE: "{{ env('snowflake_database') }}"
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MOTIVO: "{{ inputs.motivo }}"
+      DECISION_MOTIVO: "{{ outputs.aprobacion.onResume.motivo }}"
+    commands:
+      - python -m src.reentrenar decidir --semana {{ inputs.semana }} --aprobar {{ outputs.aprobacion.onResume.aprobar }} --motivo "$DECISION_MOTIVO"

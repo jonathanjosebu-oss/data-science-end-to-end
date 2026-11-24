@@ -1,0 +1,4 @@
+paso,hora_utc,modelo_version,modelo_run_id,prediccion_version,cafeina_min
+antes: champion = v5,00:44:19,5,372817b3,5,3.717
+rollback: alias champion -> v2,00:44:58,2,ac566f02,2,2.892
+restaurado: alias champion -> v5,00:45:38,5,372817b3,5,3.717
