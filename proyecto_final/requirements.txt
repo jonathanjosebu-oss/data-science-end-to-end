@@ -21,3 +21,6 @@ pydantic==2.10.4
 httpx==0.28.1
 requests==2.32.3
 streamlit==1.41.1
+# Documentación (scripts/construir_memo.py, construir_presentacion.py, diagramas.py, capturas.py)
+pypdf==7.1.1
+playwright==1.65.2

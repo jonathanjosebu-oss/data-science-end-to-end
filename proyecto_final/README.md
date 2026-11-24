@@ -6,7 +6,7 @@ RepoRT. Este directorio reúne los PSets 1–4 en un solo proyecto reproducible.
 Los cambios respecto a las entregas anteriores están en
 [`docs/cambios.md`](docs/cambios.md).
 
-> Estado: PSet 4. Faltan el documento técnico, la presentación y el video (`docs/`).
+> Estado: PSet 4. Documento técnico y presentación en `docs/`; falta el enlace del video.
 
 ## 0. Requisitos y configuración
 
@@ -93,6 +93,16 @@ MlflowClient().set_registered_model_alias("qsrr-predict-modelo", "champion", "2"
 **Interruptor de respaldo** (regla de negocio en lugar del modelo):
 `USAR_RESPALDO=true` en `.env` y `docker compose up -d api`, o
 `curl -X POST "localhost:8000/admin/respaldo?activo=true" -H "X-Admin-Token: $ADMIN_TOKEN"`.
+
+## Entregables (docs/)
+
+| Archivo | Cómo se genera |
+|---|---|
+| `PSet4_memo_Buenaño_Peñafiel.pdf` | `python -m scripts.construir_memo --video <URL>` desde `docs/memo_pset4.md` (anexos: memos de `historial/`, capturas y `cambios.md`) |
+| `PSet4_presentacion_Buenaño_Peñafiel.pdf` | `python -m scripts.construir_presentacion` |
+| `arquitectura.png`, `modelo_dimensional.png` | `python -m scripts.diagramas --png` |
+| `capturas/*.png` | `python -m scripts.capturas` (infraestructura arriba; `playwright` + Chrome) |
+| `*.csv` de evidencia | `python -m scripts.exportar_evidencia` |
 
 ## Pruebas
 

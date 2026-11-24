@@ -255,11 +255,29 @@ def por_grupo(col):
                          "sesgo": g.error.mean(), "tasa_revisar": g.decision.apply(lambda d: (d == "revisar_condiciones").mean()),
                          "tasa_fuera_dominio": g.fuera_de_dominio.mean()}).round(3)
 display(por_grupo("modificador")); display(por_grupo("polaridad"))"""),
+    md("""**Fabricante de la columna (generalización a otros equipos, observación 1.6 del PSet 1).** Aquí se usa el tiempo medido **sin** la deriva inducida, para aislar cuánto se transfiere el modelo entre columnas, y se compara con la composición del entrenamiento."""),
+    code("""fab = q(\"\"\"SELECT p.LOTE, p.TIPO_COLUMNA, p.FUERA_DE_DOMINIO, p.PREDICCION_MIN, m.TIEMPO_RETENCION_ORIGINAL
+            FROM PREDICCIONES p JOIN TARGETS t ON p.LOTE = t.LOTE AND p.HECHO_ID = t.HECHO_ID
+            JOIN LAB_MEDICIONES m ON m.LOTE = t.LOTE AND m.HECHO_ID = t.HECHO_ID\"\"\")
+fab["fabricante"] = fab.tipo_columna.str.split().str[0]
+fab["error"] = fab.prediccion_min - fab.tiempo_retencion_original
+rmse = lambda e: np.sqrt(np.mean(e ** 2))
+dentro = fab[~fab.fuera_de_dominio]
+from src.datos import load_snapshot
+obt, _ = load_snapshot()
+ent = obt[obt.experimento_id <= "0275"].assign(fabricante=lambda d: d.tipo_columna.str.split().str[0])
+comp = ent.groupby("fabricante").agg(filas_entrenamiento=("fabricante", "size"), experimentos_entrenamiento=("experimento_id", "nunique"))
+tabla_fab = (fab.groupby("fabricante").agg(n_produccion=("error", "size"), lotes=("lote", lambda l: sorted(l.unique())), rmse=("error", rmse))
+             .join(dentro.groupby("fabricante")["error"].agg(rmse_dentro_de_dominio=rmse)).join(comp)
+             .assign(pct_filas_entrenamiento=lambda d: 100 * d.filas_entrenamiento / len(ent))
+             .sort_values("n_produccion", ascending=False).round(3))
+display(tabla_fab)"""),
+    md("""**Lectura.** Las columnas **Waters** se transfieren bien (RMSE 1,68 min dentro del dominio): en el entrenamiento son pocas filas (11 %) pero vienen de **57 experimentos** distintos. **Agilent** es el 78 % de las filas de entrenamiento pero solo 8 experimentos, dominados por el conjunto SMRT (0186, una única columna y un único método). En producción, con otros métodos, su RMSE dentro del dominio es 5,6 min. **Lo que generaliza es la diversidad de métodos, no el volumen de filas.** Consecuencias: (1) el criterio de retirada R4 se evalúa por fabricante, (2) un piloto en un laboratorio con columnas Agilent necesita corridas locales de control antes de usar el modelo, y (3) el siguiente reentrenamiento debería ponderar por experimento y no por fila."""),
     md("""**Qué muestran los datos.**
 - **Modificador.** Antes de la deriva, los métodos con **metanol** tienen un 29 % más de error que los de acetonitrilo (RMSE 1,68 frente a 1,30 min). Con la deriva, el metanol absorbe casi todo el sesgo (-3,24 frente a -0,40 min), porque esos métodos usan menos flujo (mediana 0,35 frente a 0,60 mL/min) y el retraso inducido es 1,0/F.
 - **Polaridad.** La diferencia en error absoluto es pequeña (1,44–1,60 min), y el tercil polar es incluso el de menor RMSE. Pero esos compuestos eluyen al inicio, donde los picos están más juntos, así que el mismo error en minutos es más grave para la separación. Con la deriva, el tercil polar es el más sesgado (-2,59 min).
 
-**¿Es aceptable la diferencia?** Hoy la decisión es idéntica en todos los subgrupos (100 % "revisar"), así que nadie recibe un trato distinto por su subgrupo. La diferencia sí importa para el día en que el modelo apruebe métodos: los métodos con metanol y los analitos polares serían los primeros en sufrir una aprobación equivocada, es decir, dos analitos que coeluyen sin que nadie lo note.
+**¿Es aceptable la diferencia?** (modificador, polaridad y fabricante) Hoy la decisión es idéntica en todos los subgrupos (100 % "revisar"), así que nadie recibe un trato distinto por su subgrupo. La diferencia sí importa para el día en que el modelo apruebe métodos: los métodos con metanol y los analitos polares serían los primeros en sufrir una aprobación equivocada, es decir, dos analitos que coeluyen sin que nadie lo note.
 
 - **Para el negocio**, la diferencia es aceptable mientras se revise siempre.
 - **Para las personas afectadas** (el analista que repite la corrida y, en un laboratorio de control de calidad, quien recibe un resultado con picos mal resueltos), no lo es si el umbral se relaja de forma uniforme.

@@ -1,67 +1,96 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="570" viewBox="0 0 1200 570" role="img" aria-labelledby="title desc">
-  <title id="title">Arquitectura PSet 2</title>
-  <desc id="desc">Flujo de datos RepoRT, Kestra, Snowflake Raw, dbt Bronze Silver Gold y Spark OBT.</desc>
-  <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L0,6 L9,3 z" fill="#334155"/>
-    </marker>
-    <style>
-      .box { rx: 14; stroke-width: 2; }
-      .label { font: 700 20px MemoSans; fill: #0f172a; text-anchor: middle; }
-      .sub { font: 15px MemoSans; fill: #334155; text-anchor: middle; }
-      .arrow { stroke: #334155; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
-      .head { font: 700 28px MemoSans; fill: #0f172a; }
-      .foot { font: 15px MemoSans; fill: #475569; }
-    </style>
-  </defs>
-  <rect width="1200" height="570" fill="#f8fafc"/>
-  <text x="55" y="52" class="head">Pipeline ELT por lotes — PSet 2</text>
-
-  <rect x="45" y="150" width="170" height="110" class="box" fill="#dbeafe" stroke="#60a5fa"/>
-  <text x="130" y="190" class="label">RepoRT</text>
-  <text x="130" y="220" class="sub">TSV canónicos +</text>
-  <text x="130" y="241" class="sub">metadatos</text>
-
-  <rect x="270" y="150" width="170" height="110" class="box" fill="#ede9fe" stroke="#a78bfa"/>
-  <text x="355" y="190" class="label">Kestra</text>
-  <text x="355" y="220" class="sub">Schedule, retries,</text>
-  <text x="355" y="241" class="sub">backfill por fecha</text>
-
-  <rect x="500" y="130" width="210" height="150" class="box" fill="#e0f2fe" stroke="#38bdf8"/>
-  <text x="605" y="170" class="label">Snowflake</text>
-  <text x="605" y="203" class="sub">RAW</text>
-  <text x="605" y="230" class="sub">REPORT_INGEST_NAMED_STAGE</text>
-  <text x="605" y="255" class="sub">RAW_REPORT_DATA</text>
-
-  <rect x="770" y="92" width="180" height="88" class="box" fill="#dcfce7" stroke="#4ade80"/>
-  <text x="860" y="128" class="label">dbt Bronze</text>
-  <text x="860" y="153" class="sub">BRONZE schema</text>
-
-  <rect x="770" y="205" width="180" height="88" class="box" fill="#d1fae5" stroke="#34d399"/>
-  <text x="860" y="241" class="label">dbt Silver</text>
-  <text x="860" y="266" class="sub">SILVER schema</text>
-
-  <rect x="770" y="318" width="180" height="100" class="box" fill="#bbf7d0" stroke="#22c55e"/>
-  <text x="860" y="355" class="label">dbt Gold</text>
-  <text x="860" y="381" class="sub">GOLD fact + dims</text>
-  <text x="860" y="402" class="sub">44/44 acciones PASS</text>
-
-  <rect x="1010" y="318" width="160" height="100" class="box" fill="#ffedd5" stroke="#fb923c"/>
-  <text x="1090" y="355" class="label">Spark</text>
-  <text x="1090" y="381" class="sub">join Gold</text>
-  <text x="1090" y="402" class="sub">Snowflake connector</text>
-
-  <rect x="1010" y="450" width="160" height="72" class="box" fill="#fef3c7" stroke="#f59e0b"/>
-  <text x="1090" y="482" class="label">OBT</text>
-  <text x="1090" y="506" class="sub">GOLD.OBT_QSRR_FINAL</text>
-
-  <path d="M215 205 H265" class="arrow"/>
-  <path d="M440 205 H495" class="arrow"/>
-  <path d="M710 180 C735 180 738 136 765 136" class="arrow"/>
-  <path d="M860 180 V200" class="arrow"/>
-  <path d="M860 293 V313" class="arrow"/>
-  <path d="M950 368 H1005" class="arrow"/>
-  <path d="M1090 418 V445" class="arrow"/>
-
-  <text x="50" y="540" class="foot">Docker Compose levanta Kestra e importa flows y scripts; Kestra lanza dbt y Spark en contenedores. Los datos viven en Snowflake.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="780" viewBox="0 0 1400 780" font-family="Times New Roman, Times, serif" role="img">
+<title>Arquitectura end-to-end QSRR-Predict</title>
+<defs><marker id="punta" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+<path d="M0,0 L10,4 L0,8 z" fill="#52514e"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="700" y="34" text-anchor="middle" font-size="22" font-weight="bold" fill="#c62828">QSRR-Predict · arquitectura end-to-end</text>
+<text x="30" y="70" font-size="16" font-weight="bold" fill="#c62828">1 · Datos (PSet 2) — orquestado por Kestra, almacenado en Snowflake</text><line x1="30" y1="78" x2="1370" y2="78" stroke="#e6e5e0" stroke-width="1"/>
+<rect x="30" y="95" width="160" height="82" rx="8" fill="#eaf2fc" stroke="#2a78d6" stroke-width="1.6"/>
+<text x="110.0" y="117" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f1f1f">RepoRT</text>
+<text x="110.0" y="137" text-anchor="middle" font-size="12.5" fill="#52514e">GitHub, TSV por</text>
+<text x="110.0" y="153" text-anchor="middle" font-size="12.5" fill="#52514e">experimento</text>
+<rect x="225" y="95" width="190" height="82" rx="8" fill="#eaf2fc" stroke="#2a78d6" stroke-width="1.6"/>
+<text x="320.0" y="117" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f1f1f">Kestra: ingesta</text>
+<text x="320.0" y="137" text-anchor="middle" font-size="12.5" fill="#52514e">backfill por snapshot,</text>
+<text x="320.0" y="153" text-anchor="middle" font-size="12.5" fill="#52514e">retries, commit fuente</text>
+<rect x="450" y="95" width="170" height="82" rx="8" fill="#eaf2fc" stroke="#2a78d6" stroke-width="1.6"/>
+<text x="535.0" y="117" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f1f1f">Snowflake RAW</text>
+<text x="535.0" y="137" text-anchor="middle" font-size="12.5" fill="#52514e">RAW_REPORT_DATA</text>
+<text x="535.0" y="153" text-anchor="middle" font-size="12.5" fill="#52514e">partición por fecha</text>
+<rect x="655" y="95" width="290" height="82" rx="8" fill="#eaf2fc" stroke="#2a78d6" stroke-width="1.6"/>
+<text x="800.0" y="117" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f1f1f">dbt: Bronze → Silver → Gold</text>
+<text x="800.0" y="137" text-anchor="middle" font-size="12.5" fill="#52514e">limpieza auditable, 46 pruebas;</text>
+<text x="800.0" y="153" text-anchor="middle" font-size="12.5" fill="#52514e">estrella con dim_metodo</text>
+<rect x="980" y="95" width="200" height="82" rx="8" fill="#eaf2fc" stroke="#2a78d6" stroke-width="1.6"/>
+<text x="1080.0" y="117" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f1f1f">Spark: OBT</text>
+<text x="1080.0" y="137" text-anchor="middle" font-size="12.5" fill="#52514e">OBT_QSRR_FINAL</text>
+<text x="1080.0" y="153" text-anchor="middle" font-size="12.5" fill="#52514e">grano experimento × compuesto</text>
+<path d="M 190 136 L 225 136" fill="none" stroke="#52514e" stroke-width="1.6" marker-end="url(#punta)"/>
+<path d="M 415 136 L 450 136" fill="none" stroke="#52514e" stroke-width="1.6" marker-end="url(#punta)"/>
+<path d="M 620 136 L 655 136" fill="none" stroke="#52514e" stroke-width="1.6" marker-end="url(#punta)"/>
+<path d="M 945 136 L 980 136" fill="none" stroke="#52514e" stroke-width="1.6" marker-end="url(#punta)"/>
+<text x="30" y="232" font-size="16" font-weight="bold" fill="#c62828">2 · Modelo (PSet 3) — experimentación y registro</text><line x1="30" y1="240" x2="1370" y2="240" stroke="#e6e5e0" stroke-width="1"/>
+<rect x="30" y="257" width="230" height="82" rx="8" fill="#fdeee7" stroke="#eb6834" stroke-width="1.6"/>
+<text x="145.0" y="279" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f1f1f">EDA y experimentos</text>
+<text x="145.0" y="299" text-anchor="middle" font-size="12.5" fill="#52514e">notebooks 01–05, split por</text>
+<text x="145.0" y="315" text-anchor="middle" font-size="12.5" fill="#52514e">experimento, GroupKFold</text>
+<rect x="295" y="257" width="230" height="82" rx="8" fill="#fdeee7" stroke="#eb6834" stroke-width="1.6"/>
+<text x="410.0" y="279" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f1f1f">src/pipeline.py</text>
+<text x="410.0" y="299" text-anchor="middle" font-size="12.5" fill="#52514e">28 features RDKit + método;</text>
+<text x="410.0" y="315" text-anchor="middle" font-size="12.5" fill="#52514e">HistGradientBoosting</text>
+<rect x="560" y="257" width="190" height="82" rx="8" fill="#fdeee7" stroke="#eb6834" stroke-width="1.6"/>
+<text x="655.0" y="279" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f1f1f">MLflow Tracking</text>
+<text x="655.0" y="299" text-anchor="middle" font-size="12.5" fill="#52514e">corridas, métricas, tags</text>
+<text x="655.0" y="315" text-anchor="middle" font-size="12.5" fill="#52514e">de linaje (OBT, Gold)</text>
+<rect x="785" y="257" width="250" height="82" rx="8" fill="#fdeee7" stroke="#eb6834" stroke-width="1.6"/>
+<text x="910.0" y="279" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f1f1f">Model Registry</text>
+<text x="910.0" y="299" text-anchor="middle" font-size="12.5" fill="#52514e">qsrr-predict-modelo</text>
+<text x="910.0" y="315" text-anchor="middle" font-size="12.5" fill="#52514e">alias @champion / @challenger</text>
+<path d="M 1080 177 L 1080 210 L 14 210 L 14 298 L 30 298" fill="none" stroke="#52514e" stroke-width="1.6" marker-end="url(#punta)"/>
+<text x="620" y="204" text-anchor="middle" font-size="12" font-style="italic" fill="#52514e">OBT (snapshot con SHA-256)</text>
+<path d="M 260 298 L 295 298" fill="none" stroke="#52514e" stroke-width="1.6" marker-end="url(#punta)"/>
+<path d="M 525 298 L 560 298" fill="none" stroke="#52514e" stroke-width="1.6" marker-end="url(#punta)"/>
+<path d="M 750 298 L 785 298" fill="none" stroke="#52514e" stroke-width="1.6" marker-end="url(#punta)"/>
+<text x="30" y="410" font-size="16" font-weight="bold" fill="#c62828">3 · Operación (PSet 4)</text><line x1="30" y1="418" x2="1370" y2="418" stroke="#e6e5e0" stroke-width="1"/>
+<rect x="30" y="435" width="200" height="82" rx="8" fill="#e8f6f0" stroke="#1a8f63" stroke-width="1.6"/>
+<text x="130.0" y="457" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f1f1f">GitHub Actions</text>
+<text x="130.0" y="477" text-anchor="middle" font-size="12.5" fill="#52514e">ci.yml: pytest + imagen</text>
+<text x="130.0" y="493" text-anchor="middle" font-size="12.5" fill="#52514e">cd.yml: imagen a GHCR</text>
+<rect x="265" y="435" width="210" height="82" rx="8" fill="#e8f6f0" stroke="#1a8f63" stroke-width="1.6"/>
+<text x="370.0" y="457" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f1f1f">API FastAPI (Docker)</text>
+<text x="370.0" y="477" text-anchor="middle" font-size="12.5" fill="#52514e">/salud /modelo /predecir</text>
+<text x="370.0" y="493" text-anchor="middle" font-size="12.5" fill="#52514e">respaldo + interruptor</text>
+<rect x="510" y="435" width="220" height="82" rx="8" fill="#e8f6f0" stroke="#1a8f63" stroke-width="1.6"/>
+<text x="620.0" y="457" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f1f1f">Kestra: produccion_lotes</text>
+<text x="620.0" y="477" text-anchor="middle" font-size="12.5" fill="#52514e">10 lotes → POST /predecir;</text>
+<text x="620.0" y="493" text-anchor="middle" font-size="12.5" fill="#52514e">target llega 1 semana después</text>
+<rect x="765" y="435" width="240" height="82" rx="8" fill="#e8f6f0" stroke="#1a8f63" stroke-width="1.6"/>
+<text x="885.0" y="457" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f1f1f">Snowflake PRODUCCION</text>
+<text x="885.0" y="477" text-anchor="middle" font-size="12.5" fill="#52514e">PREDICCIONES · TARGETS</text>
+<text x="885.0" y="493" text-anchor="middle" font-size="12.5" fill="#52514e">MONITOREO · ALERTAS</text>
+<rect x="1040" y="435" width="200" height="82" rx="8" fill="#e8f6f0" stroke="#1a8f63" stroke-width="1.6"/>
+<text x="1140.0" y="457" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f1f1f">Tablero Streamlit</text>
+<text x="1140.0" y="477" text-anchor="middle" font-size="12.5" fill="#52514e">sistema, modelo, deriva;</text>
+<text x="1140.0" y="493" text-anchor="middle" font-size="12.5" fill="#52514e">alertas y reentrenamientos</text>
+<rect x="765" y="600" width="240" height="82" rx="8" fill="#e8f6f0" stroke="#1a8f63" stroke-width="1.6"/>
+<text x="885.0" y="622" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f1f1f">Kestra: monitoreo</text>
+<text x="885.0" y="642" text-anchor="middle" font-size="12.5" fill="#52514e">PSI calibrado + KS / chi²,</text>
+<text x="885.0" y="658" text-anchor="middle" font-size="12.5" fill="#52514e">RMSE y sesgo por lote</text>
+<rect x="1040" y="600" width="300" height="82" rx="8" fill="#fdecec" stroke="#c62828" stroke-width="1.6"/>
+<text x="1190.0" y="622" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f1f1f">Kestra: reentrenamiento</text>
+<text x="1190.0" y="642" text-anchor="middle" font-size="12.5" fill="#52514e">disparo: caída en 2 lotes seguidos;</text>
+<text x="1190.0" y="658" text-anchor="middle" font-size="12.5" fill="#52514e">challenger, regla, PAUSA humana</text>
+<path d="M 230 476 L 265 476" fill="none" stroke="#52514e" stroke-width="1.6" marker-end="url(#punta)"/>
+<path d="M 510 476 L 475 476" fill="none" stroke="#52514e" stroke-width="1.6" marker-end="url(#punta)"/>
+<path d="M 730 476 L 765 476" fill="none" stroke="#52514e" stroke-width="1.6" marker-end="url(#punta)"/>
+<path d="M 1005 476 L 1040 476" fill="none" stroke="#52514e" stroke-width="1.6" marker-end="url(#punta)"/>
+<path d="M 885 517 L 885 600" fill="none" stroke="#52514e" stroke-width="1.6" marker-end="url(#punta)"/>
+<text x="893" y="563" text-anchor="start" font-size="12" font-style="italic" fill="#52514e">cada semana</text>
+<path d="M 1005 641 L 1040 641" fill="none" stroke="#52514e" stroke-width="1.6" marker-end="url(#punta)"/>
+<path d="M 1300 600 L 1300 298 L 1035 298" fill="none" stroke="#52514e" stroke-width="1.6" marker-end="url(#punta)"/>
+<text x="1292" y="572" text-anchor="end" font-size="12" font-style="italic" fill="#52514e">aprobado: mueve @champion</text>
+<path d="M 910 339 L 910 395 L 430 395 L 430 435" fill="none" stroke="#52514e" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#punta)"/>
+<text x="670" y="389" text-anchor="middle" font-size="12" font-style="italic" fill="#52514e">carga models:/…@champion (TTL 30 s, sin reconstruir la imagen)</text>
+<text x="30" y="740" font-size="12.5" fill="#52514e">Trazabilidad: cada fila de PREDICCIONES guarda versión y run_id; la corrida de MLflow guarda el snapshot de la OBT, su SHA-256, el commit de RepoRT y las tablas Gold.</text>
+<text x="30" y="760" font-size="12.5" fill="#52514e">El código se despliega solo (CD); el modelo cambia únicamente cuando una persona aprueba el challenger en la pausa de Kestra.</text>
 </svg>
