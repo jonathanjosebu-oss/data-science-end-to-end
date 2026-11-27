@@ -222,6 +222,8 @@ def construir() -> int:
     # 9 · Riesgos
     d.nueva("Qué riesgos quedan y cómo se vigilan", "Cada riesgo tiene una señal medible, un umbral y una respuesta definida de antemano")
     d.tabla([["Riesgo", "Cómo lo vemos", "Qué pasa si ocurre"],
+             ["La alerta de picos solapados todavía no los distingue bien (error de 2 a 3 min; se necesitan 0,5)",
+              "Métodos aprobados y aciertos de la alerta por semana", "No se usa para saltarse la prueba, solo para ordenar los picos."],
              ["Columnas o laboratorios distintos a los conocidos (con columnas Agilent el error fue 3 veces mayor)",
               "Error por fabricante y aviso cuando el método está fuera de lo conocido", "El sistema marca \"revisar\" y esos métodos entran en la siguiente actualización."],
              ["Cambio de equipo o de condiciones (como el de la semana 6)", "Desfase sistemático de los picos durante 2 semanas",

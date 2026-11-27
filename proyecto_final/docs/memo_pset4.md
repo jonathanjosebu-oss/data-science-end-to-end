@@ -87,7 +87,7 @@ RepoRT es un repositorio que se actualiza, no una fuente de eventos, así que un
 - un corte temporal por experimento, que separa el entrenamiento de la producción;
 - dentro del entrenamiento, `GroupKFold(5)` por compuesto.
 
-La regla de promoción y el monitoreo usan la desviación estándar de esa CV.
+La regla de promoción y el monitoreo usan la desviación estándar de esa CV. Los lotes de producción hacen de conjunto reservado: solo se usan para comparar champion y challenger, no para elegir entre candidatos ni para el benchmark con Gemini, que no se repitió (obs. 3.1).
 
 | Modelo (PSet 3, CV agrupada) | RMSE CV (min) | Comentario |
 |---|---|---|
@@ -97,7 +97,7 @@ La regla de promoción y el monitoreo usan la desviación estándar de esa CV.
 | Random Forest (tuning) | 2,57 ± 0,21 | Challenger del PSet 3 |
 | **HistGradientBoosting (tuning)** | **2,59 ± 0,25** | Champion: igual al RF en CV, pero mejor en holdout, 0,7 MB frente a 159 MB |
 
-**Tuning.** Búsqueda aleatoria de 30 configuraciones por familia con el mismo GroupKFold. La mejora frente a la configuración por defecto (0,01–0,11 min) quedó por debajo de la variación entre pliegues, así que no fue concluyente. En el PSet 4 **no se repitió el tuning**: se reentrenó con los hiperparámetros del champion del PSet 3 (learning_rate 0,18; 200 iteraciones; 31 hojas; L2 4,94).
+**Tuning.** Búsqueda aleatoria de 30 configuraciones por familia con el mismo GroupKFold. La mejora frente a la configuración por defecto (0,01–0,11 min) quedó por debajo de la variación entre pliegues, así que no fue concluyente. En el PSet 4 **no se repitió el tuning**: se reentrenó con los hiperparámetros del champion del PSet 3 (learning_rate 0,18; 200 iteraciones; 31 hojas; L2 4,94). Las 90 corridas hijas del tuning no guardan el modelo, solo los parámetros, la semilla, el SHA de los datos y el commit (obs. 3.2). Con eso basta para reconstruirlas: `scripts/reproducir_corrida.py` reentrena la v2 desde MLflow y la reproduce con predicciones idénticas (diferencia máxima 0 min).
 
 **Modelo ganador.**
 
@@ -287,7 +287,8 @@ Mientras el modelo no apruebe métodos, el analista usa el **orden de elución**
 - El orden por `EXPERIMENTO_ID` no es un tiempo real.
 - Los lotes de un solo laboratorio mezclan deriva con cambio de laboratorio.
 - La regla de promoción decide con un solo lote.
-- Las corridas del PSet 3 quedaron en el Codespace: `corridas.csv` solo tiene las 5 del registro local.
+- Las corridas del PSet 3 quedaron en el Codespace (`corridas.csv` solo tiene las del registro local) y sus corridas hijas no guardan el modelo.
+- Con un RMSE de 2,2–3,4 min la alerta todavía no discrimina los pares que coeluyen: el intervalo es de ±8 min y el analista necesita 0,5 min. Hoy su utilidad se limita al orden de elución (obs. 3.3).
 - Las dos pruebas de física (flujo y series homólogas) siguen como defectos conocidos.
 
 **Qué haría primero.**

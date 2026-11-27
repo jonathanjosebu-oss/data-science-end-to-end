@@ -1,4 +1,12 @@
-"""Run a target-blind, 50-compound Gemini benchmark against MLflow models."""
+"""Run a target-blind, 50-compound Gemini benchmark against MLflow models.
+
+Historial del PSet 3, no se usa en el PSet 4. Observación del profesor (3.1):
+la muestra salió del hold-out, que debe reservarse solo para el champion y el
+challenger. El hold-out aleatorio (data/holdout_split.csv) ya no existe: en el
+PSet 4 el conjunto reservado son los lotes de producción. Si se repite, la
+muestra debe salir de un pliegue de la CV del entrenamiento y compararse con
+las predicciones fuera de pliegue del champion. Ver docs/cambios.md.
+"""
 
 from __future__ import annotations
 
