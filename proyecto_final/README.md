@@ -6,7 +6,8 @@ RepoRT. Este directorio reúne los PSets 1–4 en un solo proyecto reproducible.
 Los cambios respecto a las entregas anteriores están en
 [`docs/cambios.md`](docs/cambios.md).
 
-> Estado: PSet 4. Documento técnico y presentación en `docs/`; falta el enlace del video.
+> Estado: PSet 4. Documento técnico y presentación en `docs/`. Video de la
+> demostración: <https://www.youtube.com/watch?v=skNClUvKuNw>.
 
 ## 0. Requisitos y configuración
 
